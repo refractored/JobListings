@@ -1,0 +1,8 @@
+#
+# JobListings
+# by refractored
+#
+Database:
+  URL: "jdbc:mysql://localhost:3306/database"
+  Username: "username"
+  Password: "password"
