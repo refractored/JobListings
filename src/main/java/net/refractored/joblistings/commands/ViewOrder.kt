@@ -2,8 +2,6 @@ package net.refractored.joblistings.commands
 
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -15,9 +13,9 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
 import net.refractored.joblistings.JobListings.Companion.eco
+import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
-import java.util.*
 
 
 class ViewOrder {
@@ -27,8 +25,7 @@ class ViewOrder {
     fun ViewOrder(actor: BukkitCommandActor) {
         val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId)).firstOrNull() ?:
             throw CommandErrorException("You do not have an order to view.")
-
-        val gui: SGMenu = JobListings.spiGUI.create("Your Order", 3)
+        val gui: SGMenu = spiGUI.create("Your Order", 3)
         val item = ItemstackSerializers.deserialize(order.item)!!.clone()
         val itemMetaCopy = item.itemMeta
         val infoLore = listOf(
@@ -39,9 +36,9 @@ class ViewOrder {
         )
 
         if (itemMetaCopy.hasLore()) {
-            val itemlore = itemMetaCopy.lore()!!
-            itemlore.addAll(infoLore)
-            itemMetaCopy.lore(itemlore)
+            val itemLore = itemMetaCopy.lore()!!
+            itemLore.addAll(infoLore)
+            itemMetaCopy.lore(itemLore)
         } else {
             itemMetaCopy.lore(infoLore)
         }
