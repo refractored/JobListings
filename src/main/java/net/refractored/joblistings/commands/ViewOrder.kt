@@ -2,8 +2,6 @@ package net.refractored.joblistings.commands
 
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -17,7 +15,6 @@ import revxrsal.commands.exception.CommandErrorException
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
-import java.util.*
 
 
 class ViewOrder {
@@ -25,6 +22,10 @@ class ViewOrder {
     @Description("Views order ingame")
     @Command("joblistings order view")
     fun ViewOrder(actor: BukkitCommandActor) {
+        if (actor.isConsole) {
+            throw CommandErrorException("You must be a player to use this command.")
+        }
+
         val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId)).firstOrNull() ?:
             throw CommandErrorException("You do not have an order to view.")
 
@@ -33,15 +34,15 @@ class ViewOrder {
         val itemMetaCopy = item.itemMeta
         val infoLore = listOf(
             MessageUtil.toComponent(""),
-            MessageUtil.toComponent("<red>Cost: <white>${order.cost}"),
-            MessageUtil.toComponent("<red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-            MessageUtil.toComponent("<red>Created: <white>${order.timeCreated}"),
+            MessageUtil.toComponent("<reset><red>Cost: <white>${order.cost}"),
+            MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
+            MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated}"),
         )
 
         if (itemMetaCopy.hasLore()) {
-            val itemlore = itemMetaCopy.lore()!!
-            itemlore.addAll(infoLore)
-            itemMetaCopy.lore(itemlore)
+            val itemLore = itemMetaCopy.lore()!!
+            itemLore.addAll(infoLore)
+            itemMetaCopy.lore(itemLore)
         } else {
             itemMetaCopy.lore(infoLore)
         }

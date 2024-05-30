@@ -24,6 +24,9 @@ class CreateOrder {
     @Description("Create a new order.")
     @Command("joblistings order create")
     fun CreateOrder(actor: BukkitCommandActor, cost: Double) {
+        if (actor.isConsole) {
+            throw CommandErrorException("You must be a player to use this command.")
+        }
 
         if (cost < 1) {
             throw CommandErrorException("Cost must be at least 1.")
