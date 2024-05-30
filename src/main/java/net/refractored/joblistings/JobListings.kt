@@ -1,6 +1,7 @@
 package net.refractored.joblistings
 
 import com.samjakob.spigui.SpiGUI
+import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.CreateOrder
 import net.refractored.joblistings.commands.ViewOrder
 import net.refractored.joblistings.database.Database
@@ -40,13 +41,11 @@ class JobListings : JavaPlugin() {
         // Initialize the database
         Database.init()
 
-//        handler.autoCompleter.registerParameterSuggestions(Card::class.java, "cards")
-
-        // Register Listeners
-
-        // Register Cards
-
-
+        if (!setupEconomy()) {
+            logger.warning("Economy plugin not found! Disabling plugin.")
+            server.pluginManager.disablePlugin(this)
+            return
+        }
 
         // Create command handler
         handler = BukkitCommandHandler.create(this)
@@ -72,7 +71,23 @@ class JobListings : JavaPlugin() {
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
     }
 
+    private fun setupEconomy(): Boolean {
+        val rsp = server.servicesManager.getRegistration(Economy::class.java)
+        if (rsp == null) {
+            logger.warning("Economy service is not registered! Make sure an economy plugin is installed.")
+            return false
+        }
+
+        eco = rsp.provider
+        return true
+    }
+
     companion object {
+
+        /**
+         * Economy Provider
+         */
+        lateinit var eco: Economy
 
         /**
          * The plugin's instance

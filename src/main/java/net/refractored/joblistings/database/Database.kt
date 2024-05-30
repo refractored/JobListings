@@ -42,6 +42,8 @@ class Database {
             )
 
             orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
+
+            TableUtils.createTableIfNotExists(connectionSource, Order::class.java)
         }
     }
 }

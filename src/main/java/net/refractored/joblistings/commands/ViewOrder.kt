@@ -1,49 +1,65 @@
 package net.refractored.joblistings.commands
 
 import com.samjakob.spigui.buttons.SGButton
-import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
-import org.bukkit.Material
+import net.refractored.joblistings.serializers.ItemstackSerializers
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.ItemStack
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
+import net.refractored.joblistings.JobListings.Companion.eco
+import net.refractored.joblistings.util.MessageUtil
+import org.bukkit.Bukkit
+import java.util.*
 
 
 class ViewOrder {
     @CommandPermission("joblistings.order.create")
     @Description("Views order ingame")
-    @Command("joblistings order create")
-    fun ViewOrder(actor: BukkitCommandActor, cost: Double) {
+    @Command("joblistings order view")
+    fun ViewOrder(actor: BukkitCommandActor) {
         val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId)).firstOrNull() ?:
             throw CommandErrorException("You do not have an order to view.")
 
-        // Create a GUI with 3 rows (27 slots)
-        val myAwesomeMenu: SGMenu = JobListings.spiGUI.create(":3", 3)
-        ItemStack.deserialize(order.item!!)
+        val gui: SGMenu = JobListings.spiGUI.create("Your Order", 3)
+        val item = ItemstackSerializers.deserialize(order.item)!!.clone()
+        val itemMetaCopy = item.itemMeta
+        val infoLore = listOf(
+            MessageUtil.toComponent(""),
+            MessageUtil.toComponent("<red>Cost: <white>${order.cost}"),
+            MessageUtil.toComponent("<red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
+            MessageUtil.toComponent("<red>Created: <white>${order.timeCreated}"),
+        )
 
-        // Create a button
-        val myAwesomeButton = SGButton( // Includes an ItemBuilder class with chainable methods to easily
-            order.item
-        ).withListener { event: InventoryClickEvent ->
-            // Events are cancelled automatically, unless you turn it off
-            // for your plugin or for this inventory.
-            event.whoClicked.sendMessage("Hello, world!")
+        if (itemMetaCopy.hasLore()) {
+            val itemlore = itemMetaCopy.lore()!!
+            itemlore.addAll(infoLore)
+            itemMetaCopy.lore(itemlore)
+        } else {
+            itemMetaCopy.lore(infoLore)
         }
 
+        item.itemMeta = itemMetaCopy
 
-        // Add the button to your GUI
-        myAwesomeMenu.addButton(myAwesomeButton)
+        val button = SGButton(
+            item
+        ).withListener { event: InventoryClickEvent ->
+            event.whoClicked.sendMessage("Order Deleted & Refunded!")
+            Database.orderDao.delete(order)
+            eco.depositPlayer(actor.player, order.cost)
+            event.whoClicked.closeInventory()
+        }
 
+        gui.setButton(13, button)
 
-        // Show the GUI
-        actor.player.openInventory(myAwesomeMenu.inventory)
+        actor.player.openInventory(gui.inventory)
 
     }
 }
