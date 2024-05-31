@@ -23,9 +23,13 @@ class CreateOrder {
     @CommandPermission("joblistings.order.create")
     @Description("Create a new order.")
     @Command("joblistings create")
-    fun CreateOrder(actor: BukkitCommandActor, cost: Double) {
+    fun CreateOrder(actor: BukkitCommandActor, cost: Double, amount: Int) {
         if (actor.isConsole) {
             throw CommandErrorException("You must be a player to use this command.")
+        }
+
+        if (amount < 1) {
+            throw CommandErrorException("Amount must be at least 1.")
         }
 
         if (cost < 1) {
@@ -43,6 +47,10 @@ class CreateOrder {
         }
 
         val item = actor.player.inventory.itemInMainHand.clone()
+
+        if (amount > item.maxStackSize) {
+            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
+        }
 
         if (item.type == Material.AIR) {
             throw CommandErrorException("You must be holding an item to create an order.")
