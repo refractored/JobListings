@@ -53,7 +53,7 @@ class AllOrders {
             }
 
             gui.setOnPageChange { inventory ->
-                if (gui.getButton(10 + (inventory.currentPage * 45)) == null) {
+                if (gui.getButton(44 + (inventory.currentPage * 45)) == null) {
                     loadItems(inventory, actor)
                 }
             }
