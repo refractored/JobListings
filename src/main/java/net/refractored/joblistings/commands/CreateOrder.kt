@@ -22,7 +22,7 @@ class CreateOrder {
 
     @CommandPermission("joblistings.order.create")
     @Description("Create a new order.")
-    @Command("joblistings order create")
+    @Command("joblistings create")
     fun CreateOrder(actor: BukkitCommandActor, cost: Double) {
 
         if (cost < 1) {

@@ -19,9 +19,9 @@ import org.bukkit.Bukkit
 
 
 class ViewOrder {
-    @CommandPermission("joblistings.order.create")
-    @Description("Views order ingame")
-    @Command("joblistings order view")
+    @CommandPermission("joblistings.order.view")
+    @Description("View your order.")
+    @Command("joblistings view")
     fun ViewOrder(actor: BukkitCommandActor) {
         val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId)).firstOrNull() ?:
             throw CommandErrorException("You do not have an order to view.")
@@ -30,9 +30,11 @@ class ViewOrder {
         val itemMetaCopy = item.itemMeta
         val infoLore = listOf(
             MessageUtil.toComponent(""),
-            MessageUtil.toComponent("<red>Cost: <white>${order.cost}"),
-            MessageUtil.toComponent("<red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-            MessageUtil.toComponent("<red>Created: <white>${order.timeCreated}"),
+            MessageUtil.toComponent("<reset><red>Cost: <white>${order.cost}"),
+            MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
+            MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated}"),
+            MessageUtil.toComponent(""),
+            MessageUtil.toComponent("<reset><gray>(Click to cancel order)"),
         )
 
         if (itemMetaCopy.hasLore()) {
