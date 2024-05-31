@@ -44,12 +44,12 @@ class CreateOrderMaterial {
 
         val item = ItemBuilder(material).amount(amount).build()
 
-        if (amount > item.maxStackSize) {
-            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
-        }
-
         if (item.type == Material.AIR) {
             throw CommandErrorException("Item cannot be air.")
+        }
+
+        if (amount > item.maxStackSize) {
+            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
         }
 
         if (item.itemMeta is Damageable) {

@@ -44,12 +44,12 @@ class CreateOrderHand {
 
         val item = actor.player.inventory.itemInMainHand.clone()
 
-        if (amount > item.maxStackSize) {
-            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
-        }
-
         if (item.type == Material.AIR) {
             throw CommandErrorException("You must be holding an item to create an order.")
+        }
+
+        if (amount > item.maxStackSize) {
+            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
         }
 
         if (item.itemMeta is Damageable) {

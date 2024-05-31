@@ -109,6 +109,7 @@ class MyOrders {
                         infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
                     }
                 }
+
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
                     itemLore.addAll(infoLore)
