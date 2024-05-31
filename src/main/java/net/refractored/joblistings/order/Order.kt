@@ -1,7 +1,5 @@
 package net.refractored.joblistings.order
 
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
 import com.j256.ormlite.field.DataType
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
@@ -10,7 +8,6 @@ import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import org.bukkit.Material
-import org.bukkit.inventory.ItemStack
 import java.util.*
 
 /**
@@ -52,11 +49,43 @@ data class Order(
          * @param offset Starting point for the current page
          * @return List of newest orders for the current page
          */
-        fun getOrdersPage(limit: Int, offset: Int): List<Order> {
+        fun getOrders(limit: Int, offset: Int): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.orderBy("timeCreated", false)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
+            return orderDao.query(queryBuilder.prepare())
+        }
+
+        /**
+         * Get a specific page of a player's created orders from the database
+         * @param limit Number of orders per page
+         * @param offset Starting point for the current page
+         * @param playerUUID Player UUID to get orders for
+         * @return List of newest orders for the current page
+         */
+        fun getPlayerCreatedOrders(limit: Int, offset: Int, playerUUID: UUID): List<Order> {
+            val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+            queryBuilder.orderBy("timeCreated", false)
+            queryBuilder.limit(limit.toLong())
+            queryBuilder.offset(offset.toLong())
+            queryBuilder.where().eq("user", playerUUID)
+            return orderDao.query(queryBuilder.prepare())
+        }
+
+        /**
+         * Get a specific page of a player's accepted orders from the database
+         * @param limit Number of orders per page
+         * @param offset Starting point for the current page
+         * @param playerUUID Player UUID to get orders for
+         * @return List of newest orders for the current page
+         */
+        fun getPlayerAcceptedOrders(limit: Int, offset: Int, playerUUID: UUID): List<Order> {
+            val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+            queryBuilder.orderBy("timeCreated", false)
+            queryBuilder.limit(limit.toLong())
+            queryBuilder.offset(offset.toLong())
+            queryBuilder.where().eq("asignee", playerUUID)
             return orderDao.query(queryBuilder.prepare())
         }
     }

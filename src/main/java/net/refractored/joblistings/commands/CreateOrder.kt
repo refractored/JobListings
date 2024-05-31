@@ -20,9 +20,9 @@ import javax.xml.crypto.Data
 
 class CreateOrder {
 
-    @CommandPermission("joblistings.order.create")
+    @CommandPermission("joblistings.order.create.hand")
     @Description("Create a new order.")
-    @Command("joblistings create")
+    @Command("joblistings create hand")
     fun CreateOrder(actor: BukkitCommandActor, cost: Double, amount: Int) {
         if (actor.isConsole) {
             throw CommandErrorException("You must be a player to use this command.")
@@ -42,9 +42,9 @@ class CreateOrder {
 
         val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId)).firstOrNull()
 
-        if (order != null) {
-            throw CommandErrorException("You already have an order.")
-        }
+//        if (order != null) {
+//            throw CommandErrorException("You already have an order.")
+//        }
 
         val item = actor.player.inventory.itemInMainHand.clone()
 
