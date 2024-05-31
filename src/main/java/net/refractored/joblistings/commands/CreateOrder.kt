@@ -1,7 +1,5 @@
 package net.refractored.joblistings.commands
 
-import net.kyori.adventure.text.Component
-import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
@@ -11,12 +9,10 @@ import org.bukkit.Material
 import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
-import revxrsal.commands.annotation.Subcommand
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
-import javax.xml.crypto.Data
 
 class CreateOrder {
 
@@ -69,10 +65,11 @@ class CreateOrder {
                 id = java.util.UUID.randomUUID(),
                 cost = cost,
                 user = actor.uniqueId,
-                timeCreated = java.util.Date(),
                 assignee = null,
-                item = ItemstackSerializers.serialize(item),
+                timeCreated = java.util.Date(),
                 status = OrderStatus.PENDING,
+                item = ItemstackSerializers.serialize(item),
+                false,
             )
         )
 

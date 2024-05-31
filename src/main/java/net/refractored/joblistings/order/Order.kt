@@ -34,13 +34,25 @@ data class Order(
     var status: OrderStatus,
 
     @DatabaseField(dataType = DataType.LONG_STRING)
-    var item: String
+    var item: String,
+
+    @DatabaseField
+    val userClaimed: Boolean
 
 ) {
     /**
      * This constructor should only be used for ORMLite
      */
-    constructor() : this(UUID.randomUUID(), 0.0, UUID.randomUUID(), null, java.util.Date(), OrderStatus.PENDING, ItemstackSerializers.serialize(ItemBuilder(Material.STONE).build()))
+    constructor() : this(
+        UUID.randomUUID(),
+        0.0,
+        UUID.randomUUID(),
+        null,
+        Date(),
+        OrderStatus.PENDING,
+        ItemstackSerializers.serialize(ItemBuilder(Material.STONE).build()),
+        false,
+    )
 
     companion object{
         /**

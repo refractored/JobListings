@@ -3,9 +3,11 @@ package net.refractored.joblistings.gui
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
+import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
@@ -83,18 +85,30 @@ class MyOrders {
                     gui.previousPage(actor.player)
                 },
             )
+
             Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
                 val item = ItemstackSerializers.deserialize(order.item)!!.clone()
                 val itemMetaCopy = item.itemMeta
-                val infoLore = listOf(
+                val infoLore = mutableListOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Cost: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
                     MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated}"),
+                    MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),
                     MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<reset><gray>(Click to remove order)"),
                 )
 
+                when (order.status) {
+                    OrderStatus.PENDING -> {
+                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
+                    }
+                    OrderStatus.CLAIMED -> {
+                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
+                    }
+                    OrderStatus.COMPLETED -> {
+                        infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
+                    }
+                }
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
                     itemLore.addAll(infoLore)
@@ -108,10 +122,25 @@ class MyOrders {
                 val button = SGButton(
                     item
                 ).withListener { event: InventoryClickEvent ->
-                    event.whoClicked.sendMessage("Order Deleted!)")
-                    gui.removeButton((index + 10) + (gui.currentPage * 45))
-                    Database.orderDao.delete(order)
-                    gui.refreshInventory(actor.player)
+                    when (order.status) {
+                        OrderStatus.PENDING -> {
+                            event.whoClicked.sendMessage("Order Deleted!")
+                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+                            eco.depositPlayer(actor.player, order.cost)
+                            Database.orderDao.delete(order)
+                            gui.refreshInventory(actor.player)
+                        }
+                        OrderStatus.CLAIMED -> {
+                            event.whoClicked.sendMessage("Order Deleted!")
+                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+                            eco.depositPlayer(actor.player, (order.cost / 2) )
+                            Database.orderDao.delete(order)
+                            gui.refreshInventory(actor.player)
+                        }
+                        OrderStatus.COMPLETED -> {
+                            TODO()
+                        }
+                    }
                 }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)
 

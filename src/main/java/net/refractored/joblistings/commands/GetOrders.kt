@@ -24,7 +24,7 @@ import kotlin.math.ceil
 class GetOrders {
     @CommandPermission("joblistings.order.create")
     @Description("Views order ingame")
-    @Command("joblistings orders all")
+    @Command("joblistings orders")
     fun getOrders(actor: BukkitCommandActor) {
         AllOrders.openAllOrders(actor)
     }
