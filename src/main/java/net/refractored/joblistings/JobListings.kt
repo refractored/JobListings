@@ -2,7 +2,8 @@ package net.refractored.joblistings
 
 import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
-import net.refractored.joblistings.commands.CreateOrder
+import net.refractored.joblistings.commands.CreateOrderHand
+import net.refractored.joblistings.commands.CreateOrderMaterial
 import net.refractored.joblistings.commands.GetOrders
 import net.refractored.joblistings.commands.ViewOrder
 import net.refractored.joblistings.database.Database
@@ -52,9 +53,11 @@ class JobListings : JavaPlugin() {
         handler = BukkitCommandHandler.create(this)
 
         // Register commands
-        handler.register(CreateOrder())
+        handler.register(CreateOrderHand())
+        handler.register(CreateOrderMaterial())
         handler.register(ViewOrder())
         handler.register(GetOrders())
+        handler.registerBrigadier()
 
 
         logger.info("JobListings has been enabled!")

@@ -22,7 +22,7 @@ import kotlin.math.ceil
 
 
 class GetOrders {
-    @CommandPermission("joblistings.order.create")
+    @CommandPermission("joblistings.view.allorders")
     @Description("Views order ingame")
     @Command("joblistings orders")
     fun getOrders(actor: BukkitCommandActor) {

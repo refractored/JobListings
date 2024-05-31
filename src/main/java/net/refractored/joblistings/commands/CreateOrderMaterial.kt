@@ -1,5 +1,6 @@
 package net.refractored.joblistings.commands
 
+import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
@@ -14,12 +15,11 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
 
-class CreateOrder {
-
-    @CommandPermission("joblistings.order.create.hand")
+class CreateOrderMaterial {
+    @CommandPermission("joblistings.order.create.material")
     @Description("Create a new order.")
-    @Command("joblistings create hand")
-    fun CreateOrder(actor: BukkitCommandActor, cost: Double, amount: Int) {
+    @Command("joblistings create material")
+    fun createOrderMaterial(actor: BukkitCommandActor, material: Material , cost: Double, amount: Int) {
         if (actor.isConsole) {
             throw CommandErrorException("You must be a player to use this command.")
         }
@@ -36,20 +36,20 @@ class CreateOrder {
             throw CommandErrorException("You do not have enough money to cover your payment.")
         }
 
-        val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId)).firstOrNull()
+        val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId))
 
-//        if (order != null) {
-//            throw CommandErrorException("You already have an order.")
-//        }
+        if (order.isNotEmpty()) {
+            throw CommandErrorException("You already have an order.")
+        }
 
-        val item = actor.player.inventory.itemInMainHand.clone()
+        val item = ItemBuilder(material).amount(amount).build()
 
         if (amount > item.maxStackSize) {
             throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
         }
 
         if (item.type == Material.AIR) {
-            throw CommandErrorException("You must be holding an item to create an order.")
+            throw CommandErrorException("Item cannot be air.")
         }
 
         if (item.itemMeta is Damageable) {

@@ -21,7 +21,7 @@ import kotlin.math.ceil
 
 
 class ViewOrder {
-    @CommandPermission("joblistings.order.view")
+    @CommandPermission("joblistings.view.myorders")
     @Description("View your order.")
     @Command("joblistings created")
     fun ViewOrder(actor: BukkitCommandActor) {
