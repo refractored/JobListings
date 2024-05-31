@@ -66,6 +66,7 @@ data class Order(
             queryBuilder.orderBy("timeCreated", false)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
+            queryBuilder.where().eq("status", OrderStatus.PENDING)
             return orderDao.query(queryBuilder.prepare())
         }
 
