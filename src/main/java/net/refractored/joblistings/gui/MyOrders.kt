@@ -118,7 +118,7 @@ class MyOrders {
                 var slot = baseSlot
 
                 while (gui.getButton(slot) != null) {
-                    if (slot >= 44) {
+                    if (slot >= 46) {
                         throw IndexOutOfBoundsException("No more slots available in page ${gui.currentPage}")
                     }
                     slot++
