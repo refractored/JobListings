@@ -3,6 +3,7 @@ package net.refractored.joblistings
 import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.CreateOrder
+import net.refractored.joblistings.commands.GetOrders
 import net.refractored.joblistings.commands.ViewOrder
 import net.refractored.joblistings.database.Database
 import org.bukkit.configuration.file.FileConfiguration
@@ -53,6 +54,7 @@ class JobListings : JavaPlugin() {
         // Register commands
         handler.register(CreateOrder())
         handler.register(ViewOrder())
+        handler.register(GetOrders())
 
 
         logger.info("JobListings has been enabled!")

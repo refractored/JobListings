@@ -9,40 +9,41 @@ import java.io.IOException
 import java.util.*
 
 
-object ItemstackSerializers {
+class ItemstackSerializers {
+    companion object {
+        fun serialize(contents: ItemStack): String {
+            val baos = ByteArrayOutputStream()
+            var boos: BukkitObjectOutputStream? = null
 
-    fun serialize(contents: ItemStack): String {
-        val baos = ByteArrayOutputStream()
-        var boos: BukkitObjectOutputStream? = null
-
-        try {
-            boos = BukkitObjectOutputStream(baos)
-            boos.writeObject(contents)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
             try {
-                boos!!.close()
+                boos = BukkitObjectOutputStream(baos)
+                boos.writeObject(contents)
             } catch (e: IOException) {
                 e.printStackTrace()
+            } finally {
+                try {
+                    boos!!.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
             }
+
+            return Base64.getEncoder().encodeToString(baos.toByteArray())
         }
 
-        return Base64.getEncoder().encodeToString(baos.toByteArray())
-    }
+        fun deserialize(data: String?): ItemStack? {
+            var contents: ItemStack? = null
 
-    fun deserialize(data: String?): ItemStack? {
-        var contents: ItemStack? = null
+            try {
+                val bais = ByteArrayInputStream(Base64.getDecoder().decode(data))
+                val bois = BukkitObjectInputStream(bais)
+                contents = bois.readObject() as ItemStack
 
-        try {
-            val bais = ByteArrayInputStream(Base64.getDecoder().decode(data))
-            val bois = BukkitObjectInputStream(bais)
-            contents = bois.readObject() as ItemStack
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
 
-        } catch (e: Exception) {
-            e.printStackTrace()
+            return contents
         }
-
-        return contents
     }
 }
