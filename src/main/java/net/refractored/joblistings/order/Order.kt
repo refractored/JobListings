@@ -40,6 +40,9 @@ data class Order(
     var timeExpires: LocalDateTime,
 
     @DatabaseField
+    var timeClaimed: LocalDateTime?,
+
+    @DatabaseField
     var timeDeadline: LocalDateTime?,
 
     @DatabaseField
@@ -65,6 +68,7 @@ data class Order(
         null,
         LocalDateTime.now(),
         LocalDateTime.now().plusHours(12),
+        null,
         null,
         null,
         OrderStatus.PENDING,
@@ -163,8 +167,8 @@ data class Order(
 
             fun updateDeadlineOrders() {
                 val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-                queryBuilder.orderBy("timeCreated", true)
-                queryBuilder.where().eq("status", OrderStatus.PENDING)
+                queryBuilder.orderBy("timeClaimed", true)
+                queryBuilder.where().eq("status", OrderStatus.CLAIMED)
                 orderDao.query(queryBuilder.prepare()).forEach { order ->
                     if (isOrderDeadlinePassed(order)) {
                         order.status = OrderStatus.INCOMPLETE
