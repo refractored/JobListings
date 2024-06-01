@@ -108,6 +108,9 @@ class MyOrders {
                     OrderStatus.COMPLETED -> {
                         infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
                     }
+
+                    OrderStatus.INCOMPLETE -> TODO()
+                    OrderStatus.EXPIRED -> TODO()
                 }
 
                 if (itemMetaCopy.hasLore()) {
@@ -141,6 +144,9 @@ class MyOrders {
                         OrderStatus.COMPLETED -> {
                             TODO()
                         }
+
+                        OrderStatus.INCOMPLETE -> TODO()
+                        OrderStatus.EXPIRED -> TODO()
                     }
                 }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)

@@ -13,13 +13,14 @@ import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
+import java.time.LocalDateTime
 
 class CreateOrderHand {
 
     @CommandPermission("joblistings.order.create.hand")
     @Description("Create a new order.")
     @Command("joblistings create hand")
-    fun CreateOrder(actor: BukkitCommandActor, cost: Double, amount: Int) {
+    fun CreateOrder(actor: BukkitCommandActor, cost: Double, amount: Int, hours: Long) {
         if (actor.isConsole) {
             throw CommandErrorException("You must be a player to use this command.")
         }
@@ -66,7 +67,10 @@ class CreateOrderHand {
                 cost = cost,
                 user = actor.uniqueId,
                 assignee = null,
-                timeCreated = java.util.Date(),
+                timeCreated = LocalDateTime.now(),
+                timeExpires = LocalDateTime.now().plusHours(hours),
+                timeDeadline = null,
+                timeCompleted = null,
                 status = OrderStatus.PENDING,
                 item = ItemstackSerializers.serialize(item),
                 false,

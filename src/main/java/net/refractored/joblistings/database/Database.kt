@@ -6,6 +6,7 @@ import com.j256.ormlite.jdbc.JdbcConnectionSource
 import com.j256.ormlite.jdbc.JdbcPooledConnectionSource
 import com.j256.ormlite.table.TableUtils
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import java.util.*
 
@@ -22,10 +23,17 @@ class Database {
             private set
 
         /**
-         * The user DAO, used for database operations on users.
+         * The order DAO, used for database operations on orders.
          */
         @JvmStatic
         lateinit var orderDao: Dao<Order, UUID>
+            private set
+
+        /**
+         * The order DAO, used for database operations on orders.
+         */
+        @JvmStatic
+        lateinit var mailDao: Dao<Mail, UUID>
             private set
 
         /**
@@ -44,6 +52,10 @@ class Database {
             orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
 
             TableUtils.createTableIfNotExists(connectionSource, Order::class.java)
+
+            mailDao = DaoManager.createDao(connectionSource, Mail::class.java) as Dao<Mail, UUID>
+
+            TableUtils.createTableIfNotExists(connectionSource, Mail::class.java)
         }
     }
 }

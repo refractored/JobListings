@@ -7,6 +7,8 @@ import net.refractored.joblistings.commands.CreateOrderMaterial
 import net.refractored.joblistings.commands.GetOrders
 import net.refractored.joblistings.commands.ViewOrder
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.listeners.PlayerJoinListener
+import net.refractored.joblistings.order.Order
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
@@ -59,6 +61,13 @@ class JobListings : JavaPlugin() {
         handler.register(GetOrders())
         handler.registerBrigadier()
 
+        // Register listeners
+        server.pluginManager.registerEvents(PlayerJoinListener(), this)
+
+        server.scheduler.runTaskTimer(this, Runnable {
+            Order.updateExpiredOrders()
+            Order.updateDeadlineOrders()
+        }, 20L, 20L)
 
         logger.info("JobListings has been enabled!")
     }
@@ -93,14 +102,16 @@ class JobListings : JavaPlugin() {
          * Economy Provider
          */
         lateinit var eco: Economy
+            private set
 
         /**
          * The plugin's instance
          */
         lateinit var instance: JobListings
             private set
+
         /**
-         * The plugin's instance
+         * The plugin's GUI manager
          */
         lateinit var spiGUI: SpiGUI
             private set
