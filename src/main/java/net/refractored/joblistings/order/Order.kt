@@ -137,22 +137,14 @@ data class Order(
                 if (isOrderExpired(order)) {
                     order.status = OrderStatus.EXPIRED
                     orderDao.update(order)
-                    var message = MessageUtil.toComponent(
-                        "<red>One of your orders ${
-                            ItemstackSerializers.deserialize(order.item)!!.displayName()
-                        } expired!"
+                    val item = ItemstackSerializers.deserialize(order.item)!!
+                    val orderInfo = "${item.displayName()}  x${item.amount}"
+                    val message = MessageUtil.toComponent(
+                        "<red>One of your orders <gray>\"${orderInfo}\"</gray> expired!"
                     )
                     Bukkit.getPlayer(order.user)?.sendMessage(message)
                         ?: run {
-                            mailDao.create(
-                                Mail(
-                                    id = UUID.randomUUID(),
-                                    user = order.user,
-                                    timeCreated = LocalDateTime.now(),
-                                    timeExpires = LocalDateTime.now().plusDays(7),
-                                    message = message.toString(),
-                                )
-                            )
+                            Mail.createMail(order.user, message)
                         }
 
                 }
@@ -160,22 +152,40 @@ data class Order(
         }
 
 
-            fun isOrderDeadlinePassed(order: Order): Boolean {
-                val deadline = order.timeDeadline ?: return false
-                return LocalDateTime.now() >= deadline
-            }
+        fun isOrderDeadlinePassed(order: Order): Boolean {
+            val deadline = order.timeDeadline ?: return false
+            return LocalDateTime.now() >= deadline
+        }
 
-            fun updateDeadlineOrders() {
-                val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-                queryBuilder.orderBy("timeClaimed", true)
-                queryBuilder.where().eq("status", OrderStatus.CLAIMED)
-                orderDao.query(queryBuilder.prepare()).forEach { order ->
-                    if (isOrderDeadlinePassed(order)) {
-                        order.status = OrderStatus.INCOMPLETE
-                        orderDao.update(order)
+        fun updateDeadlineOrders() {
+            val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+            queryBuilder.orderBy("timeClaimed", true)
+            queryBuilder.where().eq("status", OrderStatus.CLAIMED)
+            orderDao.query(queryBuilder.prepare()).forEach { order ->
+                if (!isOrderDeadlinePassed(order)) return
+                order.status = OrderStatus.INCOMPLETE
+                orderDao.update(order)
+                val item = ItemstackSerializers.deserialize(order.item)!!
+                val orderInfo = "${item.displayName()}  x${item.amount}"
+                val ownerMessage = MessageUtil.toComponent(
+                    "<red>One of your orders, <gray>\"${orderInfo}\"</gray>, could not be completed in time!!"
+                )
+                Bukkit.getPlayer(order.user)?.sendMessage(ownerMessage)
+                    ?: run {
+                        Mail.createMail(order.user, ownerMessage)
                     }
-                }
+
+                if (order.assignee == null) return // This should never be null, but just in case
+
+                val asigneeMessage = MessageUtil.toComponent(
+                    "<red>You were unable to complete your order, <gray>\"${orderInfo}\"</gray>, in time!"
+                )
+                Bukkit.getPlayer(order.user)?.sendMessage(asigneeMessage)
+                    ?: run {
+                        Mail.createMail(order.assignee!!, asigneeMessage)
+                    }
             }
+        }
 
         }
     }

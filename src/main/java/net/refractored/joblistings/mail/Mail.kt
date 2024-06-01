@@ -7,7 +7,7 @@ import net.refractored.joblistings.database.Database.Companion.mailDao
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import java.awt.Component
+import net.kyori.adventure.text.Component
 import java.time.LocalDateTime
 import java.util.*
 
