@@ -18,16 +18,14 @@ import kotlin.math.ceil
 class AllOrders {
     companion object{
         fun openAllOrders(actor: BukkitCommandActor) {
-
-            val rows = 5
-
-            val gui = spiGUI.create("&c&lAll Orders &c(Page {currentPage}/{maxPage})", rows)
+            val gui = spiGUI.create("&c&lAll Orders &c(Page {currentPage}/{maxPage})", 5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
             } else {
                 1
             }
+
 
             val borderItems = listOf(
                 0,  1,  2,  3,  4,  5,  6,  7,  8,

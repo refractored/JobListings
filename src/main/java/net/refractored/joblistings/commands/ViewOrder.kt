@@ -11,7 +11,7 @@ class ViewOrder {
     @CommandPermission("joblistings.view.myorders")
     @Description("View your order.")
     @Command("joblistings created")
-    fun ViewOrder(actor: BukkitCommandActor) {
+    fun viewOrder(actor: BukkitCommandActor) {
         MyOrders.openMyOrders(actor)
     }
 }
