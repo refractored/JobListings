@@ -71,9 +71,10 @@ class CreateOrderHand {
                 timeExpires = LocalDateTime.now().plusHours(hours),
                 timeDeadline = null,
                 timeCompleted = null,
+                timeClaimed = null,
                 status = OrderStatus.PENDING,
                 item = ItemstackSerializers.serialize(item),
-                false,
+                userClaimed = false,
             )
         )
 
