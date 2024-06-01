@@ -20,9 +20,7 @@ import kotlin.math.ceil
 class MyOrders {
     companion object {
         fun openMyOrders(actor: BukkitCommandActor) {
-            val rows = 5
-
-            val gui = spiGUI.create("&c&lMy Orders &c(Page {currentPage}/{maxPage})", rows)
+            val gui = spiGUI.create("&c&lMy Orders &c(Page {currentPage}/{maxPage})", 5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
@@ -61,6 +59,10 @@ class MyOrders {
 
 
             actor.player.openInventory(gui.inventory)
+            loadItems(gui, actor)
+        }
+        private fun reloadItems(gui: SGMenu, actor: BukkitCommandActor) {
+            gui.clearAllButStickiedSlots()
             loadItems(gui, actor)
         }
 
@@ -103,7 +105,8 @@ class MyOrders {
                         infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
                     }
                     OrderStatus.CLAIMED -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
+                        infoLore.add(MessageUtil.toComponent("<reset><gray>Orders in progress only give back half the payment."))
+                        infoLore.add(MessageUtil.toComponent("<reset><orange>(Click to remove order)"))
                     }
                     OrderStatus.COMPLETED -> {
                         infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
@@ -132,13 +135,15 @@ class MyOrders {
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, order.cost)
                             Database.orderDao.delete(order)
+                            reloadItems(gui, actor)
                             gui.refreshInventory(actor.player)
                         }
                         OrderStatus.CLAIMED -> {
-                            event.whoClicked.sendMessage("Order Deleted!")
+                            event.whoClicked.sendMessage("Order Removed!")
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost / 2) )
                             Database.orderDao.delete(order)
+                            reloadItems(gui, actor)
                             gui.refreshInventory(actor.player)
                         }
                         OrderStatus.COMPLETED -> {
