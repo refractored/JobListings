@@ -107,9 +107,9 @@ class AllOrders {
                 val button = SGButton(
                     item
                 ).withListener { event: InventoryClickEvent ->
-                    event.whoClicked.sendMessage("Order Accepted (Broken!)")
+                    event.whoClicked.sendMessage("Order Accepted!")
+                    Order.acceptOrder(order, actor.player)
                     event.whoClicked.closeInventory()
-                    TODO()
                 }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)
 

@@ -15,12 +15,16 @@ import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.math.ceil
 
-class MyOrders {
+class MyClaimedOrders {
     companion object {
-        fun openMyOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create("&9&lMy Orders &c(Page {currentPage}/{maxPage})", 5)
+        fun openMyClaimedOrders(actor: BukkitCommandActor) {
+            val gui = spiGUI.create("&5&lMy Claimed Orders &c(Page {currentPage}/{maxPage})", 5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
@@ -33,7 +37,7 @@ class MyOrders {
                 9,                              17,
                 18,                             26,
                 27,                             35,
-                    37, 38, 39, 40, 41, 42, 43,
+                   37, 38, 39, 40, 41, 42, 43,
             )
 
 
@@ -43,7 +47,7 @@ class MyOrders {
                     gui.setButton(
                         (it + pageSlot),
                         SGButton(
-                            ItemBuilder(Material.BLUE_STAINED_GLASS_PANE)
+                            ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE)
                                 .name(" ")
                                 .build()
                         ),
@@ -91,30 +95,35 @@ class MyOrders {
             Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
                 val item = ItemstackSerializers.deserialize(order.item)!!.clone()
                 val itemMetaCopy = item.itemMeta
+
                 val infoLore = mutableListOf(
                     MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<reset><red>Cost: <white>${order.cost}"),
+                    MessageUtil.toComponent("<reset><red>Pay: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-                    MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated}"),
+                    MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"))}"),
+                    MessageUtil.toComponent("<reset><red>Deadline: <white>${order.timeCreated.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"))}"),
                     MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),
                     MessageUtil.toComponent(""),
                 )
 
-                when (order.status) {
-                    OrderStatus.PENDING -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
-                    }
-                    OrderStatus.CLAIMED -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><gray>Orders in progress only give back half the payment."))
-                        infoLore.add(MessageUtil.toComponent("<reset><orange>(Click to remove order)"))
-                    }
-                    OrderStatus.COMPLETED -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
-                    }
+                val balls = Duration.between(LocalDateTime.now(), order.timeDeadline)
+                balls.toHours()
 
-                    OrderStatus.INCOMPLETE -> TODO()
-                    OrderStatus.EXPIRED -> TODO()
-                }
+//                when (order.status) {
+//                    OrderStatus.PENDING -> {
+//                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
+//                    }
+//                    OrderStatus.CLAIMED -> {
+//                        infoLore.add(MessageUtil.toComponent("<reset><gray>Orders in progress only give back half the payment."))
+//                        infoLore.add(MessageUtil.toComponent("<reset><orange>(Click to remove order)"))
+//                    }
+//                    OrderStatus.COMPLETED -> {
+//                        infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
+//                    }
+//
+//                    OrderStatus.INCOMPLETE -> TODO()
+//                    OrderStatus.EXPIRED -> TODO()
+//                }
 
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
@@ -128,32 +137,33 @@ class MyOrders {
 
                 val button = SGButton(
                     item
-                ).withListener { event: InventoryClickEvent ->
-                    when (order.status) {
-                        OrderStatus.PENDING -> {
-                            event.whoClicked.sendMessage("Order Deleted!")
-                            gui.removeButton((index + 10) + (gui.currentPage * 45))
-                            eco.depositPlayer(actor.player, order.cost)
-                            Database.orderDao.delete(order)
-                            reloadItems(gui, actor)
-                            gui.refreshInventory(actor.player)
-                        }
-                        OrderStatus.CLAIMED -> {
-                            event.whoClicked.sendMessage("Order Removed!")
-                            gui.removeButton((index + 10) + (gui.currentPage * 45))
-                            eco.depositPlayer(actor.player, (order.cost / 2) )
-                            Database.orderDao.delete(order)
-                            reloadItems(gui, actor)
-                            gui.refreshInventory(actor.player)
-                        }
-                        OrderStatus.COMPLETED -> {
-                            TODO()
-                        }
-
-                        OrderStatus.INCOMPLETE -> TODO()
-                        OrderStatus.EXPIRED -> TODO()
-                    }
-                }
+                )
+//                    .withListener { event: InventoryClickEvent ->
+//                    when (order.status) {
+//                        OrderStatus.PENDING -> {
+//                            event.whoClicked.sendMessage("Order Deleted!")
+//                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+//                            eco.depositPlayer(actor.player, order.cost)
+//                            Database.orderDao.delete(order)
+//                            reloadItems(gui, actor)
+//                            gui.refreshInventory(actor.player)
+//                        }
+//                        OrderStatus.CLAIMED -> {
+//                            event.whoClicked.sendMessage("Order Removed!")
+//                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+//                            eco.depositPlayer(actor.player, (order.cost / 2) )
+//                            Database.orderDao.delete(order)
+//                            reloadItems(gui, actor)
+//                            gui.refreshInventory(actor.player)
+//                        }
+//                        OrderStatus.COMPLETED -> {
+//                            TODO()
+//                        }
+//
+//                        OrderStatus.INCOMPLETE -> TODO()
+//                        OrderStatus.EXPIRED -> TODO()
+//                    }
+//                }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)
 
                 var slot = baseSlot

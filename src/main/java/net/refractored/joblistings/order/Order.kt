@@ -13,6 +13,7 @@ import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import java.time.LocalDateTime
 import java.util.*
 
@@ -168,7 +169,7 @@ data class Order(
                 val item = ItemstackSerializers.deserialize(order.item)!!
                 val orderInfo = "${item.displayName()}  x${item.amount}"
                 val ownerMessage = MessageUtil.toComponent(
-                    "<red>One of your orders, <gray>\"${orderInfo}\"</gray>, could not be completed in time!!"
+                    "<red>One of your orders, <gray>\"${orderInfo}\"</gray>, could not be completed in time!"
                 )
                 Bukkit.getPlayer(order.user)?.sendMessage(ownerMessage)
                     ?: run {
@@ -187,5 +188,21 @@ data class Order(
             }
         }
 
+        fun acceptOrder(order: Order, assignee: Player) {
+            if (order.assignee != null) {
+                throw IllegalArgumentException("Order already has an assignee")
+            }
+            if (order.user == assignee.uniqueId) {
+                throw IllegalArgumentException("Cannot accept your own order")
+            }
+            if (order.status != OrderStatus.PENDING) {
+                throw IllegalArgumentException("Order is not pending")
+            }
+            order.assignee = assignee.uniqueId
+            order.timeClaimed = LocalDateTime.now()
+            order.timeDeadline = LocalDateTime.now().plusHours(12)
+            order.status = OrderStatus.CLAIMED
+            orderDao.update(order)
         }
     }
+}

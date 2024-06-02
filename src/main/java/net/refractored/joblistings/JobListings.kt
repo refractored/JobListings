@@ -8,10 +8,12 @@ import net.refractored.joblistings.commands.GetOrders
 import net.refractored.joblistings.commands.ViewOrder
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.listeners.PlayerJoinListener
+import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitTask
 import revxrsal.commands.bukkit.BukkitCommandHandler
 
 /**
@@ -28,6 +30,8 @@ class JobListings : JavaPlugin() {
      */
     lateinit var messages: FileConfiguration
         private set
+
+    private lateinit var cleanDatabase: BukkitTask
 
     override fun onEnable() {
         // Set the instance
@@ -64,9 +68,10 @@ class JobListings : JavaPlugin() {
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)
 
-        server.scheduler.runTaskTimer(this, Runnable {
+        cleanDatabase = server.scheduler.runTaskTimer(this, Runnable {
             Order.updateExpiredOrders()
             Order.updateDeadlineOrders()
+            Mail.purgeMail()
         }, 20L, 20L)
 
         logger.info("JobListings has been enabled!")
@@ -74,6 +79,7 @@ class JobListings : JavaPlugin() {
 
     override fun onDisable() {
         handler.unregisterAllCommands()
+        cleanDatabase.cancel()
         logger.info("Shuffled has been disabled!")
     }
 
