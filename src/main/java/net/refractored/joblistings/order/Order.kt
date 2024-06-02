@@ -121,6 +121,7 @@ data class Order(
             queryBuilder.orderBy("timeCreated", false)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
+            queryBuilder.where().eq("status", OrderStatus.CLAIMED)
             queryBuilder.where().eq("asignee", playerUUID)
             return orderDao.query(queryBuilder.prepare())
         }

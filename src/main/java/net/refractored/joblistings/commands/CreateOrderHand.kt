@@ -50,7 +50,7 @@ class CreateOrderHand {
         }
 
         if (amount > item.maxStackSize) {
-            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
+            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item. (${item.maxStackSize})")
         }
 
         if (item.itemMeta is Damageable) {
@@ -58,6 +58,8 @@ class CreateOrderHand {
             damageableMeta.damage = 0
             item.itemMeta = damageableMeta
         }
+
+        item.amount = amount
 
         eco.withdrawPlayer(actor.player, cost)
 

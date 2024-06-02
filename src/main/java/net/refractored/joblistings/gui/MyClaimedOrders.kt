@@ -10,6 +10,7 @@ import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
+import org.apache.commons.lang.time.DurationFormatUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -20,6 +21,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.math.ceil
+import kotlin.time.toKotlinDuration
 
 class MyClaimedOrders {
     companion object {
@@ -92,7 +94,7 @@ class MyClaimedOrders {
                 },
             )
 
-            Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
+            Order.getPlayerAcceptedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
                 val item = ItemstackSerializers.deserialize(order.item)!!.clone()
                 val itemMetaCopy = item.itemMeta
 
@@ -100,14 +102,12 @@ class MyClaimedOrders {
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Pay: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
+                    // TODO: Display time remaining instead of the exact time.
                     MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"))}"),
                     MessageUtil.toComponent("<reset><red>Deadline: <white>${order.timeCreated.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"))}"),
                     MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),
                     MessageUtil.toComponent(""),
                 )
-
-                val balls = Duration.between(LocalDateTime.now(), order.timeDeadline)
-                balls.toHours()
 
 //                when (order.status) {
 //                    OrderStatus.PENDING -> {
