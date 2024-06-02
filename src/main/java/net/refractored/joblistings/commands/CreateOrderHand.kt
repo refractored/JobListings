@@ -73,7 +73,7 @@ class CreateOrderHand {
                 timeCompleted = null,
                 timeClaimed = null,
                 status = OrderStatus.PENDING,
-                item = ItemstackSerializers.serialize(item),
+                item = item,
                 userClaimed = false,
             )
         )

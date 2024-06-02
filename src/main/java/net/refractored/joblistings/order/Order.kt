@@ -14,6 +14,7 @@ import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
 import java.util.*
 
@@ -34,26 +35,26 @@ data class Order(
     @DatabaseField
     var assignee: UUID?,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeCreated: LocalDateTime,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeExpires: LocalDateTime,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeClaimed: LocalDateTime?,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeDeadline: LocalDateTime?,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeCompleted: LocalDateTime?,
 
     @DatabaseField
     var status: OrderStatus,
 
-    @DatabaseField(dataType = DataType.LONG_STRING)
-    var item: String,
+    @DatabaseField(persisterClass = ItemstackSerializers::class)
+    var item: ItemStack,
 
     @DatabaseField
     val userClaimed: Boolean
@@ -73,7 +74,7 @@ data class Order(
         null,
         null,
         OrderStatus.PENDING,
-        ItemstackSerializers.serialize(ItemBuilder(Material.STONE).build()),
+        (ItemBuilder(Material.STONE).build()),
         false,
     )
 
@@ -138,7 +139,7 @@ data class Order(
                 if (isOrderExpired(order)) {
                     order.status = OrderStatus.EXPIRED
                     orderDao.update(order)
-                    val item = ItemstackSerializers.deserialize(order.item)!!
+                    val item = order.item
                     val orderInfo = "${item.displayName()}  x${item.amount}"
                     val message = MessageUtil.toComponent(
                         "<red>One of your orders <gray>\"${orderInfo}\"</gray> expired!"
@@ -166,7 +167,7 @@ data class Order(
                 if (!isOrderDeadlinePassed(order)) return
                 order.status = OrderStatus.INCOMPLETE
                 orderDao.update(order)
-                val item = ItemstackSerializers.deserialize(order.item)!!
+                val item = order.item
                 val orderInfo = "${item.displayName()}  x${item.amount}"
                 val ownerMessage = MessageUtil.toComponent(
                     "<red>One of your orders, <gray>\"${orderInfo}\"</gray>, could not be completed in time!"
