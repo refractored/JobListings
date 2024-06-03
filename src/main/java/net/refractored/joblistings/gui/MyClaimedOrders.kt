@@ -24,7 +24,7 @@ import kotlin.math.ceil
 class MyClaimedOrders {
     companion object {
         fun openMyClaimedOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create("&5&lMy Claimed Orders &c(Page {currentPage}/{maxPage})", 5)
+            val gui = spiGUI.create("&5&lMy Claimed Orders &5(Page {currentPage}/{maxPage})", 5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
@@ -106,8 +106,8 @@ class MyClaimedOrders {
                     MessageUtil.toComponent(""),
                 )
 
-                val balls = Duration.between(LocalDateTime.now(), order.timeDeadline)
-                balls.toHours()
+//                val balls = Duration.between(LocalDateTime.now(), order.timeDeadline)
+//                balls.toHours()
 
 //                when (order.status) {
 //                    OrderStatus.PENDING -> {

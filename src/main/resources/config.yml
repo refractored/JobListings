@@ -4,5 +4,12 @@
 #
 Database:
   URL: "jdbc:mysql://localhost:3306/database"
-  Username: "username"
-  Password: "password"
+Orders:
+  # Max orders per rank soon
+  MaxOrders: 3
+  MaxOrdersAccepted: 3
+  # Maximum/Minimum time in hours orders can be posted for
+  MaxOrdersTime: 192
+  MinOrdersTime: 48
+  # Deadline in hours to complete an order
+  OrderDeadline: 24

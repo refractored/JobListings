@@ -2,11 +2,9 @@ package net.refractored.joblistings
 
 import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
-import net.refractored.joblistings.commands.CreateOrderHand
-import net.refractored.joblistings.commands.CreateOrderMaterial
-import net.refractored.joblistings.commands.GetOrders
-import net.refractored.joblistings.commands.ViewOrder
+import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.gui.MyClaimedOrders
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
@@ -63,6 +61,7 @@ class JobListings : JavaPlugin() {
         handler.register(CreateOrderMaterial())
         handler.register(ViewOrder())
         handler.register(GetOrders())
+        handler.register(ClaimedOrders())
         handler.registerBrigadier()
 
         // Register listeners
@@ -94,7 +93,8 @@ class JobListings : JavaPlugin() {
     private fun setupEconomy(): Boolean {
         val rsp = server.servicesManager.getRegistration(Economy::class.java)
         if (rsp == null) {
-            logger.warning("Economy service is not registered! Make sure an economy plugin is installed.")
+            logger.warning("Economy service is not registered! " +
+                    "Make sure an economy plugin is installed.")
             return false
         }
 

@@ -20,7 +20,7 @@ import kotlin.math.ceil
 class MyOrders {
     companion object {
         fun openMyOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create("&9&lMy Orders &c(Page {currentPage}/{maxPage})", 5)
+            val gui = spiGUI.create("&9&lMy Orders &9(Page {currentPage}/{maxPage})", 5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
@@ -106,13 +106,12 @@ class MyOrders {
                         infoLore.add(MessageUtil.toComponent("<reset><red>(Click to cancel order)"))
                     }
                     OrderStatus.CLAIMED -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><gray>Orders in progress only give back half the payment."))
-                        infoLore.add(MessageUtil.toComponent("<reset><orange>(Click to remove order)"))
+                        infoLore.add(MessageUtil.toComponent("<reset><gray>In-progress orders only return half the payment."))
+                        infoLore.add(MessageUtil.toComponent("<reset><yellow>(Click to remove order)"))
                     }
                     OrderStatus.COMPLETED -> {
                         infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
                     }
-
                     OrderStatus.INCOMPLETE -> {
                         infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))
                     }

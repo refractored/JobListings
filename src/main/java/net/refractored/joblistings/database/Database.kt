@@ -49,8 +49,6 @@ class Database {
         fun init() {
             connectionSource = JdbcPooledConnectionSource(
                 JobListings.instance.config.getString("database.url"),
-                JobListings.instance.config.getString("database.user"),
-                JobListings.instance.config.getString("database.password")
             )
 
             orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>

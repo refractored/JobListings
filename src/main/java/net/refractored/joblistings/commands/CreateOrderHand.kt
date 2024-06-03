@@ -1,6 +1,7 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
@@ -32,6 +33,18 @@ class CreateOrderHand {
             throw CommandErrorException("Amount must be at least 1.")
         }
 
+        if (hours < 1) {
+            throw CommandErrorException("Hours must be at least 1.")
+        }
+
+        if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
+            throw CommandErrorException("Hours must be less than or equal to ${JobListings.instance.config.getLong("Orders.MaxOrdersTime")}.")
+        }
+
+        if (hours < JobListings.instance.config.getLong("Orders.MinOrdersTime")) {
+            throw CommandErrorException("Hours must be more than or equal to ${JobListings.instance.config.getLong("Orders.MinOrdersTime")}.")
+        }
+
         if (cost < 1) {
             throw CommandErrorException("Cost must be at least 1.")
         }
@@ -46,8 +59,8 @@ class CreateOrderHand {
         queryBuilder.where().eq("status", OrderStatus.PENDING)
         val orders = orderDao.query(queryBuilder.prepare())
 
-        if (orders.isNotEmpty()) {
-            throw CommandErrorException("You already have an order.")
+        if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrders")) {
+            throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrders")} orders at once.")
         }
 
         val item = actor.player.inventory.itemInMainHand.clone()
