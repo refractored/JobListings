@@ -7,7 +7,6 @@ import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
-import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -84,7 +83,7 @@ class AllOrders {
                     gui.previousPage(actor.player)
                 },
             )
-            Order.getOrders(21, gui.currentPage * 21 ).forEachIndexed { index, order ->
+            Order.getPendingOrders(21, gui.currentPage * 21 ).forEachIndexed { index, order ->
                 val item = order.item
                 val itemMetaCopy = item.itemMeta
                 val infoLore = listOf(

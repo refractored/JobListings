@@ -62,6 +62,7 @@ class JobListings : JavaPlugin() {
         handler.register(ViewOrder())
         handler.register(GetOrders())
         handler.register(ClaimedOrders())
+        handler.register(CompleteOrders())
         handler.registerBrigadier()
 
         // Register listeners
