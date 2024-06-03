@@ -25,7 +25,7 @@ class CompleteOrders {
     fun completeOrders(actor: BukkitCommandActor) {
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder.orderBy("timeCreated", false)
-        queryBuilder.where().eq("asignee", actor.uniqueId)
+        queryBuilder.where().eq("assignee", actor.uniqueId)
         queryBuilder.where().eq("status", OrderStatus.CLAIMED)
         val orders = orderDao.query(queryBuilder.prepare())
         if (orders.isEmpty()) {
@@ -34,17 +34,20 @@ class CompleteOrders {
         val orderCount = orders.size
         var completionCount = 0
         for (order in orders) {
+            // If item is split into multiple stacks, it will not detect it.`
             val itemStack = actor.player.inventory
-                .firstOrNull{ it.isSimilar(order.item) } ?: continue
+                .firstOrNull{ it?.isSimilar(order.item) ?: false } ?: continue
             if (itemStack.amount < order.item.amount) continue
-            val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(order.item.displayName())}  x${order.item.amount}"
+            val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(order.item.displayName())} x${order.item.amount}"
             itemStack.amount -= order.item.amount
             order.status = OrderStatus.COMPLETED
             order.timeCompleted = LocalDateTime.now()
             orderDao.update(order)
             JobListings.eco.depositPlayer(actor.player, order.cost)
             completionCount++
-            actor.reply("<green>You have completed the order <gray>$orderInfo</gray> and received <gold>${order.cost}</gold>.")
+            actor.reply(
+                MessageUtil.toComponent("<green>You have completed the order <gray>$orderInfo</gray> and received <gold>${order.cost}</gold>.")
+            )
             val ownerMessage = MessageUtil.toComponent(
                 "<green>One of your orders, <gray>\"${orderInfo}\"</gray>, was completed!"
             )
@@ -58,11 +61,12 @@ class CompleteOrders {
             throw CommandErrorException("None your claimed order's requirements were met.")
         }
         if (completionCount == orderCount) {
-            actor.reply("<green>All orders have been completed.")
+            actor.reply(MessageUtil.toComponent("<green>All your orders have been completed."))
             return
         }
-        actor.reply("<green><gold>$completionCount</gold> orders have been completed out of <gold>$orderCount</gold>." +
-                "\nYou now have <gold>${(orderCount - completionCount)}/<gold> orders left"
+        actor.reply(
+            MessageUtil.toComponent("<green><gold>$completionCount</gold> orders have been completed out of <gold>$orderCount</gold>." +
+                    "\nYou now have <gold>${(orderCount - completionCount)}/<gold> orders left")
         )
     }
 }

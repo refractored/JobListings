@@ -62,21 +62,17 @@ class CreateOrderMaterial {
             throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrders")} orders at once.")
         }
 
-        val item = ItemBuilder(material).amount(amount).build()
-
-        if (item.type == Material.AIR) {
+        if (material == Material.AIR) {
             throw CommandErrorException("Item cannot be air.")
         }
+
+        val item = ItemBuilder(material).build()
 
         if (amount > item.maxStackSize) {
             throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
         }
-
-        if (item.itemMeta is Damageable) {
-            val damageableMeta = item.itemMeta as Damageable
-            damageableMeta.damage = 0
-            item.itemMeta = damageableMeta
-        }
+        
+        item.amount = amount
 
         eco.withdrawPlayer(actor.player, cost)
 

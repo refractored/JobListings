@@ -83,9 +83,9 @@ class CreateOrderHand {
 
         eco.withdrawPlayer(actor.player, cost)
 
-        Database.orderDao.create(
+        orderDao.create(
             Order(
-                id = java.util.UUID.randomUUID(),
+                id = UUID.randomUUID(),
                 cost = cost,
                 user = actor.uniqueId,
                 assignee = null,

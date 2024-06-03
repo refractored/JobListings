@@ -54,10 +54,9 @@ data class Mail(
 
         fun purgeMail() {
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
-            queryBuilder.orderBy("timeCreated", true)
             val allMail = mailDao.query(queryBuilder.prepare())
             for (mail in allMail) {
-                if (mail.timeExpires.isAfter(LocalDateTime.now())) {
+                if (LocalDateTime.now().isAfter(mail.timeExpires)) {
                     mailDao.delete(mail)
                 }
             }
@@ -65,7 +64,6 @@ data class Mail(
 
         fun sendMail(player: Player) {
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
-            queryBuilder.orderBy("timeCreated", true)
             queryBuilder.where().eq("user", player.uniqueId)
             val allMail = mailDao.query(queryBuilder.prepare())
             if (allMail.isEmpty()) {

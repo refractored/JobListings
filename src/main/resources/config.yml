@@ -3,9 +3,11 @@
 # by refractored
 #
 Database:
-  URL: "jdbc:mysql://localhost:3306/database"
+  url: "jdbc:mysql://localhost:3306/database"
+  user: "USERNAME"
+  password: "PASSWORD"
 Orders:
-  # Max orders per rank soon
+  # Max orders per rank coming soon
   MaxOrders: 3
   MaxOrdersAccepted: 3
   # Maximum/Minimum time in hours orders can be posted for

@@ -93,7 +93,7 @@ class MyClaimedOrders {
             )
 
             Order.getPlayerAcceptedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
-                val item = order.item
+                val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
 
                 val infoLore = mutableListOf(

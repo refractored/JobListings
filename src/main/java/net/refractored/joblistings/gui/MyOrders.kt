@@ -92,7 +92,7 @@ class MyOrders {
             )
 
             Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
-                val item = order.item
+                val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
                 val infoLore = mutableListOf(
                     MessageUtil.toComponent(""),
@@ -112,7 +112,7 @@ class MyOrders {
                         infoLore.add(MessageUtil.toComponent("<reset><yellow>(Click to remove order)"))
                     }
                     OrderStatus.COMPLETED -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
+                        infoLore.add(MessageUtil.toComponent("<reset><green>(Click to claim order)"))
                     }
                     OrderStatus.INCOMPLETE -> {
                         infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))
@@ -157,9 +157,8 @@ class MyOrders {
                             gui.refreshInventory(actor.player)
                         }
                         OrderStatus.COMPLETED -> {
-                            event.whoClicked.sendMessage("Order obtained!")
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
-                            val inventoryFull = actor.player.inventory.none { it == null }
+                            val inventoryFull = actor.player.inventory.storageContents.none { it == null }
                             if (inventoryFull) {
                                 actor.player.closeInventory()
                                 event.whoClicked.sendMessage(
@@ -171,6 +170,9 @@ class MyOrders {
                             Database.orderDao.delete(order)
                             reloadItems(gui, actor)
                             gui.refreshInventory(actor.player)
+                            event.whoClicked.sendMessage(
+                                MessageUtil.toComponent("<green>Order claimed!")
+                            )
                         }
 
                         OrderStatus.INCOMPLETE -> {

@@ -84,7 +84,7 @@ class AllOrders {
                 },
             )
             Order.getPendingOrders(21, gui.currentPage * 21 ).forEachIndexed { index, order ->
-                val item = order.item
+                val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),
