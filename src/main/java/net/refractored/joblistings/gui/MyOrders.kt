@@ -48,6 +48,7 @@ class MyOrders {
                                 .build()
                         ),
                     )
+                    gui.stickSlot(it + pageSlot)
                 }
             }
 
@@ -102,7 +103,7 @@ class MyOrders {
 
                 when (order.status) {
                     OrderStatus.PENDING -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
+                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to cancel order)"))
                     }
                     OrderStatus.CLAIMED -> {
                         infoLore.add(MessageUtil.toComponent("<reset><gray>Orders in progress only give back half the payment."))
@@ -112,8 +113,12 @@ class MyOrders {
                         infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
                     }
 
-                    OrderStatus.INCOMPLETE -> TODO()
-                    OrderStatus.EXPIRED -> TODO()
+                    OrderStatus.INCOMPLETE -> {
+                        infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))
+                    }
+                    OrderStatus.EXPIRED -> {
+                        infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))
+                    }
                 }
 
                 if (itemMetaCopy.hasLore()) {
@@ -150,8 +155,22 @@ class MyOrders {
                             TODO()
                         }
 
-                        OrderStatus.INCOMPLETE -> TODO()
-                        OrderStatus.EXPIRED -> TODO()
+                        OrderStatus.INCOMPLETE -> {
+                            event.whoClicked.sendMessage("Order refunded!")
+                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+                            eco.depositPlayer(actor.player, (order.cost) )
+                            Database.orderDao.delete(order)
+                            reloadItems(gui, actor)
+                            gui.refreshInventory(actor.player)
+                        }
+                        OrderStatus.EXPIRED -> {
+                            event.whoClicked.sendMessage("Order refunded!")
+                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+                            eco.depositPlayer(actor.player, (order.cost) )
+                            Database.orderDao.delete(order)
+                            reloadItems(gui, actor)
+                            gui.refreshInventory(actor.player)
+                        }
                     }
                 }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)
