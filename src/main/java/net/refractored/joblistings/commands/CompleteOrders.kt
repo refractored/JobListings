@@ -1,6 +1,7 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
@@ -28,13 +29,16 @@ class CompleteOrders {
             throw CommandErrorException("You have no orders to complete.")
         }
         for (order in orders) {
-            val itemStack = actor.player.inventory.firstOrNull { it.isSimilar(order.item) } ?: continue
+            val itemStack = actor.player.inventory
+                .firstOrNull{ it.isSimilar(order.item) } ?: continue
             if (itemStack.amount < order.item.amount) continue
+            val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(order.item.displayName())}  x${order.item.amount}"
             itemStack.amount -= order.item.amount
             order.status = OrderStatus.COMPLETED
             order.timeCompleted = LocalDateTime.now()
             JobListings.eco.depositPlayer(actor.player, order.cost)
-            actor.reply("You have completed an order and received ${order.cost}")
+            actor.reply("<green>You have completed the order <gray>$orderInfo</gray> and received <gold>${order.cost}</gold>.")
+            // TODO: Send message to owner when done
         }
     }
 }

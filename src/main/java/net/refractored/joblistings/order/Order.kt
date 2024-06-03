@@ -169,7 +169,8 @@ data class Order(
                 order.status = OrderStatus.INCOMPLETE
                 orderDao.update(order)
                 val item = order.item
-                val orderInfo = "${item.displayName()}  x${item.amount}"
+
+                val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(item.displayName())}  x${item.amount}"
                 val ownerMessage = MessageUtil.toComponent(
                     "<red>One of your orders, <gray>\"${orderInfo}\"</gray>, could not be completed in time!"
                 )
