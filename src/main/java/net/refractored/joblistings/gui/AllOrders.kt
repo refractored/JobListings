@@ -1,10 +1,13 @@
 package net.refractored.joblistings.gui
 
+import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
@@ -14,6 +17,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
+import java.util.*
 import kotlin.math.ceil
 
 class AllOrders {
@@ -119,6 +123,14 @@ class AllOrders {
                     if (Order.isOrderExpired(order)) {
                         event.whoClicked.closeInventory()
                         throw CommandErrorException("Order has expired.")
+                    }
+                    val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+                    queryBuilder.where().eq("assignee", actor.uniqueId)
+                    queryBuilder.where().eq("status", OrderStatus.CLAIMED)
+                    val orders = orderDao.query(queryBuilder.prepare())
+                    if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted") ) {
+                        event.whoClicked.closeInventory()
+                        throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
                     }
                     actor.reply("Order Accepted!")
                     Order.acceptOrder(order, actor.player)
