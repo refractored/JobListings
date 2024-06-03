@@ -6,6 +6,8 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.database.Database.Companion.mailDao
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
@@ -127,7 +129,7 @@ data class Order(
         }
 
         fun isOrderExpired(order: Order): Boolean {
-            return (order.timeExpires > LocalDateTime.now())
+            return (order.timeExpires <= LocalDateTime.now())
         }
 
         fun updateExpiredOrders() {
@@ -140,10 +142,11 @@ data class Order(
                     order.status = OrderStatus.EXPIRED
                     orderDao.update(order)
                     val item = order.item
-                    val orderInfo = "${item.displayName()}  x${item.amount}"
+                    val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(item.displayName())}  x${item.amount}"
                     val message = MessageUtil.toComponent(
                         "<red>One of your orders <gray>\"${orderInfo}\"</gray> expired!"
                     )
+                    Bukkit.getPlayer(order.user)?.sendMessage("${order.timeExpires} and ${order.timeCreated}")!!
                     Bukkit.getPlayer(order.user)?.sendMessage(message)
                         ?: run {
                             Mail.createMail(order.user, message)

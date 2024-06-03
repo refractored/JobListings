@@ -26,7 +26,7 @@ data class Mail(
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeExpires: LocalDateTime,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var message: String,
 
 ) {
