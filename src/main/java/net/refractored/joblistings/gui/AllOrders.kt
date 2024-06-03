@@ -83,7 +83,7 @@ class AllOrders {
                 },
             )
             Order.getOrders(21, gui.currentPage * 21 ).forEachIndexed { index, order ->
-                val item = ItemstackSerializers.deserialize(order.item)!!.clone()
+                val item = order.item
                 val itemMetaCopy = item.itemMeta
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),

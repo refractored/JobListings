@@ -89,7 +89,7 @@ class MyOrders {
             )
 
             Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
-                val item = ItemstackSerializers.deserialize(order.item)!!.clone()
+                val item = order.item
                 val itemMetaCopy = item.itemMeta
                 val infoLore = mutableListOf(
                     MessageUtil.toComponent(""),

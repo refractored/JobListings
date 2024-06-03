@@ -2,13 +2,17 @@ package net.refractored.joblistings.database
 
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.dao.DaoManager
+import com.j256.ormlite.field.DataPersisterManager
 import com.j256.ormlite.jdbc.JdbcConnectionSource
 import com.j256.ormlite.jdbc.JdbcPooledConnectionSource
 import com.j256.ormlite.table.TableUtils
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.serializers.ItemstackSerializers
+import java.sql.SQLException
 import java.util.*
+
 
 /**
  * A static class used for database operations.
@@ -56,6 +60,13 @@ class Database {
             mailDao = DaoManager.createDao(connectionSource, Mail::class.java) as Dao<Mail, UUID>
 
             TableUtils.createTableIfNotExists(connectionSource, Mail::class.java)
+
+            try {
+                DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
+            } catch (e: SQLException) {
+                e.printStackTrace()
+            }
+            
         }
     }
 }
