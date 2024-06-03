@@ -9,6 +9,7 @@ import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
 import java.time.LocalDateTime
 import java.util.*
 
@@ -46,7 +47,7 @@ data class Mail(
         fun createMail(user: UUID, message: Component) {
             val mail = Mail()
             mail.user = user
-            mail.message = message.toString()
+            mail.message = GsonComponentSerializer.gson().serialize(message)
             mail.timeCreated = LocalDateTime.now()
             mail.timeExpires = LocalDateTime.now().plusHours(12)
             mailDao.create(mail)
@@ -70,7 +71,7 @@ data class Mail(
                 return
             }
             for (mail in allMail) {
-                player.sendMessage(MessageUtil.toComponent(mail.message))
+                GsonComponentSerializer.gson().deserialize(mail.message).let { player.sendMessage(it) }
                 mailDao.delete(mail)
             }
         }

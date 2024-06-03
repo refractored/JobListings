@@ -36,7 +36,7 @@ class CompleteOrders {
         for (order in orders) {
             // If item is split into multiple stacks, it will not detect it.`
             val itemStack = actor.player.inventory
-                .firstOrNull{ it?.isSimilar(order.item) ?: false } ?: continue
+                .firstOrNull{ it?.isSimilar(order.item) ?: false && it.amount > order.item.amount } ?: continue
             if (itemStack.amount < order.item.amount) continue
             val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(order.item.displayName())} x${order.item.amount}"
             itemStack.amount -= order.item.amount
