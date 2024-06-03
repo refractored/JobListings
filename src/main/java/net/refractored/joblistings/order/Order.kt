@@ -144,9 +144,9 @@ data class Order(
                     val message = MessageUtil.toComponent(
                         "<red>One of your orders <gray>\"${orderInfo}\"</gray> expired!"
                     )
-                    Bukkit.getPlayer(order.user)?.sendMessage("${order.timeExpires} and ${order.timeCreated}")!!
                     Bukkit.getPlayer(order.user)?.sendMessage(message)
                         ?: run {
+                            // TODO: Check if player exists.
                             Mail.createMail(order.user, message)
                         }
 

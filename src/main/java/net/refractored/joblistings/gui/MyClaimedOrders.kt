@@ -109,22 +109,6 @@ class MyClaimedOrders {
 //                val balls = Duration.between(LocalDateTime.now(), order.timeDeadline)
 //                balls.toHours()
 
-//                when (order.status) {
-//                    OrderStatus.PENDING -> {
-//                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
-//                    }
-//                    OrderStatus.CLAIMED -> {
-//                        infoLore.add(MessageUtil.toComponent("<reset><gray>Orders in progress only give back half the payment."))
-//                        infoLore.add(MessageUtil.toComponent("<reset><orange>(Click to remove order)"))
-//                    }
-//                    OrderStatus.COMPLETED -> {
-//                        infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
-//                    }
-//
-//                    OrderStatus.INCOMPLETE -> TODO()
-//                    OrderStatus.EXPIRED -> TODO()
-//                }
-
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
                     itemLore.addAll(infoLore)

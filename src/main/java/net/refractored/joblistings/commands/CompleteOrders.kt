@@ -4,8 +4,11 @@ import com.j256.ormlite.stmt.QueryBuilder
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.util.MessageUtil
+import org.bukkit.Bukkit
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
@@ -19,7 +22,7 @@ class CompleteOrders {
     @CommandPermission("joblistings.view.completeorders")
     @Description("Finish your orders.")
     @Command("joblistings complete")
-    fun getOrders(actor: BukkitCommandActor) {
+    fun completeOrders(actor: BukkitCommandActor) {
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder.orderBy("timeCreated", false)
         queryBuilder.where().eq("asignee", actor.uniqueId)
@@ -28,6 +31,8 @@ class CompleteOrders {
         if (orders.isEmpty()) {
             throw CommandErrorException("You have no orders to complete.")
         }
+        val orderCount = orders.size
+        var completionCount = 0
         for (order in orders) {
             val itemStack = actor.player.inventory
                 .firstOrNull{ it.isSimilar(order.item) } ?: continue
@@ -36,9 +41,28 @@ class CompleteOrders {
             itemStack.amount -= order.item.amount
             order.status = OrderStatus.COMPLETED
             order.timeCompleted = LocalDateTime.now()
+            orderDao.update(order)
             JobListings.eco.depositPlayer(actor.player, order.cost)
+            completionCount++
             actor.reply("<green>You have completed the order <gray>$orderInfo</gray> and received <gold>${order.cost}</gold>.")
-            // TODO: Send message to owner when done
+            val ownerMessage = MessageUtil.toComponent(
+                "<green>One of your orders, <gray>\"${orderInfo}\"</gray>, was completed!"
+            )
+            Bukkit.getPlayer(order.user)?.sendMessage(ownerMessage)
+                ?: run {
+                    Mail.createMail(order.user, ownerMessage)
+                }
+
         }
+        if (completionCount == 0) {
+            throw CommandErrorException("None your claimed order's requirements were met.")
+        }
+        if (completionCount == orderCount) {
+            actor.reply("<green>All orders have been completed.")
+            return
+        }
+        actor.reply("<green><gold>$completionCount</gold> orders have been completed out of <gold>$orderCount</gold>." +
+                "\nYou now have <gold>${(orderCount - completionCount)}/<gold> orders left"
+        )
     }
 }

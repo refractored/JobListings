@@ -12,9 +12,11 @@ import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.command.Command
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
+import revxrsal.commands.exception.CommandErrorException
 import kotlin.math.ceil
 
 class MyOrders {
@@ -135,7 +137,9 @@ class MyOrders {
                 ).withListener { event: InventoryClickEvent ->
                     when (order.status) {
                         OrderStatus.PENDING -> {
-                            event.whoClicked.sendMessage("Order Deleted!")
+                            event.whoClicked.sendMessage(
+                                MessageUtil.toComponent("<green>Order Cancelled!")
+                            )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, order.cost)
                             Database.orderDao.delete(order)
@@ -143,7 +147,9 @@ class MyOrders {
                             gui.refreshInventory(actor.player)
                         }
                         OrderStatus.CLAIMED -> {
-                            event.whoClicked.sendMessage("Order Removed!")
+                            event.whoClicked.sendMessage(
+                                MessageUtil.toComponent("<green>Order Cancelled!")
+                            )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost / 2) )
                             Database.orderDao.delete(order)
@@ -151,11 +157,26 @@ class MyOrders {
                             gui.refreshInventory(actor.player)
                         }
                         OrderStatus.COMPLETED -> {
-                            TODO()
+                            event.whoClicked.sendMessage("Order obtained!")
+                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+                            val inventoryFull = actor.player.inventory.none { it == null }
+                            if (inventoryFull) {
+                                actor.player.closeInventory()
+                                event.whoClicked.sendMessage(
+                                    MessageUtil.toComponent("<red>Your inventory is full!")
+                                )
+                                return@withListener
+                            }
+                            actor.player.inventory.addItem(order.item)
+                            Database.orderDao.delete(order)
+                            reloadItems(gui, actor)
+                            gui.refreshInventory(actor.player)
                         }
 
                         OrderStatus.INCOMPLETE -> {
-                            event.whoClicked.sendMessage("Order refunded!")
+                            event.whoClicked.sendMessage(
+                                MessageUtil.toComponent("<green>Order refunded!")
+                            )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost) )
                             Database.orderDao.delete(order)
@@ -163,7 +184,9 @@ class MyOrders {
                             gui.refreshInventory(actor.player)
                         }
                         OrderStatus.EXPIRED -> {
-                            event.whoClicked.sendMessage("Order refunded!")
+                            event.whoClicked.sendMessage(
+                                MessageUtil.toComponent("<green>Order refunded!")
+                            )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost) )
                             Database.orderDao.delete(order)
