@@ -20,7 +20,7 @@ import kotlin.math.ceil
 class MyOrders {
     companion object {
         fun openMyOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create("&9&lMy Orders &c(Page {currentPage}/{maxPage})", 5)
+            val gui = spiGUI.create("&9&lMy Orders &9(Page {currentPage}/{maxPage})", 5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
@@ -48,6 +48,7 @@ class MyOrders {
                                 .build()
                         ),
                     )
+                    gui.stickSlot(it + pageSlot)
                 }
             }
 
@@ -89,7 +90,7 @@ class MyOrders {
             )
 
             Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
-                val item = ItemstackSerializers.deserialize(order.item)!!.clone()
+                val item = order.item
                 val itemMetaCopy = item.itemMeta
                 val infoLore = mutableListOf(
                     MessageUtil.toComponent(""),
@@ -102,18 +103,21 @@ class MyOrders {
 
                 when (order.status) {
                     OrderStatus.PENDING -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to remove order)"))
+                        infoLore.add(MessageUtil.toComponent("<reset><red>(Click to cancel order)"))
                     }
                     OrderStatus.CLAIMED -> {
-                        infoLore.add(MessageUtil.toComponent("<reset><gray>Orders in progress only give back half the payment."))
-                        infoLore.add(MessageUtil.toComponent("<reset><orange>(Click to remove order)"))
+                        infoLore.add(MessageUtil.toComponent("<reset><gray>In-progress orders only return half the payment."))
+                        infoLore.add(MessageUtil.toComponent("<reset><yellow>(Click to remove order)"))
                     }
                     OrderStatus.COMPLETED -> {
                         infoLore.add(MessageUtil.toComponent("<reset><lime>(Click to claim order)"))
                     }
-
-                    OrderStatus.INCOMPLETE -> TODO()
-                    OrderStatus.EXPIRED -> TODO()
+                    OrderStatus.INCOMPLETE -> {
+                        infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))
+                    }
+                    OrderStatus.EXPIRED -> {
+                        infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))
+                    }
                 }
 
                 if (itemMetaCopy.hasLore()) {
@@ -150,8 +154,22 @@ class MyOrders {
                             TODO()
                         }
 
-                        OrderStatus.INCOMPLETE -> TODO()
-                        OrderStatus.EXPIRED -> TODO()
+                        OrderStatus.INCOMPLETE -> {
+                            event.whoClicked.sendMessage("Order refunded!")
+                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+                            eco.depositPlayer(actor.player, (order.cost) )
+                            Database.orderDao.delete(order)
+                            reloadItems(gui, actor)
+                            gui.refreshInventory(actor.player)
+                        }
+                        OrderStatus.EXPIRED -> {
+                            event.whoClicked.sendMessage("Order refunded!")
+                            gui.removeButton((index + 10) + (gui.currentPage * 45))
+                            eco.depositPlayer(actor.player, (order.cost) )
+                            Database.orderDao.delete(order)
+                            reloadItems(gui, actor)
+                            gui.refreshInventory(actor.player)
+                        }
                     }
                 }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)

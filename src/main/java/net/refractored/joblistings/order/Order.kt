@@ -5,8 +5,7 @@ import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
-import net.kyori.adventure.text.Component
-import net.refractored.joblistings.database.Database.Companion.mailDao
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -14,6 +13,7 @@ import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
 import java.util.*
 
@@ -34,26 +34,26 @@ data class Order(
     @DatabaseField
     var assignee: UUID?,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeCreated: LocalDateTime,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeExpires: LocalDateTime,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeClaimed: LocalDateTime?,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeDeadline: LocalDateTime?,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeCompleted: LocalDateTime?,
 
     @DatabaseField
     var status: OrderStatus,
 
-    @DatabaseField(dataType = DataType.LONG_STRING)
-    var item: String,
+    @DatabaseField(persisterClass = ItemstackSerializers::class)
+    var item: ItemStack,
 
     @DatabaseField
     val userClaimed: Boolean
@@ -73,7 +73,7 @@ data class Order(
         null,
         null,
         OrderStatus.PENDING,
-        ItemstackSerializers.serialize(ItemBuilder(Material.STONE).build()),
+        (ItemBuilder(Material.STONE).build()),
         false,
     )
 
@@ -84,7 +84,7 @@ data class Order(
          * @param offset Starting point for the current page
          * @return List of newest orders for the current page
          */
-        fun getOrders(limit: Int, offset: Int): List<Order> {
+        fun getPendingOrders(limit: Int, offset: Int): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.orderBy("timeCreated", false)
             queryBuilder.limit(limit.toLong())
@@ -127,7 +127,7 @@ data class Order(
         }
 
         fun isOrderExpired(order: Order): Boolean {
-            return (order.timeExpires > LocalDateTime.now())
+            return (order.timeExpires <= LocalDateTime.now())
         }
 
         fun updateExpiredOrders() {
@@ -139,11 +139,12 @@ data class Order(
                 if (isOrderExpired(order)) {
                     order.status = OrderStatus.EXPIRED
                     orderDao.update(order)
-                    val item = ItemstackSerializers.deserialize(order.item)!!
-                    val orderInfo = "${item.displayName()}  x${item.amount}"
+                    val item = order.item
+                    val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(item.displayName())}  x${item.amount}"
                     val message = MessageUtil.toComponent(
                         "<red>One of your orders <gray>\"${orderInfo}\"</gray> expired!"
                     )
+                    Bukkit.getPlayer(order.user)?.sendMessage("${order.timeExpires} and ${order.timeCreated}")!!
                     Bukkit.getPlayer(order.user)?.sendMessage(message)
                         ?: run {
                             Mail.createMail(order.user, message)
@@ -167,8 +168,9 @@ data class Order(
                 if (!isOrderDeadlinePassed(order)) return
                 order.status = OrderStatus.INCOMPLETE
                 orderDao.update(order)
-                val item = ItemstackSerializers.deserialize(order.item)!!
-                val orderInfo = "${item.displayName()}  x${item.amount}"
+                val item = order.item
+
+                val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(item.displayName())}  x${item.amount}"
                 val ownerMessage = MessageUtil.toComponent(
                     "<red>One of your orders, <gray>\"${orderInfo}\"</gray>, could not be completed in time!"
                 )

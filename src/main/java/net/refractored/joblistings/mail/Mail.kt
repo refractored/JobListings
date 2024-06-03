@@ -1,5 +1,6 @@
 package net.refractored.joblistings.mail
 
+import com.j256.ormlite.field.DataType
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
@@ -19,13 +20,13 @@ data class Mail(
     @DatabaseField
     var user: UUID,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeCreated: LocalDateTime,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeExpires: LocalDateTime,
 
-    @DatabaseField
+    @DatabaseField(dataType = DataType.SERIALIZABLE)
     var message: String,
 
 ) {

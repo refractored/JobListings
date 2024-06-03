@@ -1,8 +1,11 @@
 package net.refractored.joblistings.commands
 
+import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.item.ItemBuilder
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -15,6 +18,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
 import java.time.LocalDateTime
+import java.util.*
 
 class CreateOrderMaterial {
     @CommandPermission("joblistings.order.create.material")
@@ -29,6 +33,18 @@ class CreateOrderMaterial {
             throw CommandErrorException("Amount must be at least 1.")
         }
 
+        if (hours < 1) {
+            throw CommandErrorException("Hours must be at least 1.")
+        }
+
+        if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
+            throw CommandErrorException("Hours must be less than or equal to ${JobListings.instance.config.getLong("Orders.MaxOrdersTime")}.")
+        }
+
+        if (hours < JobListings.instance.config.getLong("Orders.MinOrdersTime")) {
+            throw CommandErrorException("Hours must be more than or equal to ${JobListings.instance.config.getLong("Orders.MinOrdersTime")}.")
+        }
+
         if (cost < 1) {
             throw CommandErrorException("Cost must be at least 1.")
         }
@@ -37,10 +53,13 @@ class CreateOrderMaterial {
             throw CommandErrorException("You do not have enough money to cover your payment.")
         }
 
-        val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId))
+        val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+        queryBuilder.orderBy("timeCreated", false)
+        queryBuilder.where().eq("status", OrderStatus.PENDING)
+        val orders = orderDao.query(queryBuilder.prepare())
 
-        if (order.isNotEmpty()) {
-            throw CommandErrorException("You already have an order.")
+        if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrders")) {
+            throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrders")} orders at once.")
         }
 
         val item = ItemBuilder(material).amount(amount).build()
@@ -61,9 +80,9 @@ class CreateOrderMaterial {
 
         eco.withdrawPlayer(actor.player, cost)
 
-        Database.orderDao.create(
+        orderDao.create(
             Order(
-                id = java.util.UUID.randomUUID(),
+                id = UUID.randomUUID(),
                 cost = cost,
                 user = actor.uniqueId,
                 assignee = null,
@@ -73,7 +92,7 @@ class CreateOrderMaterial {
                 timeCompleted = null,
                 timeClaimed = null,
                 status = OrderStatus.PENDING,
-                item = ItemstackSerializers.serialize(item),
+                item = item,
                 userClaimed = false,
             )
         )

@@ -1,7 +1,10 @@
 package net.refractored.joblistings.commands
 
+import com.j256.ormlite.stmt.QueryBuilder
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -14,6 +17,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 import revxrsal.commands.exception.CommandErrorException
 import java.time.LocalDateTime
+import java.util.*
 
 class CreateOrderHand {
 
@@ -29,6 +33,18 @@ class CreateOrderHand {
             throw CommandErrorException("Amount must be at least 1.")
         }
 
+        if (hours < 1) {
+            throw CommandErrorException("Hours must be at least 1.")
+        }
+
+        if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
+            throw CommandErrorException("Hours must be less than or equal to ${JobListings.instance.config.getLong("Orders.MaxOrdersTime")}.")
+        }
+
+        if (hours < JobListings.instance.config.getLong("Orders.MinOrdersTime")) {
+            throw CommandErrorException("Hours must be more than or equal to ${JobListings.instance.config.getLong("Orders.MinOrdersTime")}.")
+        }
+
         if (cost < 1) {
             throw CommandErrorException("Cost must be at least 1.")
         }
@@ -37,10 +53,14 @@ class CreateOrderHand {
             throw CommandErrorException("You do not have enough money to cover your payment.")
         }
 
-        val order = Database.orderDao.queryForFieldValues(mapOf("user" to actor.uniqueId))
 
-        if (order.isNotEmpty()) {
-            throw CommandErrorException("You already have an order.")
+        val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+        queryBuilder.orderBy("timeCreated", false)
+        queryBuilder.where().eq("status", OrderStatus.PENDING)
+        val orders = orderDao.query(queryBuilder.prepare())
+
+        if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrders")) {
+            throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrders")} orders at once.")
         }
 
         val item = actor.player.inventory.itemInMainHand.clone()
@@ -75,7 +95,7 @@ class CreateOrderHand {
                 timeCompleted = null,
                 timeClaimed = null,
                 status = OrderStatus.PENDING,
-                item = ItemstackSerializers.serialize(item),
+                item = item,
                 userClaimed = false,
             )
         )
