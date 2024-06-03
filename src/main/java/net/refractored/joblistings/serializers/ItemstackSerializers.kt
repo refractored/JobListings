@@ -21,12 +21,12 @@ class ItemstackSerializers private constructor() : BaseDataType(SqlType.LONG_STR
         return deserialize(defaultStr)
     }
 
-    override fun javaToSqlArg(fieldType: FieldType?, javaObject: Any?): Any? {
+    override fun javaToSqlArg(fieldType: FieldType?, javaObject: Any?): Any {
         return serialize(javaObject as ItemStack)
     }
 
-    override fun sqlArgToJava(fieldType: FieldType?, sqlArg: Any?, columnPos: Int): ItemStack? {
-        return deserialize(sqlArg as String?)
+    override fun sqlArgToJava(fieldType: FieldType?, sqlArg: Any?, columnPos: Int): ItemStack {
+        return deserialize(sqlArg as String?)!! // Should never be null
     }
     override fun resultStringToJava(fieldType: FieldType?, stringValue: String?, columnPos: Int): Any? {
         return deserialize(stringValue)

@@ -6,6 +6,7 @@ import com.samjakob.spigui.menu.SGMenu
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
@@ -13,6 +14,7 @@ import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
+import revxrsal.commands.exception.CommandErrorException
 import kotlin.math.ceil
 
 class AllOrders {
@@ -107,7 +109,19 @@ class AllOrders {
                 val button = SGButton(
                     item
                 ).withListener { event: InventoryClickEvent ->
-                    event.whoClicked.sendMessage("Order Accepted!")
+                    if (order.user == actor.uniqueId) {
+                        event.whoClicked.closeInventory()
+                        throw CommandErrorException("You cannot accept your own order.")
+                    }
+                    if (order.status != OrderStatus.PENDING) {
+                        event.whoClicked.closeInventory()
+                        throw CommandErrorException("Order is not pending. Someone might have already accepted it.")
+                    }
+                    if (Order.isOrderExpired(order)) {
+                        event.whoClicked.closeInventory()
+                        throw CommandErrorException("Order has expired.")
+                    }
+                    actor.reply("Order Accepted!")
                     Order.acceptOrder(order, actor.player)
                     event.whoClicked.closeInventory()
                 }
