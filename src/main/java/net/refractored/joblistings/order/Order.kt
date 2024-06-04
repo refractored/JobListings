@@ -5,7 +5,7 @@ import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
@@ -74,6 +74,54 @@ data class Order(
         (ItemBuilder(Material.STONE).build()),
     )
 
+    val itemInfo = Component.text()
+        .append(item.displayName())
+        .append(
+            MessageUtil.toComponent(" x${item.amount}<reset>")
+        )
+
+    fun messageOwner(message: Component) {
+        Bukkit.getPlayer(user)?.sendMessage(message)
+            ?: run {
+                Mail.createMail(user, message)
+            }
+    }
+
+    fun messageAssignee(message: Component) {
+        val player = assignee
+            ?: throw IllegalStateException("Order does not have an assignee")
+        Bukkit.getPlayer(player)?.sendMessage(message)
+            ?: run {
+                Mail.createMail(player, message)
+            }
+    }
+
+    fun isOrderDeadlinePassed(): Boolean {
+        val deadline = timeDeadline ?: return false
+        return LocalDateTime.now().isAfter(deadline)
+    }
+
+    fun acceptOrder(assigneePlayer: Player) {
+        if (assignee != null) {
+            throw IllegalArgumentException("Order already has an assignee")
+        }
+        if (user == assigneePlayer.uniqueId) {
+            throw IllegalArgumentException("Cannot accept your own order")
+        }
+        if (status != OrderStatus.PENDING) {
+            throw IllegalArgumentException("Order is not pending")
+        }
+        assignee = assigneePlayer.uniqueId
+        timeClaimed = LocalDateTime.now()
+        timeDeadline = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.OrderDeadline"))
+        status = OrderStatus.CLAIMED
+        orderDao.update(this)
+    }
+
+    fun isOrderExpired(): Boolean {
+        return LocalDateTime.now().isAfter(timeExpires)
+    }
+
     companion object {
         /**
          * Get a specific page of the newest orders from the database
@@ -123,38 +171,27 @@ data class Order(
             return orderDao.query(queryBuilder.prepare())
         }
 
-        fun isOrderExpired(order: Order): Boolean {
-            return (order.timeExpires <= LocalDateTime.now())
-        }
-
         fun updateExpiredOrders() {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.orderBy("timeCreated", true)
             queryBuilder.where().eq("status", OrderStatus.PENDING)
             val orders = orderDao.query(queryBuilder.prepare())
             for (order in orders) {
-                if (isOrderExpired(order)) {
-                    order.status = OrderStatus.EXPIRED
-                    orderDao.update(order)
-                    val item = order.item
-                    val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(item.displayName())} x${item.amount}"
-                    val message = MessageUtil.toComponent(
-                        "<red>One of your orders <gray>\"${orderInfo}\"</gray> expired!"
-                    )
-                    Bukkit.getPlayer(order.user)?.sendMessage(message)
-                        ?: run {
-                            // TODO: Check if player exists.
-                            Mail.createMail(order.user, message)
-                        }
-
-                }
+                if (!order.isOrderExpired()) return
+                order.status = OrderStatus.EXPIRED
+                orderDao.update(order)
+                val item = order.item
+                val message = Component.text()
+                    .append(MessageUtil.toComponent(
+                    "<red>One of your orders, <gray>"
+                    ))
+                    .append(order.itemInfo)
+                    .append(MessageUtil.toComponent(
+                        "<red>expired!"
+                    ))
+                    .build()
+                order.messageOwner(message)
             }
-        }
-
-
-        fun isOrderDeadlinePassed(order: Order): Boolean {
-            val deadline = order.timeDeadline ?: return false
-            return LocalDateTime.now() >= deadline
         }
 
         fun updateDeadlineOrders() {
@@ -162,46 +199,31 @@ data class Order(
             queryBuilder.orderBy("timeClaimed", true)
             queryBuilder.where().eq("status", OrderStatus.CLAIMED)
             orderDao.query(queryBuilder.prepare()).forEach { order ->
-                if (!isOrderDeadlinePassed(order)) return
+                if (!order.isOrderDeadlinePassed()) return
                 order.status = OrderStatus.INCOMPLETE
                 orderDao.update(order)
-                val item = order.item
-                val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(item.displayName())} x${item.amount}"
-                val ownerMessage = MessageUtil.toComponent(
-                    "<red>One of your orders, <gray>\"${orderInfo}\"</gray>, could not be completed in time!"
-                )
-                Bukkit.getPlayer(order.user)?.sendMessage(ownerMessage)
-                    ?: run {
-                        Mail.createMail(order.user, ownerMessage)
-                    }
-
+                val ownerMessage = Component.text()
+                .append(MessageUtil.toComponent(
+                    "<red>One of your orders, <gray>"
+                ))
+                .append(order.itemInfo)
+                .append(MessageUtil.toComponent(
+                    "<red>could not be completed in time!"
+                ))
+                .build()
+                order.messageOwner(ownerMessage)
                 if (order.assignee == null) return // This should never be null, but just in case
-
-                val asigneeMessage = MessageUtil.toComponent(
-                    "<red>You were unable to complete your order, <gray>\"${orderInfo}\"</gray>, in time!"
-                )
-                Bukkit.getPlayer(order.user)?.sendMessage(asigneeMessage)
-                    ?: run {
-                        Mail.createMail(order.assignee!!, asigneeMessage)
-                    }
+                val assigneeMessage = Component.text()
+                    .append(MessageUtil.toComponent(
+                        "<red>You were unable to complete your order, <gray>"
+                    ))
+                    .append(order.itemInfo)
+                    .append(MessageUtil.toComponent(
+                        "<red>in time!"
+                    ))
+                    .build()
+                order.messageAssignee(assigneeMessage)
             }
-        }
-
-        fun acceptOrder(order: Order, assignee: Player) {
-            if (order.assignee != null) {
-                throw IllegalArgumentException("Order already has an assignee")
-            }
-            if (order.user == assignee.uniqueId) {
-                throw IllegalArgumentException("Cannot accept your own order")
-            }
-            if (order.status != OrderStatus.PENDING) {
-                throw IllegalArgumentException("Order is not pending")
-            }
-            order.assignee = assignee.uniqueId
-            order.timeClaimed = LocalDateTime.now()
-            order.timeDeadline = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.OrderDeadline"))
-            order.status = OrderStatus.CLAIMED
-            orderDao.update(order)
         }
     }
 }

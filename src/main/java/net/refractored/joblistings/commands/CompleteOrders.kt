@@ -1,14 +1,12 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
-import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
-import org.bukkit.Bukkit
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
@@ -37,24 +35,32 @@ class CompleteOrders {
             // If item is split into multiple stacks, it will not detect it.`
             val itemStack = actor.player.inventory
                 .firstOrNull{ it?.isSimilar(order.item) ?: false && it.amount >= order.item.amount } ?: continue
-            val orderInfo = "${PlainTextComponentSerializer.plainText().serialize(order.item.displayName())} x${order.item.amount}"
             itemStack.amount -= order.item.amount
             order.status = OrderStatus.COMPLETED
             order.timeCompleted = LocalDateTime.now()
             orderDao.update(order)
             JobListings.eco.depositPlayer(actor.player, order.cost)
             completionCount++
-            actor.reply(
-                MessageUtil.toComponent("<green>You have completed the order <gray>$orderInfo</gray> and received <gold>${order.cost}</gold>.")
-            )
-            val ownerMessage = MessageUtil.toComponent(
-                "<green>One of your orders, <gray>\"${orderInfo}\"</gray>, was completed!"
-            )
-            Bukkit.getPlayer(order.user)?.sendMessage(ownerMessage)
-                ?: run {
-                    Mail.createMail(order.user, ownerMessage)
-                }
-
+            val assigneeMessage =  Component.text()
+                .append(MessageUtil.toComponent(
+                    "<green>You have completed the order <gray>"
+                ))
+                .append(order.itemInfo)
+                .append(MessageUtil.toComponent(
+                    "<gray> and received <gold>${order.cost}</gold>."
+                ))
+                .build()
+            actor.reply(assigneeMessage)
+            val ownerMessage = Component.text()
+                .append(MessageUtil.toComponent(
+                "<green>One of your orders, <gray>"
+            ))
+                .append(order.itemInfo)
+                .append(MessageUtil.toComponent(
+                    "<gray>, was completed!"
+                ))
+                .build()
+            order.messageOwner(ownerMessage)
         }
         if (completionCount == 0) {
             throw CommandErrorException("None your claimed order's requirements were met.")

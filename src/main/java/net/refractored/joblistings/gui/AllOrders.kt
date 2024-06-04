@@ -116,18 +116,21 @@ class AllOrders {
                         actor.reply(
                             MessageUtil.toComponent("<red>You cannot accept your own order.")
                         )
+                        return@withListener
                     }
                     if (order.status != OrderStatus.PENDING) {
                         event.whoClicked.closeInventory()
                         actor.reply(
                             MessageUtil.toComponent("<red>Order is not pending. Someone might have already accepted it.")
                         )
+                        return@withListener
                     }
-                    if (Order.isOrderExpired(order)) {
+                    if (order.isOrderExpired()) {
                         event.whoClicked.closeInventory()
                         actor.reply(
                             MessageUtil.toComponent("<red>Order has expired.")
                         )
+                        return@withListener
                     }
                     val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
                     queryBuilder.where().eq("assignee", actor.uniqueId)
@@ -143,7 +146,7 @@ class AllOrders {
                     actor.reply(
                         MessageUtil.toComponent("<green>Order accepted!")
                     )
-                    Order.acceptOrder(order, actor.player)
+                    order.acceptOrder(actor.player)
                     event.whoClicked.closeInventory()
                 }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)
