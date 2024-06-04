@@ -1,15 +1,18 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
+import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
 import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
+import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
@@ -22,7 +25,12 @@ class CreateOrderHand {
     @CommandPermission("joblistings.order.create.hand")
     @Description("Create a new order.")
     @Command("joblistings create hand")
-    fun CreateOrder(actor: BukkitCommandActor, cost: Double, amount: Int, hours: Long) {
+    fun CreateOrder(
+        actor: BukkitCommandActor,
+        cost: Double,
+        @Optional amount: Int = 1,
+        @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
+    ){
         if (actor.isConsole) {
             throw CommandErrorException("You must be a player to use this command.")
         }
@@ -97,7 +105,17 @@ class CreateOrderHand {
             )
         )
 
-        actor.player.sendMessage("Order created!")
+        actor.player.sendMessage(
+            Component.text()
+                .append(MessageUtil.toComponent("<green>Order created for "))
+                .append(item.displayName())
+                .append(MessageUtil.toComponent(" x${item.amount}<reset>"))
+                .appendNewline()
+                .append(MessageUtil.toComponent("<green>Reward: <white>$cost<reset>"))
+                .appendNewline()
+                .append(MessageUtil.toComponent("<green>Expires in <white>$hours<reset><white> hours"))
+                .build()
+        )
     }
 
 }

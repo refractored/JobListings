@@ -71,7 +71,7 @@ data class Order(
         null,
         null,
         OrderStatus.PENDING,
-        (ItemBuilder(Material.STONE).build()),
+        (ItemBuilder(Material.STONE).amount(1).build()),
     )
 
     val itemInfo = Component.text()
@@ -135,7 +135,7 @@ data class Order(
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             queryBuilder.where().eq("status", OrderStatus.PENDING)
-            return orderDao.query(queryBuilder.prepare())
+            return orderDao.query(queryBuilder.prepare()).sortedBy { it.timeCreated }
         }
 
         /**
@@ -151,7 +151,7 @@ data class Order(
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             queryBuilder.where().eq("user", playerUUID)
-            return orderDao.query(queryBuilder.prepare())
+            return orderDao.query(queryBuilder.prepare()).sortedBy { it.timeCreated }
         }
 
         /**
@@ -168,7 +168,7 @@ data class Order(
             queryBuilder.offset(offset.toLong())
             queryBuilder.where().eq("status", OrderStatus.CLAIMED)
             queryBuilder.where().eq("assignee", playerUUID)
-            return orderDao.query(queryBuilder.prepare())
+            return orderDao.query(queryBuilder.prepare()).sortedBy { it.timeCreated }
         }
 
         fun updateExpiredOrders() {
@@ -180,7 +180,6 @@ data class Order(
                 if (!order.isOrderExpired()) return
                 order.status = OrderStatus.EXPIRED
                 orderDao.update(order)
-                val item = order.item
                 val message = Component.text()
                     .append(MessageUtil.toComponent(
                     "<red>One of your orders, <gray>"

@@ -16,6 +16,8 @@ import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
+import java.time.Duration
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.math.ceil
 
@@ -89,11 +91,16 @@ class AllOrders {
             Order.getPendingOrders(21, gui.currentPage * 21 ).forEachIndexed { index, order ->
                 val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
+                val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
+                val expireDurationText = "${expireDuration.toHours()} Hours, ${expireDuration.toMinutesPart()} Minutes"
+                val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
+                val createdDurationText = "${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<reset><red>Pay: <white>${order.cost}"),
+                    MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-                    MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated}"),
+                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText} ago"),
+                    MessageUtil.toComponent("<reset><red>Expires in: <white>${expireDurationText}"),
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><gray>(Click to accept order)"),
                 )

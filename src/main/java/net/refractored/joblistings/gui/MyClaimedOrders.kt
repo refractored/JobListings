@@ -12,6 +12,8 @@ import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
+import java.time.Duration
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.ceil
 
@@ -89,13 +91,16 @@ class MyClaimedOrders {
             Order.getPlayerAcceptedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
                 val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
-
+                val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
+                val deadlineDurationText = "${deadlineDuration.toHours()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
+                val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
+                val createdDurationText = "${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = mutableListOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Pay: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-                    MessageUtil.toComponent("<reset><red>Created: <white>${order.timeCreated.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"))}"),
-                    MessageUtil.toComponent("<reset><red>Deadline: <white>${order.timeCreated.format(DateTimeFormatter.ofPattern("MM/dd HH:mm"))}"),
+                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText}"),
+                    MessageUtil.toComponent("<reset><red>Deadline in: <white>${deadlineDurationText}"),
                     MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),
                     MessageUtil.toComponent(""),
                 )

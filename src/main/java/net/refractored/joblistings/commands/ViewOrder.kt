@@ -10,7 +10,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 class ViewOrder {
     @CommandPermission("joblistings.view.myorders")
     @Description("View your order.")
-    @Command("joblistings created")
+    @Command("joblistings owned")
     fun viewOrder(actor: BukkitCommandActor) {
         MyOrders.openMyOrders(actor)
     }
