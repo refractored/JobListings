@@ -15,3 +15,6 @@ Orders:
   MinOrdersTime: 48
   # Deadline in hours to complete an order
   OrderDeadline: 24
+Mail:
+  # Mail Expire time in hours
+  ExpireTime: 96

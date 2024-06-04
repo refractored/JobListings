@@ -6,6 +6,7 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -68,7 +69,7 @@ data class Order(
         UUID.randomUUID(),
         null,
         LocalDateTime.now(),
-        LocalDateTime.now().plusHours(12),
+        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.MinOrdersTime")),
         null,
         null,
         null,
@@ -202,7 +203,7 @@ data class Order(
             }
             order.assignee = assignee.uniqueId
             order.timeClaimed = LocalDateTime.now()
-            order.timeDeadline = LocalDateTime.now().plusHours(12)
+            order.timeDeadline = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.OrderDeadline"))
             order.status = OrderStatus.CLAIMED
             orderDao.update(order)
         }

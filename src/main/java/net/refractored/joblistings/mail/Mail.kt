@@ -5,6 +5,7 @@ import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import net.kyori.adventure.text.Component
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.util.MessageUtil
@@ -37,7 +38,7 @@ data class Mail(
         UUID.randomUUID(),
         UUID.randomUUID(),
         LocalDateTime.now(),
-        LocalDateTime.now().plusHours(12),
+        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Mail.ExpireTime")),
         MessageUtil.toComponent(""),
     )
 
@@ -48,7 +49,7 @@ data class Mail(
             mail.user = user
             mail.message = message
             mail.timeCreated = LocalDateTime.now()
-            mail.timeExpires = LocalDateTime.now().plusHours(12)
+            mail.timeExpires = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Mail.ExpireTime"))
             mailDao.create(mail)
         }
 
