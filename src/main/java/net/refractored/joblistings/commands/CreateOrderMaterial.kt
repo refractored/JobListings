@@ -86,7 +86,6 @@ class CreateOrderMaterial {
                 timeClaimed = null,
                 status = OrderStatus.PENDING,
                 item = item,
-                userClaimed = false,
             )
         )
 

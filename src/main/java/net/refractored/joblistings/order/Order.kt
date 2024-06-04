@@ -56,9 +56,6 @@ data class Order(
     @DatabaseField(persisterClass = ItemstackSerializers::class)
     var item: ItemStack,
 
-    @DatabaseField
-    val userClaimed: Boolean
-
 ) {
     /**
      * This constructor should only be used for ORMLite
@@ -75,7 +72,6 @@ data class Order(
         null,
         OrderStatus.PENDING,
         (ItemBuilder(Material.STONE).build()),
-        false,
     )
 
     companion object {
