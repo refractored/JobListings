@@ -80,7 +80,7 @@ class JobListings : JavaPlugin() {
     override fun onDisable() {
         handler.unregisterAllCommands()
         cleanDatabase.cancel()
-        logger.info("Shuffled has been disabled!")
+        logger.info("JobListings has been disabled!")
     }
 
     /**

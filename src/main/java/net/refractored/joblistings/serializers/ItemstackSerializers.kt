@@ -14,60 +14,47 @@ import java.util.*
 
 
 
-class ItemstackSerializers private constructor() : BaseDataType(SqlType.LONG_STRING, arrayOf<Class<*>>(ItemStack::class.java)) {
-
+class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARRAY, arrayOf<Class<*>>(ItemStack::class.java)) {
 
     override fun parseDefaultString(fieldType: FieldType?, defaultStr: String?): Any? {
-        return deserialize(defaultStr)
+        return null
     }
 
-    override fun javaToSqlArg(fieldType: FieldType?, javaObject: Any?): Any {
-        return serialize(javaObject as ItemStack)
-    }
-
-    override fun sqlArgToJava(fieldType: FieldType?, sqlArg: Any?, columnPos: Int): ItemStack {
-        return deserialize(sqlArg as String?)!! // Should never be null
-    }
-    override fun resultStringToJava(fieldType: FieldType?, stringValue: String?, columnPos: Int): Any? {
-        return deserialize(stringValue)
-    }
-
-    override fun resultToSqlArg(fieldType: FieldType?, results: DatabaseResults?, columnPos: Int): Any? {
-        return results?.getString(columnPos)
-    }
-
-    fun serialize(contents: ItemStack): String {
-        val baos = ByteArrayOutputStream()
-        var boos: BukkitObjectOutputStream? = null
-
-        try {
-            boos = BukkitObjectOutputStream(baos)
-            boos.writeObject(contents)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            try {
-                boos?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
+    override fun javaToSqlArg(fieldType: FieldType?, javaObject: Any?): ByteArray? {
+        if (javaObject == null) {
+            return null
+        }
+        return try {
+            ByteArrayOutputStream().use { byteOut ->
+                BukkitObjectOutputStream(byteOut).use { bukkitOut ->
+                    bukkitOut.writeObject(javaObject)
+                }
+                byteOut.toByteArray()
             }
+        } catch (e: IOException) {
+            throw RuntimeException("Failed to serialize ItemStack", e)
         }
-
-        return Base64.getEncoder().encodeToString(baos.toByteArray())
     }
 
-    fun deserialize(data: String?): ItemStack? {
-        var contents: ItemStack? = null
+    override fun resultToSqlArg(fieldType: FieldType?, results: DatabaseResults?, columnPos: Int): Any {
+        return results!!.getBytes(columnPos)
+    }
 
-        try {
-            val bais = ByteArrayInputStream(Base64.getDecoder().decode(data))
-            val bois = BukkitObjectInputStream(bais)
-            contents = bois.readObject() as ItemStack
-
-        } catch (e: Exception) {
-            e.printStackTrace()
+    override fun sqlArgToJava(fieldType: FieldType?, sqlArg: Any?, columnPos: Int): Any? {
+        if (sqlArg == null) {
+            return null
         }
-        return contents
+        return try {
+            ByteArrayInputStream(sqlArg as ByteArray).use { byteIn ->
+                BukkitObjectInputStream(byteIn).use { bukkitIn ->
+                    bukkitIn.readObject() as ItemStack
+                }
+            }
+        } catch (e: IOException) {
+            throw RuntimeException("Failed to deserialize ItemStack", e)
+        } catch (e: ClassNotFoundException) {
+            throw RuntimeException("Failed to find class during ItemStack deserialization", e)
+        }
     }
 
 

@@ -70,7 +70,7 @@ class CreateOrderHand {
         }
 
         if (amount > item.maxStackSize) {
-            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item. (${item.maxStackSize})")
+            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item. (${item.maxStackSize} max)")
         }
 
         if (item.itemMeta is Damageable) {
