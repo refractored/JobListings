@@ -71,7 +71,7 @@ class CreateOrderMaterial {
         if (amount > item.maxStackSize) {
             throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
         }
-        
+
         item.amount = amount
 
         eco.withdrawPlayer(actor.player, cost)

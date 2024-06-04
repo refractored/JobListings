@@ -114,15 +114,21 @@ class AllOrders {
                 ).withListener { event: InventoryClickEvent ->
                     if (order.user == actor.uniqueId) {
                         event.whoClicked.closeInventory()
-                        throw CommandErrorException("You cannot accept your own order.")
+                        actor.reply(
+                            MessageUtil.toComponent("<red>You cannot accept your own order.")
+                        )
                     }
                     if (order.status != OrderStatus.PENDING) {
                         event.whoClicked.closeInventory()
-                        throw CommandErrorException("Order is not pending. Someone might have already accepted it.")
+                        actor.reply(
+                            MessageUtil.toComponent("<red>Order is not pending. Someone might have already accepted it.")
+                        )
                     }
                     if (Order.isOrderExpired(order)) {
                         event.whoClicked.closeInventory()
-                        throw CommandErrorException("Order has expired.")
+                        actor.reply(
+                            MessageUtil.toComponent("<red>Order has expired.")
+                        )
                     }
                     val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
                     queryBuilder.where().eq("assignee", actor.uniqueId)
@@ -130,9 +136,14 @@ class AllOrders {
                     val orders = orderDao.query(queryBuilder.prepare())
                     if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted") ) {
                         event.whoClicked.closeInventory()
-                        throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
+                        actor.reply(
+                            MessageUtil.toComponent("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
+                        )
                     }
-                    actor.reply("Order Accepted!")
+
+                    actor.reply(
+                        MessageUtil.toComponent("<green>Order accepted!")
+                    )
                     Order.acceptOrder(order, actor.player)
                     event.whoClicked.closeInventory()
                 }
