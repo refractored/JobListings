@@ -10,6 +10,8 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
+import net.refractored.joblistings.serializers.ComponentSerializers
+import net.refractored.joblistings.serializers.ItemstackSerializers
 import java.time.LocalDateTime
 import java.util.*
 
@@ -27,8 +29,8 @@ data class Mail(
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeExpires: LocalDateTime,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
-    var message: String,
+    @DatabaseField(persisterClass = ComponentSerializers::class)
+    var message: Component,
 
 ) {
     /**
@@ -39,7 +41,7 @@ data class Mail(
         UUID.randomUUID(),
         LocalDateTime.now(),
         LocalDateTime.now().plusHours(12),
-        "",
+        MessageUtil.toComponent(""),
     )
 
     companion object {
@@ -47,7 +49,7 @@ data class Mail(
         fun createMail(user: UUID, message: Component) {
             val mail = Mail()
             mail.user = user
-            mail.message = GsonComponentSerializer.gson().serialize(message)
+            mail.message = message
             mail.timeCreated = LocalDateTime.now()
             mail.timeExpires = LocalDateTime.now().plusHours(12)
             mailDao.create(mail)
@@ -71,7 +73,7 @@ data class Mail(
                 return
             }
             for (mail in allMail) {
-                GsonComponentSerializer.gson().deserialize(mail.message).let { player.sendMessage(it) }
+                player.sendMessage(mail.message)
                 mailDao.delete(mail)
             }
         }
