@@ -65,7 +65,7 @@ class CreateOrderHand {
         queryBuilder.where().eq("status", OrderStatus.PENDING)
         val orders = orderDao.query(queryBuilder.prepare())
 
-        if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrders")) {
+        if (orders.count() >= JobListings.instance.config.getInt("Orders.MaxOrders")) {
             throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrders")} orders at once.")
         }
 
