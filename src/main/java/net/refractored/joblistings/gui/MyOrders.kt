@@ -8,15 +8,12 @@ import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
-import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.command.Command
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
-import revxrsal.commands.exception.CommandErrorException
 import kotlin.math.ceil
 
 class MyOrders {

@@ -1,6 +1,5 @@
 package net.refractored.joblistings.commands
 
-import net.refractored.joblistings.gui.AllOrders
 import net.refractored.joblistings.gui.MyClaimedOrders
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description

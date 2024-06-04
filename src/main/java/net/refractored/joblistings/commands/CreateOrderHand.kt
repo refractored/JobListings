@@ -3,11 +3,9 @@ package net.refractored.joblistings.commands
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.eco
-import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
-import net.refractored.joblistings.serializers.ItemstackSerializers
 import org.bukkit.Material
 import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command

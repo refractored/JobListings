@@ -4,14 +4,11 @@ import com.j256.ormlite.field.DataType
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
-import net.refractored.joblistings.database.Database.Companion.mailDao
-import net.refractored.joblistings.util.MessageUtil
-import org.bukkit.Bukkit
-import org.bukkit.entity.Player
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
+import net.refractored.joblistings.database.Database.Companion.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
-import net.refractored.joblistings.serializers.ItemstackSerializers
+import net.refractored.joblistings.util.MessageUtil
+import org.bukkit.entity.Player
 import java.time.LocalDateTime
 import java.util.*
 

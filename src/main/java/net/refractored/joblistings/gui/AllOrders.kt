@@ -16,7 +16,6 @@ import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
-import revxrsal.commands.exception.CommandErrorException
 import java.util.*
 import kotlin.math.ceil
 

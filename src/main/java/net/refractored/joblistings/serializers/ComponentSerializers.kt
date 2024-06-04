@@ -6,12 +6,6 @@ import com.j256.ormlite.field.types.BaseDataType
 import com.j256.ormlite.support.DatabaseResults
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer
-import org.bukkit.inventory.ItemStack
-import org.bukkit.util.io.BukkitObjectInputStream
-import org.bukkit.util.io.BukkitObjectOutputStream
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 class ComponentSerializers  private constructor() : BaseDataType(SqlType.BYTE_ARRAY, arrayOf<Class<*>>(Component::class.java)) {
 

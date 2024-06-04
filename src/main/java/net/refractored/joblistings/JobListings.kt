@@ -4,7 +4,6 @@ import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.gui.MyClaimedOrders
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order

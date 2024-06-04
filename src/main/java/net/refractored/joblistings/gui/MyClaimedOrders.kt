@@ -3,22 +3,16 @@ package net.refractored.joblistings.gui
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
-import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
-import net.refractored.joblistings.order.OrderStatus
-import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
-import java.time.Duration
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import kotlin.math.ceil
 
 class MyClaimedOrders {
