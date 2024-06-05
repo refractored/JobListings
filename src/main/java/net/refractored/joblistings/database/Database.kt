@@ -62,17 +62,9 @@ class Database {
 
             TableUtils.createTableIfNotExists(connectionSource, Mail::class.java)
 
-            try {
-                DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
-            } catch (e: SQLException) {
-                e.printStackTrace()
-            }
+            DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
 
-            try {
-                DataPersisterManager.registerDataPersisters(ComponentSerializers.getSingleton())
-            } catch (e: SQLException) {
-                e.printStackTrace()
-            }
+            DataPersisterManager.registerDataPersisters(ComponentSerializers.getSingleton())
             
         }
     }
