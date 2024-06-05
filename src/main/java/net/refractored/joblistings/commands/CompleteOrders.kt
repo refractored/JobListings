@@ -56,7 +56,7 @@ class CompleteOrders {
                 .append(MessageUtil.toComponent(
                     "<green>You have completed the order <gray>"
                 ))
-                .append(order.itemInfo)
+                .append(order.getItemInfo())
                 .append(MessageUtil.toComponent(
                     "<gray> and received <gold>${order.cost}</gold>."
                 ))
@@ -66,7 +66,7 @@ class CompleteOrders {
                 .append(MessageUtil.toComponent(
                 "<green>One of your orders, <gray>"
             ))
-                .append(order.itemInfo)
+                .append(order.getItemInfo())
                 .append(MessageUtil.toComponent(
                     "<gray>, was completed!"
                 ))

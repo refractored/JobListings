@@ -74,13 +74,16 @@ data class Order(
         (ItemBuilder(Material.STONE).amount(1).build()),
     )
 
-    val itemInfo = Component.text()
-        .append(
-            item.displayName()
-        )
-        .append(
-            MessageUtil.toComponent(" x${item.amount}<reset>")
-        )
+    fun getItemInfo(): Component {
+        return Component.text()
+            .append(
+                item.displayName()
+            )
+            .append(
+                MessageUtil.toComponent(" x${item.amount}<reset>")
+            )
+            .build()
+    }
 
     fun messageOwner(message: Component) {
         Bukkit.getPlayer(user)?.sendMessage(message)
@@ -186,7 +189,7 @@ data class Order(
                     .append(MessageUtil.toComponent(
                     "<red>One of your orders, <gray>"
                     ))
-                    .append(order.itemInfo)
+                    .append(order.getItemInfo())
                     .append(MessageUtil.toComponent(
                         "<red>expired!"
                     ))
@@ -207,7 +210,7 @@ data class Order(
                 .append(MessageUtil.toComponent(
                     "<red>One of your orders, <gray>"
                 ))
-                .append(order.itemInfo)
+                .append(order.getItemInfo())
                 .append(MessageUtil.toComponent(
                     "<red>could not be completed in time!"
                 ))
@@ -218,7 +221,7 @@ data class Order(
                     .append(MessageUtil.toComponent(
                         "<red>You were unable to complete your order, <gray>"
                     ))
-                    .append(order.itemInfo)
+                    .append(order.getItemInfo())
                     .append(MessageUtil.toComponent(
                         "<red>in time!"
                     ))

@@ -176,7 +176,7 @@ class MyOrders {
                                 .append(MessageUtil.toComponent(
                                     "<green>One of your orders, <gray>"
                                 ))
-                                .append(order.itemInfo)
+                                .append(order.getItemInfo())
                                 .append(MessageUtil.toComponent(
                                     "<gray>, was canceled by the owner!"
                                 ))
