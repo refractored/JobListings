@@ -4,6 +4,7 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
+import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
@@ -149,6 +150,16 @@ class AllOrders {
                             MessageUtil.toComponent("<red>You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
                         )
                     }
+                    val ownerMessage = Component.text()
+                        .append(MessageUtil.toComponent(
+                            "<green>One of your orders, <gray>"
+                        ))
+                        .append(order.getItemInfo())
+                        .append(MessageUtil.toComponent(
+                            "<green>, was accepted by ${actor.player.displayName()}!"
+                        ))
+                        .build()
+                    order.messageOwner(ownerMessage)
                     actor.reply(
                         MessageUtil.toComponent("<green>Order accepted!")
                     )

@@ -68,7 +68,7 @@ class CompleteOrders {
             ))
                 .append(order.getItemInfo())
                 .append(MessageUtil.toComponent(
-                    "<gray>, was completed!"
+                    "<green>, was completed!"
                 ))
                 .build()
             order.messageOwner(ownerMessage)
