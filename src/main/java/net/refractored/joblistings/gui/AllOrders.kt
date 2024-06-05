@@ -92,9 +92,9 @@ class AllOrders {
                 val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
                 val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
-                val expireDurationText = "${expireDuration.toHours()} Hours, ${expireDuration.toMinutesPart()} Minutes"
+                val expireDurationText = "${expireDuration.toDays()} Days, ${expireDuration.toHoursPart()} Hours, ${expireDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toDays()}Days ${createdDuration.toHoursPart()}Hours, ${createdDuration.toMinutesPart()}Minutes"
+                val createdDurationText = "${createdDuration.toDays()} Days ${createdDuration.toHoursPart()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}"),

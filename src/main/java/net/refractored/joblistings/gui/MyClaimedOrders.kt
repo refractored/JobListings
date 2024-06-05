@@ -92,9 +92,9 @@ class MyClaimedOrders {
                 val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
                 val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
-                val deadlineDurationText = "${deadlineDuration.toHours()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
+                val deadlineDurationText = "${deadlineDuration.toDays()} Days, ${deadlineDuration.toHoursPart()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
+                val createdDurationText = "${createdDuration.toDays()} Days, ${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Pay: <white>${order.cost}"),

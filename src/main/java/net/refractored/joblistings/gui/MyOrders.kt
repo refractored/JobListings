@@ -95,19 +95,19 @@ class MyOrders {
                 val item = order.item.clone()
                 val itemMetaCopy = item.itemMeta
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
+                val createdDurationText = "${createdDuration.toDays()} Days, ${createdDuration.toHoursPart()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = mutableListOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Cost: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText}"),
+                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText} ago"),
                 )
 
                 // God spare my soul for this
                 when (order.status) {
                     OrderStatus.PENDING -> {
                         val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
-                        val expireDurationText = "${expireDuration.toHours()} Hours, ${expireDuration.toMinutesPart()} Minutes"
+                        val expireDurationText = "${expireDuration.toDays()} Days, ${expireDuration.toHoursPart()} Hours, ${expireDuration.toMinutesPart()} Minutes"
                         infoLore.add(MessageUtil.toComponent("<reset><red>Expires in: <white>${expireDurationText}"))
                         infoLore.add(MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"))
                         infoLore.add(MessageUtil.toComponent(""))
@@ -115,7 +115,7 @@ class MyOrders {
                     }
                     OrderStatus.CLAIMED -> {
                         val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
-                        val deadlineDurationText = "${deadlineDuration.toHours()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
+                        val deadlineDurationText = "${deadlineDuration.toDays()} Days, ${deadlineDuration.toHoursPart()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
                         infoLore.add(MessageUtil.toComponent("<reset><red>Deadline in: <white>${deadlineDurationText}"))
                         infoLore.add(MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),)
                         infoLore.add(MessageUtil.toComponent(""))
@@ -124,7 +124,8 @@ class MyOrders {
                     }
                     OrderStatus.COMPLETED -> {
                         val completedDuration = Duration.between(order.timeCompleted, LocalDateTime.now())
-                        val completedDurationText = "${completedDuration.toHours()} Hours, ${completedDuration.toMinutesPart()} Minutes"
+                        val completedDurationText = "${completedDuration.toDays()} Days, ${completedDuration.toHoursPart()} Hours, ${completedDuration.toMinutesPart()} Minutes"
+                        infoLore.add(MessageUtil.toComponent("<reset><red>Completed: <white>${completedDurationText} ago"))
                         infoLore.add(MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),)
                         infoLore.add(MessageUtil.toComponent(""))
                         infoLore.add(MessageUtil.toComponent("<reset><green>(Click to claim order)"))
