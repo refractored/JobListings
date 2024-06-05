@@ -20,4 +20,5 @@ Orders:
 # Mail is used when an order is updated and the player is offline
 Mail:
   # Mail Expire time in days
+  # 0 = Never expire
   ExpireTime: 30

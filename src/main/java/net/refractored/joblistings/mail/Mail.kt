@@ -46,14 +46,20 @@ data class Mail(
 
         fun createMail(user: UUID, message: Component) {
             val mail = Mail()
+            val expireTime: Long = if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
+                30L
+            } else {
+                JobListings.instance.config.getLong("Mail.ExpireTime")
+            }
             mail.user = user
             mail.message = message
             mail.timeCreated = LocalDateTime.now()
-            mail.timeExpires = LocalDateTime.now().plusDays(JobListings.instance.config.getLong("Mail.ExpireTime"))
+            mail.timeExpires = LocalDateTime.now().plusDays(expireTime)
             mailDao.create(mail)
         }
 
         fun purgeMail() {
+            if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) return
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
             val allMail = mailDao.query(queryBuilder.prepare())
             for (mail in allMail) {
@@ -67,9 +73,7 @@ data class Mail(
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
             queryBuilder.where().eq("user", player.uniqueId)
             val allMail = mailDao.query(queryBuilder.prepare())
-            if (allMail.isEmpty()) {
-                return
-            }
+            if (allMail.isEmpty()) return
             for (mail in allMail) {
                 player.sendMessage(mail.message)
                 mailDao.delete(mail)
