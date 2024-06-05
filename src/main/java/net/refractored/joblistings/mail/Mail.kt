@@ -49,7 +49,7 @@ data class Mail(
             mail.user = user
             mail.message = message
             mail.timeCreated = LocalDateTime.now()
-            mail.timeExpires = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Mail.ExpireTime"))
+            mail.timeExpires = LocalDateTime.now().plusDays(JobListings.instance.config.getLong("Mail.ExpireTime"))
             mailDao.create(mail)
         }
 

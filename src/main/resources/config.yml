@@ -19,5 +19,5 @@ Orders:
 
 # Mail is used when an order is updated and the player is offline
 Mail:
-  # Mail Expire time in hours
-  ExpireTime: 96
+  # Mail Expire time in days
+  ExpireTime: 30

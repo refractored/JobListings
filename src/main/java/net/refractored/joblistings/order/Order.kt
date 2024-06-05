@@ -111,7 +111,7 @@ data class Order(
             throw IllegalArgumentException("Order already has an assignee")
         }
         if (user == assigneePlayer.uniqueId) {
-            throw IllegalArgumentException("Cannot accept your own order")
+            throw IllegalArgumentException("Assignee cannot be the same as the user")
         }
         if (status != OrderStatus.PENDING) {
             throw IllegalArgumentException("Order is not pending")
