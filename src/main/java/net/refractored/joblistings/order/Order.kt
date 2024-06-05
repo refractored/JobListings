@@ -137,7 +137,7 @@ data class Order(
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             queryBuilder.where().eq("status", OrderStatus.PENDING)
-            return orderDao.query(queryBuilder.prepare()).sortedBy { it.timeCreated }
+            return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         }
 
         /**
@@ -153,7 +153,7 @@ data class Order(
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             queryBuilder.where().eq("user", playerUUID)
-            return orderDao.query(queryBuilder.prepare()).sortedBy { it.timeCreated }
+            return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         }
 
         /**
@@ -170,7 +170,7 @@ data class Order(
             queryBuilder.offset(offset.toLong())
             queryBuilder.where().eq("status", OrderStatus.CLAIMED)
             queryBuilder.where().eq("assignee", playerUUID)
-            return orderDao.query(queryBuilder.prepare()).sortedBy { it.timeCreated }
+            return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         }
 
         fun updateExpiredOrders() {

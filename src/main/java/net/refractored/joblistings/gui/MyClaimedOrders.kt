@@ -95,7 +95,7 @@ class MyClaimedOrders {
                 val deadlineDurationText = "${deadlineDuration.toHours()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
                 val createdDurationText = "${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
-                val infoLore = mutableListOf(
+                val infoLore = listOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Pay: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
@@ -104,9 +104,6 @@ class MyClaimedOrders {
                     MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),
                     MessageUtil.toComponent(""),
                 )
-
-//                val balls = Duration.between(LocalDateTime.now(), order.timeDeadline)
-//                balls.toHours()
 
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!

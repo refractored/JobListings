@@ -94,13 +94,13 @@ class AllOrders {
                 val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
                 val expireDurationText = "${expireDuration.toHours()} Hours, ${expireDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toDays()}D ${createdDuration.toHoursPart()}H, ${createdDuration.toMinutesPart()}M"
+                val createdDurationText = "${createdDuration.toDays()}Days ${createdDuration.toHoursPart()}Hours, ${createdDuration.toMinutesPart()}Minutes"
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
                     MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText} ago"),
-                    MessageUtil.toComponent("<reset><red>Expires in: <white>${expireDurationText}"),
+                    MessageUtil.toComponent("<reset><red>Expires: <white>${expireDurationText}"),
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><gray>(Click to accept order)"),
                 )

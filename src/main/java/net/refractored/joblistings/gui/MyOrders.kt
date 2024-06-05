@@ -125,7 +125,6 @@ class MyOrders {
                     OrderStatus.COMPLETED -> {
                         val completedDuration = Duration.between(order.timeCompleted, LocalDateTime.now())
                         val completedDurationText = "${completedDuration.toHours()} Hours, ${completedDuration.toMinutesPart()} Minutes"
-                        infoLore.add(MessageUtil.toComponent("<reset><red>Deadline in: <white>${completedDurationText}"))
                         infoLore.add(MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),)
                         infoLore.add(MessageUtil.toComponent(""))
                         infoLore.add(MessageUtil.toComponent("<reset><green>(Click to claim order)"))

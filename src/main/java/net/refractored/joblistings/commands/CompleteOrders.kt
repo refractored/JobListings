@@ -7,6 +7,7 @@ import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
+import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
@@ -29,12 +30,22 @@ class CompleteOrders {
         if (orders.isEmpty()) {
             throw CommandErrorException("You have no orders to complete.")
         }
-        val orderCount = orders.size
+        val orderCount = orders.count()
         var completionCount = 0
         for (order in orders) {
             // If item is split into multiple stacks, it will not detect it.`
             val itemStack = actor.player.inventory
                 .firstOrNull{ it?.isSimilar(order.item) ?: false && it.amount >= order.item.amount } ?: continue
+            if (order.item is Damageable && itemStack.itemMeta is Damageable) {
+                if ((order.item as Damageable).damage != (itemStack.itemMeta as Damageable).damage) {
+                    actor.reply( Component.text()
+                        .append(MessageUtil.toComponent("<red>One of your orders call for a,"))
+                        .append(itemStack.displayName())
+                        .append(MessageUtil.toComponent("<red>,but the item you have is damaged and cannot be delivered."))
+                    )
+                    continue
+                }
+            }
             itemStack.amount -= order.item.amount
             order.status = OrderStatus.COMPLETED
             order.timeCompleted = LocalDateTime.now()
