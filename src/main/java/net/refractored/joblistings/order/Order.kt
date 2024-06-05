@@ -168,11 +168,10 @@ data class Order(
          */
         fun getPlayerAcceptedOrders(limit: Int, offset: Int, playerUUID: UUID): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-            queryBuilder.orderBy("timeCreated", false)
-            queryBuilder.limit(limit.toLong())
-            queryBuilder.offset(offset.toLong())
             queryBuilder.where().eq("status", OrderStatus.CLAIMED)
             queryBuilder.where().eq("assignee", playerUUID)
+            queryBuilder.limit(limit.toLong())
+            queryBuilder.offset(offset.toLong())
             return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         }
 

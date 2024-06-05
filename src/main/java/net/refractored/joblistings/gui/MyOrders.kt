@@ -117,6 +117,9 @@ class MyOrders {
                         val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
                         val deadlineDurationText = "${deadlineDuration.toDays()} Days, ${deadlineDuration.toHoursPart()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
                         infoLore.add(MessageUtil.toComponent("<reset><red>Deadline in: <white>${deadlineDurationText}"))
+                        order.assignee?.let {
+                            infoLore.add(MessageUtil.toComponent("<reset><red>Assignee: <white>${Bukkit.getOfflinePlayer(it).name}"))
+                        }
                         infoLore.add(MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),)
                         infoLore.add(MessageUtil.toComponent(""))
                         infoLore.add(MessageUtil.toComponent("<reset><gray>In-progress orders only return half the payment."))
@@ -126,11 +129,17 @@ class MyOrders {
                         val completedDuration = Duration.between(order.timeCompleted, LocalDateTime.now())
                         val completedDurationText = "${completedDuration.toDays()} Days, ${completedDuration.toHoursPart()} Hours, ${completedDuration.toMinutesPart()} Minutes"
                         infoLore.add(MessageUtil.toComponent("<reset><red>Completed: <white>${completedDurationText} ago"))
+                        order.assignee?.let {
+                            infoLore.add(MessageUtil.toComponent("<reset><red>Assignee: <white>${Bukkit.getOfflinePlayer(it).name}"))
+                        }
                         infoLore.add(MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),)
                         infoLore.add(MessageUtil.toComponent(""))
                         infoLore.add(MessageUtil.toComponent("<reset><green>(Click to claim order)"))
                     }
                     OrderStatus.INCOMPLETE -> {
+                        order.assignee?.let {
+                            infoLore.add(MessageUtil.toComponent("<reset><red>Assignee: <white>${Bukkit.getOfflinePlayer(it).name}"))
+                        }
                         infoLore.add(MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),)
                         infoLore.add(MessageUtil.toComponent(""))
                         infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))

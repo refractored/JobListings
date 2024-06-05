@@ -14,7 +14,6 @@ import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.ceil
 
 class MyClaimedOrders {
@@ -97,7 +96,7 @@ class MyClaimedOrders {
                 val createdDurationText = "${createdDuration.toDays()} Days, ${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<reset><red>Pay: <white>${order.cost}"),
+                    MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}"),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
                     MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText}"),
                     MessageUtil.toComponent("<reset><red>Deadline in: <white>${deadlineDurationText}"),

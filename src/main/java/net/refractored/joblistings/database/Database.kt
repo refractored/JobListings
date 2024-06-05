@@ -11,7 +11,6 @@ import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.ItemstackSerializers
-import java.sql.SQLException
 import java.util.*
 
 

@@ -6,7 +6,7 @@ enum class OrderStatus {
      */
     PENDING,
     /**
-     * The order has claimed & is in progress
+     * The order has claimed and is in progress
      */
     CLAIMED,
     /**
