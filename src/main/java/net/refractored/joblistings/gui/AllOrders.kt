@@ -94,7 +94,7 @@ class AllOrders {
                 val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
                 val expireDurationText = "${expireDuration.toHours()} Hours, ${expireDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
+                val createdDurationText = "${createdDuration.toDays()}D ${createdDuration.toHoursPart()}H, ${createdDuration.toMinutesPart()}M"
                 val infoLore = listOf(
                     MessageUtil.toComponent(""),
                     MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}"),
@@ -146,10 +146,9 @@ class AllOrders {
                     if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted") ) {
                         event.whoClicked.closeInventory()
                         actor.reply(
-                            MessageUtil.toComponent("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
+                            MessageUtil.toComponent("<red>You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
                         )
                     }
-
                     actor.reply(
                         MessageUtil.toComponent("<green>Order accepted!")
                     )

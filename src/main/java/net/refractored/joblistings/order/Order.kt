@@ -75,7 +75,9 @@ data class Order(
     )
 
     val itemInfo = Component.text()
-        .append(item.displayName())
+        .append(
+            item.displayName()
+        )
         .append(
             MessageUtil.toComponent(" x${item.amount}<reset>")
         )

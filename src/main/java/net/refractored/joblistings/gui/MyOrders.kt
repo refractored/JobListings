@@ -3,6 +3,7 @@ package net.refractored.joblistings.gui
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
+import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
@@ -102,6 +103,7 @@ class MyOrders {
                     MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText}"),
                 )
 
+                // God spare my soul for this
                 when (order.status) {
                     OrderStatus.PENDING -> {
                         val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
@@ -171,6 +173,16 @@ class MyOrders {
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost / 2) )
                             Database.orderDao.delete(order)
+                            val assigneeMessage = Component.text()
+                                .append(MessageUtil.toComponent(
+                                    "<green>One of your orders, <gray>"
+                                ))
+                                .append(order.itemInfo)
+                                .append(MessageUtil.toComponent(
+                                    "<gray>, was canceled by the owner!"
+                                ))
+                                .build()
+                            order.messageAssignee(assigneeMessage)
                             reloadItems(gui, actor)
                             gui.refreshInventory(actor.player)
                         }
