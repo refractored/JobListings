@@ -138,10 +138,9 @@ data class Order(
          */
         fun getPendingOrders(limit: Int, offset: Int): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-            queryBuilder.orderBy("timeCreated", false)
+            queryBuilder.where().eq("status", OrderStatus.PENDING)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
-            queryBuilder.where().eq("status", OrderStatus.PENDING)
             return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         }
 
@@ -154,10 +153,9 @@ data class Order(
          */
         fun getPlayerCreatedOrders(limit: Int, offset: Int, playerUUID: UUID): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-            queryBuilder.orderBy("timeCreated", false)
+            queryBuilder.where().eq("user", playerUUID)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
-            queryBuilder.where().eq("user", playerUUID)
             return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         }
 
@@ -170,11 +168,11 @@ data class Order(
          */
         fun getPlayerAcceptedOrders(limit: Int, offset: Int, playerUUID: UUID): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-            queryBuilder.where().eq("status", OrderStatus.CLAIMED)
-            queryBuilder.where().eq("assignee", playerUUID)
+            queryBuilder.where().eq("assignee", playerUUID).and().eq("status", OrderStatus.CLAIMED)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
+
         }
 
         fun updateExpiredOrders() {

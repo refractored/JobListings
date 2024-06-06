@@ -23,17 +23,16 @@ class CompleteOrders {
     @Command("joblistings complete")
     fun completeOrders(actor: BukkitCommandActor) {
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-        queryBuilder.orderBy("timeCreated", false)
-        queryBuilder.where().eq("assignee", actor.uniqueId)
-        queryBuilder.where().eq("status", OrderStatus.CLAIMED)
-        val orders = orderDao.query(queryBuilder.prepare())
+        queryBuilder.where().eq("assignee", actor.uniqueId).and().eq("status", OrderStatus.CLAIMED)
+        val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         if (orders.isEmpty()) {
             throw CommandErrorException("You have no orders to complete.")
         }
         val orderCount = orders.count()
         var completionCount = 0
         for (order in orders) {
-            // If item is split into multiple stacks, it will not detect it.`
+            // TODO: Fix if item is split into multiple stacks, it will not be detected.
+            actor.reply(order.toString())
             val itemStack = actor.player.inventory
                 .firstOrNull{ it?.isSimilar(order.item) ?: false && it.amount >= order.item.amount } ?: continue
             if (order.item is Damageable && itemStack.itemMeta is Damageable) {

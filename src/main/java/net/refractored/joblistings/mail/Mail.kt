@@ -62,7 +62,7 @@ data class Mail(
                     it.mail.sendMail(
                         essPlayer,
                         Console.getInstance(),
-                        // Why doesn't this have a component serializer? Kill me
+                        // Why doesn't this take components? Kill me.
                         LegacyComponentSerializer.legacy(SECTION_CHAR).serialize(message),
                         expireTime
                     )

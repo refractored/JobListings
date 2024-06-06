@@ -61,7 +61,7 @@ class CreateOrderMaterial {
 
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder.orderBy("timeCreated", false)
-        queryBuilder.where().eq("status", OrderStatus.PENDING)
+        queryBuilder.where().eq("status", OrderStatus.PENDING).and().eq("user", actor.uniqueId)
         val orders = orderDao.query(queryBuilder.prepare())
 
         if (orders.count() >= JobListings.instance.config.getInt("Orders.MaxOrders")) {

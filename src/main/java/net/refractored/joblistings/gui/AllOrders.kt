@@ -159,8 +159,7 @@ class AllOrders {
                         }
                     }
                     val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-                    queryBuilder.where().eq("assignee", actor.uniqueId)
-                    queryBuilder.where().eq("status", OrderStatus.CLAIMED)
+                    queryBuilder.where().eq("assignee", actor.uniqueId).and().eq("status", OrderStatus.CLAIMED)
                     val orders = orderDao.query(queryBuilder.prepare())
                     if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted") ) {
                         event.whoClicked.closeInventory()
