@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'net.refractored'
-version = '1.0-SNAPSHOT'
+version = '1.1'
 
 repositories {
     mavenCentral()
@@ -23,10 +23,13 @@ repositories {
     maven { url = 'https://repo.auxilor.io/repository/maven-public/' }
 
     maven { url "https://repo.essentialsx.net/releases/"}
+    maven { url "https://repo.auxilor.io/repository/maven-public/"}
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+
+    compileOnly("com.willfp:eco:6.70.1")
 
     // EssentialsX
     compileOnly 'net.essentialsx:EssentialsX:2.19.0'

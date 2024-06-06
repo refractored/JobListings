@@ -54,7 +54,7 @@ class JobListings : JavaPlugin() {
         server.servicesManager.getRegistration(Economy::class.java)?.let {
             eco = it.provider
         } ?: run {
-            logger.warning("Economy plugin not found! Disabling plugin.")
+            logger.warning("A economy plugin not found! Disabling plugin.")
             server.pluginManager.disablePlugin(this)
             return
         }
@@ -68,6 +68,11 @@ class JobListings : JavaPlugin() {
                logger.warning("Please install Essentials or disable these options in the config.yml.")
                logger.warning("https://essentialsx.net/downloads.html")
             }
+        }
+
+        server.pluginManager.getPlugin("eco")?.let {
+            ecoPlugin = true
+            logger.info("Hooked into eco")
         }
 
         // Create command handler
@@ -121,6 +126,12 @@ class JobListings : JavaPlugin() {
          * Essentials
          */
          var essentials: Essentials? = null
+            private set
+
+        /**
+         * Returns true if eco is loaded
+         */
+        var ecoPlugin: Boolean = false
             private set
 
         /**

@@ -1,6 +1,8 @@
 name: JobListings
-version: '1.0'
+version: '1.1'
 main: net.refractored.joblistings.JobListings
 api-version: '1.20'
 depend: [Vault]
-softdepend: [Essentials]
+softdepend:
+  - Essentials
+  - eco

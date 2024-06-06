@@ -4,10 +4,13 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.JobListings.Companion.eco
+import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
+import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
@@ -33,10 +36,8 @@ class CompleteOrders {
         var completionCount = 0
         for (order in orders) {
             // TODO: Fix if item is split into multiple stacks, it will not be detected.
-            actor.reply(order.toString())
-
-            val itemStack = actor.player.inventory
-                .firstOrNull{ it?.isSimilar(order.item) ?: false && it.amount >= order.item.amount } ?: continue
+            val itemStack = getMatchingItem(order, actor) ?: continue
+            Items.getItem(order.item).matches(actor.player.inventory.itemInMainHand)
             if (order.item is Damageable && itemStack.itemMeta is Damageable) {
                 if ((order.item as Damageable).damage != (itemStack.itemMeta as Damageable).damage) {
                     actor.reply( Component.text()
@@ -52,7 +53,7 @@ class CompleteOrders {
             order.status = OrderStatus.COMPLETED
             order.timeCompleted = LocalDateTime.now()
             orderDao.update(order)
-            JobListings.eco.depositPlayer(actor.player, order.cost)
+            eco.depositPlayer(actor.player, order.cost)
             completionCount++
             val assigneeMessage =  Component.text()
                 .append(MessageUtil.toComponent(
@@ -90,5 +91,25 @@ class CompleteOrders {
             MessageUtil.toComponent("<green><gold>$completionCount</gold> orders have been completed out of <gold>$orderCount</gold>." +
                     "\nYou now have <gold>${(orderCount - completionCount)}</gold> orders left")
         )
+    }
+
+    /**
+     * Gets the matching item for the order in the player's inventory
+     * @return The ItemStack, or null if none exists.
+     */
+    private fun getMatchingItem(order: Order, actor: BukkitCommandActor): ItemStack? {
+        ecoPlugin.let{
+            if (Items.isCustomItem(order.item)) {
+                for (items in actor.player.inventory.storageContents) {
+                    if (items == null) continue
+                    if (!Items.getCustomItem(order.item)!!.matches(items)) continue
+                    if (items.amount < order.item.amount) continue
+                    return items
+                }
+                return null
+            }
+        }
+        return actor.player.inventory.storageContents
+            .firstOrNull{ (it?.isSimilar(order.item) ?: false) && ((it?.amount ?: 0) >= order.item.amount) }
     }
 }
