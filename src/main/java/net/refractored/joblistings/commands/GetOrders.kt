@@ -9,7 +9,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class GetOrders {
     @CommandPermission("joblistings.view.allorders")
-    @Description("Views order ingame")
+    @Description("View all pending orders")
     @Command("joblistings orders")
     fun getOrders(actor: BukkitCommandActor) {
         AllOrders.openAllOrders(actor)

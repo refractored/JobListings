@@ -8,7 +8,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class ClaimedOrders {
     @CommandPermission("joblistings.view.allorders")
-    @Description("Views order ingame")
+    @Description("View the orders you claimed")
     @Command("joblistings claimed")
     fun getOrders(actor: BukkitCommandActor) {
         MyClaimedOrders.openMyClaimedOrders(actor)

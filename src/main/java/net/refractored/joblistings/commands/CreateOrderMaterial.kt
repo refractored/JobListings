@@ -22,7 +22,7 @@ import java.util.*
 
 class CreateOrderMaterial {
     @CommandPermission("joblistings.order.create.material")
-    @Description("Create a new order.")
+    @Description("Create an order from the specified material.")
     @Command("joblistings create material")
     fun createOrderMaterial(
         actor: BukkitCommandActor,

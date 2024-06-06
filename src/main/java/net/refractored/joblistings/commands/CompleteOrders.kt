@@ -19,7 +19,7 @@ import java.util.*
 
 class CompleteOrders {
     @CommandPermission("joblistings.view.completeorders")
-    @Description("Finish your orders.")
+    @Description("Scans your inventory for items to complete an order")
     @Command("joblistings complete")
     fun completeOrders(actor: BukkitCommandActor) {
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()

@@ -23,7 +23,7 @@ import java.util.*
 class CreateOrderHand {
 
     @CommandPermission("joblistings.order.create.hand")
-    @Description("Create a new order.")
+    @Description("Create an order from the item in your hand")
     @Command("joblistings create hand")
     fun CreateOrder(
         actor: BukkitCommandActor,

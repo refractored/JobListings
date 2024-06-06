@@ -5,6 +5,8 @@ import com.j256.ormlite.dao.DaoManager
 import com.j256.ormlite.field.DataPersisterManager
 import com.j256.ormlite.jdbc.JdbcConnectionSource
 import com.j256.ormlite.jdbc.JdbcPooledConnectionSource
+import com.j256.ormlite.logger.LoggerFactory
+import com.j256.ormlite.logger.NullLogBackend.NullLogBackendFactory
 import com.j256.ormlite.table.TableUtils
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.mail.Mail
@@ -47,6 +49,9 @@ class Database {
          */
         @JvmStatic
         fun init() {
+            JobListings.instance.logger.info("Initializing database...")
+            LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
+
             connectionSource = JdbcPooledConnectionSource(
                 JobListings.instance.config.getString("database.url"),
                 JobListings.instance.config.getString("database.user"),
@@ -64,7 +69,11 @@ class Database {
             DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
 
             DataPersisterManager.registerDataPersisters(ComponentSerializers.getSingleton())
-            
+
+            System.setProperty("com.j256.ormlite.logger.type", "LOCAL")
+            System.setProperty("com.j256.ormlite.logger.level", "ERROR")
+            System.setProperty(LoggerFactory.LOG_TYPE_SYSTEM_PROPERTY, "LOCAL")
+            JobListings.instance.logger.info("Database initialized")
         }
     }
 }

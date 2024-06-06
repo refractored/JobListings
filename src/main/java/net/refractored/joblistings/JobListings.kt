@@ -14,6 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import revxrsal.commands.bukkit.BukkitCommandHandler
+import java.io.File
 
 /**
  * The main plugin class
@@ -40,7 +41,10 @@ class JobListings : JavaPlugin() {
 
         // Save default configs
         saveDefaultConfig()
-        saveResource("messages.yml", false)
+        if (!File(dataFolder, "messages.yml").exists()) {
+            saveResource("messages.yml", false)
+        }
+
 
         // Load messages config
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
@@ -58,7 +62,7 @@ class JobListings : JavaPlugin() {
 
         server.pluginManager.getPlugin("Essentials")?.let {
             essentials = (it as Essentials)
-            logger.info("Hooked into Essentials!")
+            logger.info("Hooked into Essentials")
         }
 
         // Create command handler
