@@ -64,8 +64,9 @@ class JobListings : JavaPlugin() {
             logger.info("Hooked into Essentials")
         } ?: run {
             if (instance.config.getBoolean("Essentials.UseEssentialsMail") || instance.config.getBoolean("Essentials.UseIgnoreList")) {
-               logger.warning("Essentials config options are enabled but Essentials is not found!\n" +
-                       "Please install Essentials or disable these options in the config.yml.")
+               logger.warning("Essentials config options are enabled but Essentials is not found!")
+               logger.warning("Please install Essentials or disable these options in the config.yml.")
+               logger.warning("https://essentialsx.net/downloads.html")
             }
         }
 

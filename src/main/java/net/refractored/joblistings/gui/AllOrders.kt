@@ -5,7 +5,10 @@ import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.refractored.joblistings.JobListings
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings.Companion.essentials
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
@@ -26,7 +29,14 @@ import kotlin.math.ceil
 class AllOrders {
     companion object{
         fun openAllOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create("&c&lAll Orders &c(Page {currentPage}/{maxPage})", 5)
+            val gui = spiGUI.create(
+                // Me when no component support :((((
+                LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                    MessageUtil.toComponent(
+                        "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page {currentPage}/{maxPage})"
+                    )
+                ),
+                5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
@@ -50,7 +60,7 @@ class AllOrders {
                     gui.setButton(
                         (it + pageSlot),
                         SGButton(
-                            ItemBuilder(Material.GRAY_STAINED_GLASS_PANE)
+                            ItemBuilder(Material.GREEN_STAINED_GLASS_PANE)
                             .name(" ")
                             .build()
                         ),
@@ -98,13 +108,13 @@ class AllOrders {
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
                 val createdDurationText = "${createdDuration.toDays()} Days ${createdDuration.toHoursPart()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = listOf(
+                    MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<#69b85c>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<#69b85c>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<#69b85c>Created: <white>${createdDurationText} ago").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<#69b85c>Expires: <white>${expireDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                     MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}"),
-                    MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText} ago"),
-                    MessageUtil.toComponent("<reset><red>Expires: <white>${expireDurationText}"),
-                    MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<reset><gray>(Click to accept order)"),
+                    MessageUtil.toComponent("<gray>(Click to accept order)").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                 )
 
                 if (itemMetaCopy.hasLore()) {

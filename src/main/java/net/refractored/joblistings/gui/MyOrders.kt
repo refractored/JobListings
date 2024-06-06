@@ -4,6 +4,7 @@ import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextDecoration
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
@@ -149,6 +150,10 @@ class MyOrders {
                         infoLore.add(MessageUtil.toComponent(""))
                         infoLore.add(MessageUtil.toComponent("<reset><blue>(Click to refund order)"))
                     }
+                }
+
+                for (lore in infoLore){
+                    lore.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
                 }
 
                 if (itemMetaCopy.hasLore()) {

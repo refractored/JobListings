@@ -3,6 +3,7 @@ package net.refractored.joblistings.gui
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
+import net.kyori.adventure.text.format.TextDecoration
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.Order
@@ -95,12 +96,12 @@ class MyClaimedOrders {
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
                 val createdDurationText = "${createdDuration.toDays()} Days, ${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
                 val infoLore = listOf(
-                    MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}"),
-                    MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}"),
-                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText}"),
-                    MessageUtil.toComponent("<reset><red>Deadline in: <white>${deadlineDurationText}"),
-                    MessageUtil.toComponent("<reset><red>Status: <white>${order.status}"),
+                    MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<reset><red>Deadline in: <white>${deadlineDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                    MessageUtil.toComponent("<reset><red>Status: <white>${order.status}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                     MessageUtil.toComponent(""),
                 )
 
