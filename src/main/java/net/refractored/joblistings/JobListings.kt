@@ -8,7 +8,6 @@ import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
-import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
@@ -63,6 +62,11 @@ class JobListings : JavaPlugin() {
         server.pluginManager.getPlugin("Essentials")?.let {
             essentials = (it as Essentials)
             logger.info("Hooked into Essentials")
+        } ?: run {
+            if (instance.config.getBoolean("Essentials.UseEssentialsMail") || instance.config.getBoolean("Essentials.UseIgnoreList")) {
+               logger.warning("Essentials config options are enabled but Essentials is not found!\n" +
+                       "Please install Essentials or disable these options in the config.yml.")
+            }
         }
 
         // Create command handler

@@ -58,7 +58,7 @@ class CompleteOrders {
                 ))
                 .append(order.getItemInfo())
                 .append(MessageUtil.toComponent(
-                    "<gray> and received <gold>${order.cost}</gold>."
+                    "<green> and received <gold>${order.cost}</gold>."
                 ))
                 .build()
             actor.reply(assigneeMessage)
@@ -82,7 +82,7 @@ class CompleteOrders {
         }
         actor.reply(
             MessageUtil.toComponent("<green><gold>$completionCount</gold> orders have been completed out of <gold>$orderCount</gold>." +
-                    "\nYou now have <gold>${(orderCount - completionCount)}/<gold> orders left")
+                    "\nYou now have <gold>${(orderCount - completionCount)}</gold> orders left")
         )
     }
 }

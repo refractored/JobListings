@@ -142,18 +142,20 @@ class AllOrders {
                         return@withListener
                     }
                     essentials?.let {
-                        val player = it.userMap.load(
-                            actor.player
-                        )
-                        val owner = it.userMap.load(
-                            Bukkit.getOfflinePlayer(order.user)
-                        )
-                        if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)){
-                            event.whoClicked.closeInventory()
-                            actor.reply(
-                                MessageUtil.toComponent("<red>You cannot accept orders from players who have you ignored or you ignored yourself.")
+                        if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
+                            val player = it.userMap.load(
+                                actor.player
                             )
-                            return@withListener
+                            val owner = it.userMap.load(
+                                Bukkit.getOfflinePlayer(order.user)
+                            )
+                            if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
+                                event.whoClicked.closeInventory()
+                                actor.reply(
+                                    MessageUtil.toComponent("<red>You cannot accept orders from players who have you ignored or you ignored yourself.")
+                                )
+                                return@withListener
+                            }
                         }
                     }
                     val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()

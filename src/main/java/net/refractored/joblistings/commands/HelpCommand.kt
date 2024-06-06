@@ -1,9 +1,7 @@
 package net.refractored.joblistings.commands
 
 import net.kyori.adventure.text.Component
-import net.refractored.joblistings.gui.AllOrders
 import net.refractored.joblistings.util.MessageUtil
-import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.DefaultFor
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor

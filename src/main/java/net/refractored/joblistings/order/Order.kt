@@ -89,6 +89,7 @@ data class Order(
         Bukkit.getPlayer(user)?.sendMessage(message)
             ?: run {
                 Mail.createMail(user, message)
+                return
             }
     }
 
@@ -98,6 +99,7 @@ data class Order(
         Bukkit.getPlayer(player)?.sendMessage(message)
             ?: run {
                 Mail.createMail(player, message)
+                return
             }
     }
 

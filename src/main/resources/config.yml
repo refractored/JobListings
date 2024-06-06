@@ -19,6 +19,22 @@ Orders:
 
 # Mail is used when an order is updated and the player is offline
 Mail:
+  # Enable/Disable mail system
+  # This will also disable the mail being sent to essentials, if that option is enabled.
+  Enabled: true
   # Mail Expire time in days
   # 0 = Never expire
   ExpireTime: 30
+
+# Options here are require the essentials plugin to be installed!
+# If EssentialsX is not installed, these options will be ignored.
+# https://essentialsx.net/downloads.html
+Essentials:
+  # Replaces the JobListings mail service and uses Essentials mail.
+  # Expire time is still taken from the Mail section.
+  # I prefer my mail system over Essentials. But it's your choice.
+  UseEssentialsMail: false
+  # When true, if a player ignores another player,
+  # the player will not be able to accept orders from ignored players and
+  # will not be able to accept orders from the player that ignored them.
+  UseIgnoreList: false
