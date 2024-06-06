@@ -46,6 +46,7 @@ class CompleteOrders {
                     continue
                 }
             }
+
             itemStack.amount -= order.item.amount
             order.status = OrderStatus.COMPLETED
             order.timeCompleted = LocalDateTime.now()
@@ -68,7 +69,11 @@ class CompleteOrders {
             ))
                 .append(order.getItemInfo())
                 .append(MessageUtil.toComponent(
-                    "<green>, was completed!"
+                    "<green>, was completed by"
+                ))
+                .append(actor.player.displayName())
+                .append(MessageUtil.toComponent(
+                    "<green>!"
                 ))
                 .build()
             order.messageOwner(ownerMessage)

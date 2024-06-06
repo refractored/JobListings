@@ -100,9 +100,6 @@ data class Mail(
 
         fun sendMail(player: Player) {
             if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
-            essentials.let {
-                if (JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) return
-            }
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
             queryBuilder.where().eq("user", player.uniqueId)
             val allMail = mailDao.query(queryBuilder.prepare())

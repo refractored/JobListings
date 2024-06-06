@@ -174,7 +174,11 @@ class AllOrders {
                         ))
                         .append(order.getItemInfo())
                         .append(MessageUtil.toComponent(
-                            "<green>, was accepted by ${actor.player.displayName()}!"
+                            "<green>, was accepted by"
+                        ))
+                        .append(actor.player.displayName())
+                        .append(MessageUtil.toComponent(
+                            "<green>!"
                         ))
                         .build()
                     order.messageOwner(ownerMessage)
