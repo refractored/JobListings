@@ -16,7 +16,7 @@ class HelpCommand {
     @DefaultFor("joblistings")
     fun help(actor: BukkitCommandActor) {
         actor.reply( Component.text()
-            .append(MessageUtil.toComponent("<bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><white>:"))
+            .append(MessageUtil.toComponent("<bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><white>"))
             .appendNewline()
             .append(MessageUtil.toComponent("<gray>/joblistings orders<white>: View all pending orders"))
             .appendNewline()
