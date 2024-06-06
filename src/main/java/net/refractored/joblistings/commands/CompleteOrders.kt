@@ -18,7 +18,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class CompleteOrders {
-    @CommandPermission("joblistings.view.completeorders")
+    @CommandPermission("joblistings.completeorders")
     @Description("Scans your inventory for items to complete an order")
     @Command("joblistings complete")
     fun completeOrders(actor: BukkitCommandActor) {

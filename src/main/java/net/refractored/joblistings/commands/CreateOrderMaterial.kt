@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class CreateOrderMaterial {
-    @CommandPermission("joblistings.order.create.material")
+    @CommandPermission("joblistings.create.material")
     @Description("Create an order from the specified material.")
     @Command("joblistings create material")
     fun createOrderMaterial(

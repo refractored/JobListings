@@ -21,8 +21,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class CreateOrderHand {
-
-    @CommandPermission("joblistings.order.create.hand")
+    @CommandPermission("joblistings.create.hand")
     @Description("Create an order from the item in your hand")
     @Command("joblistings create hand")
     fun CreateOrder(

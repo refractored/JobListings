@@ -8,7 +8,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 
 
 class GetOrders {
-    @CommandPermission("joblistings.view.allorders")
+    @CommandPermission("joblistings.view.orders")
     @Description("View all pending orders")
     @Command("joblistings orders")
     fun getOrders(actor: BukkitCommandActor) {

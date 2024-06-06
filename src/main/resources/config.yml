@@ -30,7 +30,7 @@ Mail:
 # If EssentialsX is not installed, these options will be ignored.
 # https://essentialsx.net/downloads.html
 Essentials:
-  # Replaces the JobListings mail service and uses Essentials mail.
+  # Disables the JobListings mail service and uses Essentials mail.
   # Expire time is still taken from the Mail section.
   # I prefer my mail system over Essentials. But it's your choice.
   UseEssentialsMail: false
