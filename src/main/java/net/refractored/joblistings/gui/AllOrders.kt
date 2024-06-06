@@ -6,6 +6,7 @@ import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.JobListings.Companion.essentials
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
@@ -139,6 +140,21 @@ class AllOrders {
                             MessageUtil.toComponent("<red>Order has expired.")
                         )
                         return@withListener
+                    }
+                    essentials?.let {
+                        val player = it.userMap.load(
+                            actor.player
+                        )
+                        val owner = it.userMap.load(
+                            Bukkit.getOfflinePlayer(order.user)
+                        )
+                        if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)){
+                            event.whoClicked.closeInventory()
+                            actor.reply(
+                                MessageUtil.toComponent("<red>You cannot accept orders from players who have you ignored or you ignored yourself.")
+                            )
+                            return@withListener
+                        }
                     }
                     val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
                     queryBuilder.where().eq("assignee", actor.uniqueId)

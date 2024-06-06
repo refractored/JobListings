@@ -22,10 +22,14 @@ repositories {
     maven { url = "https://oss.sonatype.org/content/groups/public/" }
     maven { url = 'https://repo.auxilor.io/repository/maven-public/' }
 
+    maven { url "https://repo.essentialsx.net/releases/"}
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+
+    // EssentialsX
+    compileOnly 'net.essentialsx:EssentialsX:2.19.0'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib"

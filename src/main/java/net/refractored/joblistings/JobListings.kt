@@ -1,5 +1,6 @@
 package net.refractored.joblistings
 
+import com.earth2me.essentials.Essentials
 import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
@@ -7,6 +8,7 @@ import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
+import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
@@ -46,10 +48,17 @@ class JobListings : JavaPlugin() {
         // Initialize the database
         Database.init()
 
-        if (!setupEconomy()) {
+        server.servicesManager.getRegistration(Economy::class.java)?.let {
+            eco = it.provider
+        } ?: run {
             logger.warning("Economy plugin not found! Disabling plugin.")
             server.pluginManager.disablePlugin(this)
             return
+        }
+
+        server.pluginManager.getPlugin("Essentials")?.let {
+            essentials = (it as Essentials)
+            logger.info("Hooked into Essentials!")
         }
 
         // Create command handler
@@ -62,6 +71,7 @@ class JobListings : JavaPlugin() {
         handler.register(GetOrders())
         handler.register(ClaimedOrders())
         handler.register(CompleteOrders())
+        handler.register(HelpCommand())
         handler.registerBrigadier()
 
         // Register listeners
@@ -90,24 +100,18 @@ class JobListings : JavaPlugin() {
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
     }
 
-    private fun setupEconomy(): Boolean {
-        val rsp = server.servicesManager.getRegistration(Economy::class.java)
-        if (rsp == null) {
-            logger.warning("Economy service is not registered! " +
-                    "Make sure an economy plugin is installed.")
-            return false
-        }
-
-        eco = rsp.provider
-        return true
-    }
-
     companion object {
 
         /**
          * Economy Provider
          */
         lateinit var eco: Economy
+            private set
+
+        /**
+         * Essentials
+         */
+         var essentials: Essentials? = null
             private set
 
         /**
