@@ -1,6 +1,7 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
+import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
@@ -20,7 +21,7 @@ import java.util.*
 class CompleteOrders {
     @CommandPermission("joblistings.completeorders")
     @Description("Scans your inventory for items to complete an order")
-    @Command("joblistings complete")
+        @Command("joblistings complete")
     fun completeOrders(actor: BukkitCommandActor) {
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder.where().eq("assignee", actor.uniqueId).and().eq("status", OrderStatus.CLAIMED)
@@ -33,6 +34,7 @@ class CompleteOrders {
         for (order in orders) {
             // TODO: Fix if item is split into multiple stacks, it will not be detected.
             actor.reply(order.toString())
+
             val itemStack = actor.player.inventory
                 .firstOrNull{ it?.isSimilar(order.item) ?: false && it.amount >= order.item.amount } ?: continue
             if (order.item is Damageable && itemStack.itemMeta is Damageable) {
@@ -68,7 +70,7 @@ class CompleteOrders {
             ))
                 .append(order.getItemInfo())
                 .append(MessageUtil.toComponent(
-                    "<green>, was completed by"
+                    "<green>, was completed by "
                 ))
                 .append(actor.player.displayName())
                 .append(MessageUtil.toComponent(
