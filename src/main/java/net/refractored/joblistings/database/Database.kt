@@ -53,9 +53,9 @@ class Database {
             LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
 
             connectionSource = JdbcPooledConnectionSource(
-                JobListings.instance.config.getString("database.url"),
-                JobListings.instance.config.getString("database.user"),
-                JobListings.instance.config.getString("database.password")
+                JobListings.instance.config.getString("Database.url"),
+                JobListings.instance.config.getString("Database.user"),
+                JobListings.instance.config.getString("Database.password")
             )
 
             orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
