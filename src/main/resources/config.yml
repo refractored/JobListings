@@ -16,6 +16,8 @@ Orders:
   MinOrdersTime: 48
   # Deadline in hours to complete an order
   OrderDeadline: 24
+  # Maximum amount of items per order
+  MaximumItems: 256
 
 # Mail is used when an order is updated and the player is offline
 Mail:
@@ -26,7 +28,7 @@ Mail:
   # 0 = Never expire
   ExpireTime: 30
 
-# Options here are require the essentials plugin to be installed!
+# Options here require the essentials plugin to be installed!
 # If EssentialsX is not installed, these options will be ignored.
 # https://essentialsx.net/downloads.html
 Essentials:

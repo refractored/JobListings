@@ -1,5 +1,8 @@
 package net.refractored.joblistings.order
 
+/**
+ * Represents the status of an order
+ */
 enum class OrderStatus {
     /**
      * The order is pending and has not been claimed

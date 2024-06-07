@@ -26,12 +26,21 @@ data class Order(
     @DatabaseField(id = true)
     val id: UUID,
 
+    /**
+     * The reward of the order if completed
+     */
     @DatabaseField
     var cost: Double,
 
+    /**
+     * The player's uuid who created the order
+     */
     @DatabaseField
     var user: UUID,
 
+    /**
+     * The player's uuid who accepted the order
+     */
     @DatabaseField
     var assignee: UUID?,
 
@@ -50,11 +59,53 @@ data class Order(
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     var timeCompleted: LocalDateTime?,
 
+    /**
+     * The status of the order
+     * @see OrderStatus
+     */
     @DatabaseField
     var status: OrderStatus,
 
+    /**
+     * The item
+     *
+     * This ItemStack is not representative of the amount of items required to complete it.
+     * @see itemAmount
+     */
     @DatabaseField(persisterClass = ItemstackSerializers::class)
     var item: ItemStack,
+
+    /**
+     * The amount of items required to complete the order
+     */
+    @DatabaseField
+    var itemAmount: Int,
+
+    /**
+     * The amount of items the assignee has turned in
+     */
+    @DatabaseField
+    var itemCompleted: Int,
+
+    /**
+     * The amount of items has been returned to the assignee
+     * ONLY if the order was not completed in time, or cancelled.
+     */
+    @DatabaseField
+    var itemsReturned: Int,
+
+    /**
+     * The amount of items has been obtained by the user
+     * ONLY if the order was completed in time.
+     */
+    @DatabaseField
+    var itemsObtained: Int,
+
+    /**
+     * True if the order has been expired, and the user has been refunded
+     */
+    @DatabaseField
+    var moneyReturned: Boolean,
 
 ) {
     /**
@@ -72,6 +123,11 @@ data class Order(
         null,
         OrderStatus.PENDING,
         (ItemBuilder(Material.STONE).amount(1).build()),
+        69,
+        0,
+        0,
+        0,
+        false
     )
 
     fun getItemInfo(): Component {
@@ -80,7 +136,7 @@ data class Order(
                 item.displayName()
             )
             .append(
-                MessageUtil.toComponent(" x${item.amount}<reset>")
+                MessageUtil.toComponent(" x${itemAmount}<reset>")
             )
             .build()
     }
