@@ -97,6 +97,7 @@ compileJava {
 
 
 shadowJar {
+    archiveFileName = "JobListings.jar"
     relocate('kotlin', 'net.refractored.libs.kotlin')
 }
 
