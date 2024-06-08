@@ -36,7 +36,7 @@ class CompleteOrders {
         for (order in orders) {
             for (item in actor.player.inventory.storageContents){
                 item ?: continue
-                if (!isMatchingItem(item, order, actor)) continue
+                if (!isMatchingItem(item, order)) continue
                 if (order.item is Damageable && item.itemMeta is Damageable) {
                     if ((order.item as Damageable).damage != (item.itemMeta as Damageable).damage) {
                         actor.reply( Component.text()
@@ -86,7 +86,7 @@ class CompleteOrders {
     /**
      * Returns whether the given item matches the order
      */
-    private fun isMatchingItem(item: ItemStack,order: Order, actor: BukkitCommandActor): Boolean {
+    private fun isMatchingItem(item: ItemStack,order: Order): Boolean {
         ecoPlugin.let{
             if (Items.isCustomItem(item)) {
                 return !Items.getCustomItem(order.item)!!.matches(item)

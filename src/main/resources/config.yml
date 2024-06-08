@@ -29,6 +29,9 @@ Mail:
   # Mail Expire time in days
   # 0 = Never expire
   ExpireTime: 30
+  # All mail will be sent to this player when they rejoin after their order is updated
+  # This does not apply to essentials mail.
+  JoinDelay: 10
 
 # Options here require the essentials plugin to be installed!
 # If EssentialsX is not installed, these options will be ignored.
