@@ -3,8 +3,6 @@ package net.refractored.joblistings.commands
 import com.j256.ormlite.stmt.QueryBuilder
 import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
-import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
@@ -33,83 +31,125 @@ class CompleteOrders {
             throw CommandErrorException("You have no orders to complete.")
         }
         val orderCount = orders.count()
-        var completionCount = 0
+        var ordersUpdated = 0
+        var ordersCompleted = 0
         for (order in orders) {
-            // TODO: Fix if item is split into multiple stacks, it will not be detected.
-            val itemStack = getMatchingItem(order, actor) ?: continue
-            Items.getItem(order.item).matches(actor.player.inventory.itemInMainHand)
-            if (order.item is Damageable && itemStack.itemMeta is Damageable) {
-                if ((order.item as Damageable).damage != (itemStack.itemMeta as Damageable).damage) {
-                    actor.reply( Component.text()
-                        .append(MessageUtil.toComponent("<red>One of your orders call for a,"))
-                        .append(itemStack.displayName())
-                        .append(MessageUtil.toComponent("<red>,but the item you have is damaged and cannot be delivered."))
-                    )
+            for (item in actor.player.inventory.storageContents){
+                item ?: continue
+                if (!isMatchingItem(item, order, actor)) continue
+                if (order.item is Damageable && item.itemMeta is Damageable) {
+                    if ((order.item as Damageable).damage != (item.itemMeta as Damageable).damage) {
+                        actor.reply( Component.text()
+                            .append(MessageUtil.toComponent("<red>One of your orders call for a,"))
+                            .append(item.displayName())
+                            .append(MessageUtil.toComponent("<red>,but the item you have is damaged and cannot be delivered."))
+                        )
+                        continue
+                    }
+                }
+                if (order.itemCompleted + item.amount >= order.itemAmount) {
+                    // Order completed YIPPEE
+                    val itemsLeft = (order.itemCompleted + item.amount) - order.itemAmount
+                    order.itemCompleted = order.itemAmount
+                    order.status = OrderStatus.COMPLETED
+                    order.timeCompleted = LocalDateTime.now()
+                    orderDao.update(order)
+                    item.amount = itemsLeft
+                    ordersCompleted++
+                    messageCompletion(actor, order)
                     continue
                 }
-            }
+                // Order not completed :(
+                order.itemCompleted += item.amount
+                orderDao.update(order)
+                item.amount = 0
+                ordersUpdated++
+                messageProgress(actor, order)
 
-            itemStack.amount -= order.item.amount
-            order.status = OrderStatus.COMPLETED
-            order.timeCompleted = LocalDateTime.now()
-            orderDao.update(order)
-            eco.depositPlayer(actor.player, order.cost)
-            completionCount++
-            val assigneeMessage =  Component.text()
-                .append(MessageUtil.toComponent(
-                    "<green>You have completed the order <gray>"
-                ))
-                .append(order.getItemInfo())
-                .append(MessageUtil.toComponent(
-                    "<green> and received <gold>${order.cost}</gold>."
-                ))
-                .build()
-            actor.reply(assigneeMessage)
-            val ownerMessage = Component.text()
-                .append(MessageUtil.toComponent(
-                "<green>One of your orders, <gray>"
-            ))
-                .append(order.getItemInfo())
-                .append(MessageUtil.toComponent(
-                    "<green>, was completed by "
-                ))
-                .append(actor.player.displayName())
-                .append(MessageUtil.toComponent(
-                    "<green>!"
-                ))
-                .build()
-            order.messageOwner(ownerMessage)
+            }
         }
-        if (completionCount == 0) {
+        if (ordersUpdated == 0) {
             throw CommandErrorException("None your claimed order's requirements were met.")
         }
-        if (completionCount == orderCount) {
+        if (ordersCompleted == orderCount) {
             actor.reply(MessageUtil.toComponent("<green>All your orders have been completed."))
             return
         }
         actor.reply(
-            MessageUtil.toComponent("<green><gold>$completionCount</gold> orders have been completed out of <gold>$orderCount</gold>." +
-                    "\nYou now have <gold>${(orderCount - completionCount)}</gold> orders left")
+            Component.text()
+                .append(MessageUtil.toComponent("<green>Completed <gold>$ordersCompleted</gold> out of <gold>$orderCount</gold> orders."))
+                .appendNewline()
+                .append(MessageUtil.toComponent("<green>Updated <gold>$ordersUpdated</gold> out of <gold>$orderCount</gold> orders."))
         )
     }
 
     /**
-     * Gets the matching item for the order in the player's inventory
-     * @return The ItemStack, or null if none exists.
+     * Returns whether the given item matches the order
      */
-    private fun getMatchingItem(order: Order, actor: BukkitCommandActor): ItemStack? {
+    private fun isMatchingItem(item: ItemStack,order: Order, actor: BukkitCommandActor): Boolean {
         ecoPlugin.let{
-            if (Items.isCustomItem(order.item)) {
-                for (items in actor.player.inventory.storageContents) {
-                    if (items == null) continue
-                    if (!Items.getCustomItem(order.item)!!.matches(items)) continue
-                    if (items.amount < order.item.amount) continue
-                    return items
-                }
-                return null
+            if (Items.isCustomItem(item)) {
+                return !Items.getCustomItem(order.item)!!.matches(item)
             }
         }
-        return actor.player.inventory.storageContents
-            .firstOrNull{ (it?.isSimilar(order.item) ?: false) && ((it?.amount ?: 0) >= order.item.amount) }
+        return order.item.isSimilar(item)
+    }
+
+    private fun messageCompletion(actor: BukkitCommandActor, order: Order) {
+        val assigneeMessage =  Component.text()
+            .append(MessageUtil.toComponent(
+                "<green>You have completed the order <gray>"
+            ))
+            .append(order.getItemInfo())
+            .append(MessageUtil.toComponent(
+                "<green> and received <gold>${order.cost}</gold>."
+            ))
+            .build()
+        actor.reply(assigneeMessage)
+        val ownerMessage = Component.text()
+            .append(MessageUtil.toComponent(
+                "<green>One of your orders, <gray>"
+            ))
+            .append(order.getItemInfo())
+            .append(MessageUtil.toComponent(
+                "<green>, was completed by "
+            ))
+            .append(actor.player.displayName())
+            .append(MessageUtil.toComponent(
+                "<green>!"
+            ))
+            .build()
+        order.messageOwner(ownerMessage)
+    }
+
+    private fun messageProgress(actor: BukkitCommandActor, order: Order){
+        val assigneeMessage =  Component.text()
+            .append(MessageUtil.toComponent(
+                "<green>You have made progress on the order <gray>"
+            ))
+            .append(order.getItemInfo())
+            .append(MessageUtil.toComponent(
+                "<green>. You have turned in <gold>${order.itemCompleted}</gold> out of <gold>${order.itemAmount}</gold> items!"
+            ))
+            .build()
+        actor.reply(assigneeMessage)
+        val ownerMessage = Component.text()
+            .append(MessageUtil.toComponent(
+                "<green>One of your orders, <gray>"
+            ))
+            .append(order.getItemInfo())
+            .append(MessageUtil.toComponent(
+                "<green>, was updated by "
+            ))
+            .append(actor.player.displayName())
+            .append(MessageUtil.toComponent(
+                "<green>!"
+            ))
+            .appendNewline()
+            .append(MessageUtil.toComponent(
+                "<green>They have turned in <gold>${order.itemCompleted}</gold> out of <gold>${order.itemAmount}</gold> items!"
+            ))
+            .build()
+        order.messageOwner(ownerMessage)
     }
 }
