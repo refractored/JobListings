@@ -80,6 +80,18 @@ class CreateOrderHand {
             item.itemMeta = damageableMeta
         }
 
+        val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
+
+        when {
+            maxItems == -1 && amount > item.maxStackSize -> {
+                throw CommandErrorException("Amount must be less than or equal to ${item.maxStackSize}.")
+            }
+            maxItems != 0 && amount >= maxItems -> {
+                throw CommandErrorException("You cannot have more than $maxItems items for an order.")
+            }
+        }
+
+
         item.amount = 1
 
         eco.withdrawPlayer(actor.player, cost)
