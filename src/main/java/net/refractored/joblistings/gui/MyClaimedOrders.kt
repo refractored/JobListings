@@ -91,8 +91,8 @@ class MyClaimedOrders {
             )
 
             Order.getPlayerAcceptedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
-                val item = order.item.clone()
-                val itemMetaCopy = item.itemMeta
+                val displayItem = order.item.clone()
+                val itemMetaCopy = displayItem.itemMeta
                 val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
                 val deadlineDurationText = "${deadlineDuration.toDays()} Days, ${deadlineDuration.toHoursPart()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
@@ -120,10 +120,10 @@ class MyClaimedOrders {
                     itemMetaCopy.lore(infoLore)
                 }
 
-                item.itemMeta = itemMetaCopy
+                displayItem.itemMeta = itemMetaCopy
 
                 val button = SGButton(
-                    item
+                    displayItem
                 ).withListener { event: InventoryClickEvent ->
                     when (order.status) {
                         OrderStatus.INCOMPLETE ->{
@@ -144,34 +144,7 @@ class MyClaimedOrders {
                                 )
                                 return@withListener
                             }
-                            val inventory = actor.player.inventory.storageContents
-                            for ((inventoryIndex, inventoryItem) in inventory.withIndex()) {
-                                if (order.itemCompleted == order.itemsReturned) break
-                                if (inventoryItem == null) {
-                                    val inventoryNewItem = order.item.clone().apply {
-                                        amount = if (order.itemsReturned + maxStackSize >= order.itemCompleted) {
-                                            order.itemCompleted - order.itemsReturned
-                                        } else {
-                                            maxStackSize
-                                        }
-                                    }
-                                    order.itemsReturned += inventoryNewItem.amount
-                                    actor.player.inventory.storageContents[inventoryIndex] = inventoryNewItem
-                                    break
-                                } else if (inventoryItem.isSimilar(order.item)) {
-                                    if (inventoryItem.amount == inventoryItem.maxStackSize) continue
-                                    val itemsNeeded = inventoryItem.maxStackSize - inventoryItem.amount
-                                    val itemsToAdd = if (order.itemsReturned + itemsNeeded >= order.itemCompleted) {
-                                        order.itemCompleted - order.itemsReturned
-                                    } else {
-                                        itemsNeeded
-                                    }
-                                    inventoryItem.amount += itemsToAdd
-                                    order.itemsReturned += itemsToAdd
-                                    break
-                                }
-                            }
-                            orderDao.update(order)
+                            giveRefundableItems(order, actor)
                         }
 
                         else -> return@withListener
@@ -195,5 +168,47 @@ class MyClaimedOrders {
             }
             gui.refreshInventory(actor.player)
         }
+
+        /**
+         * Refunds the items to the assignee of the order
+         * This also updates the order itemsReturned
+         */
+        private fun giveRefundableItems(order: Order ,actor: BukkitCommandActor){
+            val inventory = actor.player.inventory.storageContents
+            for ((inventoryIndex, inventoryItem) in inventory.withIndex()) {
+                if (order.itemCompleted == order.itemsReturned) break
+                if (inventoryItem == null) {
+                    val inventoryNewItem = order.item.clone().apply {
+                        amount = if (order.itemsReturned + maxStackSize >= order.itemCompleted) {
+                            order.itemCompleted - order.itemsReturned
+                        } else {
+                            maxStackSize
+                        }
+                    }
+                    order.itemsReturned += inventoryNewItem.amount
+                    actor.player.inventory.storageContents[inventoryIndex] = inventoryNewItem
+                    break
+                } else if (inventoryItem.isSimilar(order.item)) {
+                    if (inventoryItem.amount == inventoryItem.maxStackSize) continue
+                    val itemsNeeded = inventoryItem.maxStackSize - inventoryItem.amount
+                    val itemsToAdd = if (order.itemsReturned + itemsNeeded >= order.itemCompleted) {
+                        order.itemCompleted - order.itemsReturned
+                    } else {
+                        itemsNeeded
+                    }
+                    inventoryItem.amount += itemsToAdd
+                    order.itemsReturned += itemsToAdd
+                    break
+                }
+            }
+            orderDao.update(order)
+            if (order.itemsReturned == order.itemCompleted) {
+                MessageUtil.toComponent("<green>Order fully refunded!")
+                actor.player.closeInventory()
+            }
+        }
+
     }
+
+
 }
