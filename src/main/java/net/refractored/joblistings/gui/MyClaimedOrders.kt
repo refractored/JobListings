@@ -6,7 +6,9 @@ import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.format.TextDecoration
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -95,7 +97,7 @@ class MyClaimedOrders {
                 val deadlineDurationText = "${deadlineDuration.toDays()} Days, ${deadlineDuration.toHoursPart()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
                 val createdDurationText = "${createdDuration.toDays()} Days, ${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
-                val infoLore = listOf(
+                val infoLore = mutableListOf(
                     MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                     MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                     MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
@@ -104,6 +106,11 @@ class MyClaimedOrders {
                     MessageUtil.toComponent("<reset><red>Status: <white>${order.status}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
                     MessageUtil.toComponent(""),
                 )
+                if (order.status == OrderStatus.INCOMPLETE){
+                    infoLore.add(
+                        MessageUtil.toComponent("<reset><red>(Click to refund order)")
+                    )
+                }
 
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
@@ -117,33 +124,60 @@ class MyClaimedOrders {
 
                 val button = SGButton(
                     item
-                )
-//                    .withListener { event: InventoryClickEvent ->
-//                    when (order.status) {
-//                        OrderStatus.PENDING -> {
-//                            event.whoClicked.sendMessage("Order Deleted!")
-//                            gui.removeButton((index + 10) + (gui.currentPage * 45))
-//                            eco.depositPlayer(actor.player, order.cost)
-//                            Database.orderDao.delete(order)
-//                            reloadItems(gui, actor)
-//                            gui.refreshInventory(actor.player)
-//                        }
-//                        OrderStatus.CLAIMED -> {
-//                            event.whoClicked.sendMessage("Order Removed!")
-//                            gui.removeButton((index + 10) + (gui.currentPage * 45))
-//                            eco.depositPlayer(actor.player, (order.cost / 2) )
-//                            Database.orderDao.delete(order)
-//                            reloadItems(gui, actor)
-//                            gui.refreshInventory(actor.player)
-//                        }
-//                        OrderStatus.COMPLETED -> {
-//                            TODO()
-//                        }
-//
-//                        OrderStatus.INCOMPLETE -> TODO()
-//                        OrderStatus.EXPIRED -> TODO()
-//                    }
-//                }
+                ).withListener { event: InventoryClickEvent ->
+                    when (order.status) {
+                        OrderStatus.INCOMPLETE ->{
+                            val inventorySpaces = actor.player.inventory.storageContents.count{
+                                it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize)
+                            }
+                            if (inventorySpaces == 0) {
+                                actor.player.closeInventory()
+                                event.whoClicked.sendMessage(
+                                    MessageUtil.toComponent("<red>Your inventory is full!")
+                                )
+                                return@withListener
+                            }
+                            if (order.itemCompleted == order.itemsReturned) {
+                                actor.player.closeInventory()
+                                event.whoClicked.sendMessage(
+                                    MessageUtil.toComponent("<red>You have already refunded this order!")
+                                )
+                                return@withListener
+                            }
+                            val inventory = actor.player.inventory.storageContents
+                            for ((inventoryIndex, inventoryItem) in inventory.withIndex()) {
+                                if (order.itemCompleted == order.itemsReturned) break
+                                if (inventoryItem == null) {
+                                    val inventoryNewItem = order.item.clone().apply {
+                                        amount = if (order.itemsReturned + maxStackSize >= order.itemCompleted) {
+                                            order.itemCompleted - order.itemsReturned
+                                        } else {
+                                            maxStackSize
+                                        }
+                                    }
+                                    order.itemsReturned += inventoryNewItem.amount
+                                    actor.player.inventory.storageContents[inventoryIndex] = inventoryNewItem
+                                    break
+                                } else if (inventoryItem.isSimilar(order.item)) {
+                                    if (inventoryItem.amount == inventoryItem.maxStackSize) continue
+                                    val itemsNeeded = inventoryItem.maxStackSize - inventoryItem.amount
+                                    val itemsToAdd = if (order.itemsReturned + itemsNeeded >= order.itemCompleted) {
+                                        order.itemCompleted - order.itemsReturned
+                                    } else {
+                                        itemsNeeded
+                                    }
+                                    inventoryItem.amount += itemsToAdd
+                                    order.itemsReturned += itemsToAdd
+                                    break
+                                }
+                            }
+                            orderDao.update(order)
+                        }
+
+                        else -> return@withListener
+
+                    }
+                }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)
 
                 var slot = baseSlot

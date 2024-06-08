@@ -17,6 +17,8 @@ Orders:
   # Deadline in hours to complete an order
   OrderDeadline: 24
   # Maximum amount of items per order
+  # Setting this to 0 will disable the limit
+  # Setting this to -1 will use the item's max stack size (May differ with material type)
   MaximumItems: 256
 
 # Mail is used when an order is updated and the player is offline
