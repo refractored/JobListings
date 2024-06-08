@@ -3,11 +3,13 @@ package net.refractored.joblistings.commands
 import com.j256.ormlite.stmt.QueryBuilder
 import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
+import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
+import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
@@ -54,6 +56,11 @@ class CompleteOrders {
                     order.status = OrderStatus.COMPLETED
                     order.timeCompleted = LocalDateTime.now()
                     orderDao.update(order)
+                    // If order completed send the reward :D
+                    eco.depositPlayer(
+                        Bukkit.getOfflinePlayer(actor.uniqueId),
+                        order.cost
+                    )
                     item.amount = itemsLeft
                     ordersCompleted++
                     messageCompletion(actor, order)
