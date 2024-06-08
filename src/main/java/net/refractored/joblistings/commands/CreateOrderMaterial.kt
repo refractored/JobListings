@@ -74,11 +74,7 @@ class CreateOrderMaterial {
 
         val item = ItemBuilder(material).build()
 
-        if (amount > item.maxStackSize) {
-            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item.")
-        }
-
-        item.amount = amount
+        item.amount = 1
 
         eco.withdrawPlayer(actor.player, cost)
 
@@ -95,6 +91,11 @@ class CreateOrderMaterial {
                 timeClaimed = null,
                 status = OrderStatus.PENDING,
                 item = item,
+                itemAmount = amount,
+                itemCompleted = 0,
+                itemsReturned = 0,
+                itemsObtained = 0,
+                moneyReturned = false
             )
         )
         actor.player.sendMessage(

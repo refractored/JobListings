@@ -74,17 +74,13 @@ class CreateOrderHand {
             throw CommandErrorException("You must be holding an item to create an order.")
         }
 
-        if (amount > item.maxStackSize) {
-            throw CommandErrorException("Amount must be less than or equal to the max stack size of the item. (${item.maxStackSize} max)")
-        }
-
         if (item.itemMeta is Damageable) {
             val damageableMeta = item.itemMeta as Damageable
             damageableMeta.damage = 0
             item.itemMeta = damageableMeta
         }
 
-        item.amount = amount
+        item.amount = 1
 
         eco.withdrawPlayer(actor.player, cost)
 
@@ -101,6 +97,11 @@ class CreateOrderHand {
                 timeClaimed = null,
                 status = OrderStatus.PENDING,
                 item = item,
+                itemAmount = amount,
+                itemCompleted = 0,
+                itemsReturned = 0,
+                itemsObtained = 0,
+                moneyReturned = false
             )
         )
 
