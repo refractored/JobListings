@@ -105,10 +105,6 @@ class CompleteOrders {
                 )
 
             )
-//            Component.text()
-//                .append(MessageUtil.toComponent("<green>Completed <gold>$ordersCompleted</gold> out of <gold>$orderCount</gold> orders."))
-//                .appendNewline()
-//                .append(MessageUtil.toComponent("<green>Updated <gold>$ordersUpdated</gold> out of <gold>$orderCount</gold> orders."))
         )
     }
 
