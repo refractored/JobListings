@@ -3,7 +3,9 @@
 # by refractored
 #
 Database:
-  # You should only need to replace localhost, port, and database_name in the url.
+  # For the url, you should only need to replace localhost, port, and database_name.
+  # jdbc:mysql://localhost:3306/database_name
+  # Only continue if you know what you are doing.
   url: "jdbc:mysql://localhost:3306/database_name"
   user: "USERNAME"
   password: "PASSWORD"
