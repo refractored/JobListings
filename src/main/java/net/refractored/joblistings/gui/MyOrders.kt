@@ -9,7 +9,6 @@ import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
-import net.refractored.joblistings.gui.MyClaimedOrders.Companion.giveRefundableItems
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
