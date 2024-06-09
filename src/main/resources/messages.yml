@@ -9,6 +9,16 @@
 
 General:
   IsNotPlayer: "<red>You must be a player to use this command."
+  NoPermission: "<red>You do not have permission to use this command."
+  # %0 = Missing Argument
+  MissingArguments: "<red>You must specify a value for the argument: %0"
+  UnexpectedError: "<red>An error occurred while executing this command."
+  # %0 = Command Usage
+  TooManyArguments: "<red>Too many arguments! Correct usage: /%0"
+  NoSubcommandSpecified: "<red>You must specify a subcommand."
+  # %0 = Command
+  InvalidCommand: "<red>Invalid command: %0."
+  InvalidNumber: "Expected a number, but found ''%0''."
 OrderComplete:
   NoOrdersToComplete: "<red>There are no orders to complete."
   # %0 = Order Info
