@@ -38,8 +38,8 @@ class AllOrders {
                 ),
                 5)
 
-            val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
-                ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
+            val pageCount = if (ceil(orderDao.countOf().toDouble() / 21).toInt() > 0) {
+                ceil(orderDao.countOf().toDouble() / 21).toInt()
             } else {
                 1
             }

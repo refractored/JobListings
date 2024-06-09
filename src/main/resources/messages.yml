@@ -1,1 +1,41 @@
-# COMING SOON
+#
+# JobListings
+# by refractored
+#
+
+# This plugin uses MiniMessage for formatting.
+# The legacy Ampersand (&) is not supported.
+# For more information, see https://docs.advntr.dev/minimessage/format.html
+
+# "/joblistings complete" command
+OrderComplete:
+  NoOrdersToComplete: "<red>There are no orders to complete."
+  # %1 = Order Info
+  DamagedItem: "<red>One of your orders call for a, %1<red> ,but the item you have is damaged and cannot be delivered."
+  # %1 = Orders Completed
+  # %2 = Orders Updated (Orders that have had more items turned in)
+  # %3 = Total Order Count
+  OrderProgress: |-
+    <green>Completed <gold>%1</gold> out of <gold>%3</gold> orders.
+    <green>Updated <gold>%2</gold> out of <gold>%3</gold> orders.
+  # %1 = Order Info
+  # %2 = Order Item Progress
+  # %3 = Order Item Requirement
+  # This message is send to the player when they have made progress on an order.
+  ProgressMessageAssignee: |-
+    <green>You have made progress on the order <gray>%1.<green>.
+    <green>You have turned in <gray>%2 <green>of <gray>%3 <green>items.
+  # %1 = Order Info
+  # %2 = Order Assignee
+  # %3 = Order Item Progress
+  # %4 = Order Item Requirement
+  # This message is send to the order owner when progress was made on a order.
+  ProgressMessageOwner: |-
+    <green>One of your orders, <gray>%1 <green>has been updated by %2<green>!
+    <green>They have turned in <gold>%3</gold> out of <gold>%4</gold> items!
+  # %1 = Order Info
+  # %2 = Order Reward
+  CompletedMessageAssignee: "<green>You have completed the order <gray>%1<green> and received <gold>%2</gold>."
+  CompletedMessageOwner: "<green><green>One of your orders, <gray>%1 <green>has been completed by %2<green>!"
+  NoItemsFound: "<red>None of your order's requirements were met."
+  AllOrdersCompleted: "<green>All orders have been completed."
