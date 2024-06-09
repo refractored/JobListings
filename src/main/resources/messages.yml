@@ -18,7 +18,7 @@ General:
   NoSubcommandSpecified: "<red>You must specify a subcommand."
   # %0 = Command
   InvalidCommand: "<red>Invalid command: %0."
-  InvalidNumber: "Expected a number, but found ''%0''."
+  InvalidNumber: "<red>Expected a number, but found ''%0''."
 OrderComplete:
   NoOrdersToComplete: "<red>There are no orders to complete."
   # %0 = Order Info
@@ -74,4 +74,15 @@ CreateOrder:
     <green>Order created for %0
     <green>Reward: <white>%1<reset>
     <green>Expires in <white>%2<reset><white> hours
-
+Help:
+  # There is only one page at the moment, this is just to help with future updates.
+  Page1: |-
+    <bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><white>
+    <gray>/joblistings orders<white>: View all pending orders
+    <gray>/joblistings owned<white>: View and manage orders you own
+    <gray>/joblistings claimed<white>: View the orders you claimed
+    <gray>/joblistings complete<white>: Scans your inventory for items to complete an order
+    <gray>/joblistings create hand<white>: Create an order from the item in your hand
+    <gray>/joblistings create material<white>: Create an order from the specified material
+    <gray>/joblistings<white>: Displays this menu
+  
