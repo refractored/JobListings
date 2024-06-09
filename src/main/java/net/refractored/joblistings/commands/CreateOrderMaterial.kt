@@ -8,6 +8,7 @@ import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
 import revxrsal.commands.annotation.Command
@@ -32,32 +33,58 @@ class CreateOrderMaterial {
         @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
     ){
         if (actor.isConsole) {
-            throw CommandErrorException("You must be a player to use this command.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage("General.IsNotPlayer")
+            )
         }
 
         if (amount < 1) {
-            throw CommandErrorException("Amount must be at least 1.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.LessThanOneItem")
+
+            )
         }
 
         if (hours < 1) {
-            throw CommandErrorException("Hours must be at least 1.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.LessThanOneHour")
+            )
         }
 
-        if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
-            throw CommandErrorException("Hours must be less than or equal to ${JobListings.instance.config.getLong("Orders.MaxOrdersTime")}.")
+        if (hours > JobListings.instance.config.getLong("CreateOrder.MaxOrdersTime")) {
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage(
+                    "CreateOrder.MoreThanMaxHoursConfig",
+                    listOf(
+                        MessageReplacement(JobListings.instance.config.getLong("Orders.MaxOrdersTime").toString())
+                    )
+                )
+            )
         }
 
         if (hours < JobListings.instance.config.getLong("Orders.MinOrdersTime")) {
-            throw CommandErrorException("Hours must be more than or equal to ${JobListings.instance.config.getLong("Orders.MinOrdersTime")}.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage(
+                    "CreateOrder.MoreThanMinHoursConfig",
+                    listOf(
+                        MessageReplacement(JobListings.instance.config.getLong("Orders.MinOrdersTime").toString())
+                    )
+                )
+            )
         }
 
         if (cost < 1) {
-            throw CommandErrorException("Cost must be at least 1.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.LessThanOneCost")
+            )
         }
 
         if (eco.getBalance(actor.player) < cost) {
-            throw CommandErrorException("You do not have enough money to cover your payment.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.NotEnoughMoney")
+            )
         }
+
 
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder.orderBy("timeCreated", false)
@@ -65,11 +92,20 @@ class CreateOrderMaterial {
         val orders = orderDao.query(queryBuilder.prepare())
 
         if (orders.count() >= JobListings.instance.config.getInt("Orders.MaxOrders")) {
-            throw CommandErrorException("You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrders")} orders at once.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage(
+                    "CreateOrder.MaxOrdersReached",
+                    listOf(
+                        MessageReplacement(JobListings.instance.config.getLong("Orders.MaxOrders").toString())
+                    )
+                )
+            )
         }
 
         if (material == Material.AIR) {
-            throw CommandErrorException("Item cannot be air.")
+            throw net.refractored.joblistings.exceptions.CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.MaterialSetToAir")
+            )
         }
 
         val item = ItemBuilder(material).build()
@@ -78,10 +114,24 @@ class CreateOrderMaterial {
 
         when {
             maxItems == -1 && amount > item.maxStackSize -> {
-                throw CommandErrorException("Amount must be less than or equal to ${item.maxStackSize}.")
+                throw net.refractored.joblistings.exceptions.CommandErrorException(
+                    MessageUtil.getMessage(
+                        "CreateOrder.StackSizeExceeded",
+                        listOf(
+                            MessageReplacement(item.maxStackSize.toString())
+                        )
+                    )
+                )
             }
             maxItems != 0 && amount >= maxItems -> {
-                throw CommandErrorException("You cannot have more than $maxItems items for an order.")
+                throw net.refractored.joblistings.exceptions.CommandErrorException(
+                    MessageUtil.getMessage(
+                        "CreateOrder.MaxOrdersExceeded",
+                        listOf(
+                            MessageReplacement(maxItems.toString())
+                        )
+                    )
+                )
             }
         }
 
@@ -109,16 +159,21 @@ class CreateOrderMaterial {
                 moneyReturned = false
             )
         )
+
+        val orderInfo = Component.text()
+            .append(item.displayName())
+            .append(MessageUtil.toComponent(" x${amount}<reset>"))
+            .build()
+
         actor.player.sendMessage(
-            Component.text()
-                .append(MessageUtil.toComponent("<green>Order created for "))
-                .append(item.displayName())
-                .append(MessageUtil.toComponent(" x${amount}<reset>"))
-                .appendNewline()
-                .append(MessageUtil.toComponent("<green>Reward: <white>$cost<reset>"))
-                .appendNewline()
-                .append(MessageUtil.toComponent("<green>Expires in <white>$hours<reset><white> hours."))
-                .build()
+            MessageUtil.getMessage(
+                "CreateOrder.OrderCreated",
+                listOf(
+                    MessageReplacement(orderInfo),
+                    MessageReplacement(cost.toString()),
+                    MessageReplacement(hours.toString())
+                )
+            )
         )
     }
 }

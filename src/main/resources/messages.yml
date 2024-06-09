@@ -56,6 +56,7 @@ CreateOrder:
   # This message is only used if MaximumItems is set to -1 in config.yml
   StackSizeExceeded: "<red>Amount must be less than or equal to %0"
   MaxOrdersExceeded: "<red>You cannot have more than %0 orders at once."
+  MaterialSetToAir: "<red>Item cannot be air."
   # %0 = Order Info
   # %1 = Order Reward
   # %2 = Order Expires (in hours)
