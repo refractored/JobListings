@@ -121,7 +121,7 @@ class CreateOrderHand {
             Component.text()
                 .append(MessageUtil.toComponent("<green>Order created for "))
                 .append(item.displayName())
-                .append(MessageUtil.toComponent(" x${item.amount}<reset>"))
+                .append(MessageUtil.toComponent(" x${amount}<reset>"))
                 .appendNewline()
                 .append(MessageUtil.toComponent("<green>Reward: <white>$cost<reset>"))
                 .appendNewline()
