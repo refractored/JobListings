@@ -7,35 +7,60 @@
 # The legacy Ampersand (&) is not supported.
 # For more information, see https://docs.advntr.dev/minimessage/format.html
 
-# "/joblistings complete" command
+General:
+  IsNotPlayer: "<red>You must be a player to use this command."
 OrderComplete:
   NoOrdersToComplete: "<red>There are no orders to complete."
-  # %1 = Order Info
-  DamagedItem: "<red>One of your orders call for a, %1<red> ,but the item you have is damaged and cannot be delivered."
-  # %1 = Orders Completed
-  # %2 = Orders Updated (Orders that have had more items turned in)
-  # %3 = Total Order Count
+  # %0 = Order Info
+  DamagedItem: "<red>One of your orders call for a, %0<red> ,but the item you have is damaged and cannot be delivered."
+  # %0 = Orders Completed
+  # %1 = Orders Updated (Orders that have had more items turned in)
+  # %2 = Total Order Count
   OrderProgress: |-
-    <green>Completed <gold>%1</gold> out of <gold>%3</gold> orders.
-    <green>Updated <gold>%2</gold> out of <gold>%3</gold> orders.
-  # %1 = Order Info
-  # %2 = Order Item Progress
-  # %3 = Order Item Requirement
+    <green>Completed <gold>%0</gold> out of <gold>%2</gold> orders.
+    <green>Updated <gold>%1</gold> out of <gold>%2</gold> orders.
+  # %0 = Order Info
+  # %1 = Order Item Progress
+  # %2 = Order Item Requirement
   # This message is send to the player when they have made progress on an order.
   ProgressMessageAssignee: |-
-    <green>You have made progress on the order <gray>%1.<green>.
-    <green>You have turned in <gray>%2 <green>of <gray>%3 <green>items.
-  # %1 = Order Info
-  # %2 = Order Assignee
-  # %3 = Order Item Progress
-  # %4 = Order Item Requirement
+    <green>You have made progress on the order <gray>%0.<green>.
+    <green>You have turned in <gray>%1 <green>of <gray>%2 <green>items.
+  # %0 = Order Info
+  # %1 = Order Assignee
+  # %2 = Order Item Progress
+  # %3 = Order Item Requirement
   # This message is send to the order owner when progress was made on a order.
   ProgressMessageOwner: |-
-    <green>One of your orders, <gray>%1 <green>has been updated by %2<green>!
-    <green>They have turned in <gold>%3</gold> out of <gold>%4</gold> items!
-  # %1 = Order Info
-  # %2 = Order Reward
-  CompletedMessageAssignee: "<green>You have completed the order <gray>%1<green> and received <gold>%2</gold>."
-  CompletedMessageOwner: "<green><green>One of your orders, <gray>%1 <green>has been completed by %2<green>!"
+    <green>One of your orders, <gray>%0 <green>has been updated by %1<green>!
+    <green>They have turned in <gold>%2</gold> out of <gold>%3</gold> items!
+  # %0 = Order Info
+  # %1 = Order Reward
+  CompletedMessageAssignee: "<green>You have completed the order <gray>%0<green> and received <gold>%1</gold>."
+  CompletedMessageOwner: "<green><green>One of your orders, <gray>%0 <green>has been completed by %1<green>!"
   NoItemsFound: "<red>None of your order's requirements were met."
   AllOrdersCompleted: "<green>All orders have been completed."
+CreateOrder:
+  LessThanOneItem: "<red>Item amount must be at least 1."
+  LessThanOneHour: "<red>Hours must be at least 1."
+  LessThanOneCost: "<red>Cost must be at least 1."
+  NotEnoughMoney: "<red>You do not have enough money to cover your order."
+  # %0 = MaxOrdersTime from config.yml
+  MoreThanMaxHoursConfig: "<red>Hours must be less than or equal to %0"
+  # %0 = MinOrdersTime from config.yml
+  MoreThanMinHoursConfig: "<red>Hours must be more than or equal to %0"
+  # %0 = MaxOrders from config.yml
+  MaxOrdersReached: "<red>You cannot have more than %0 orders at once."
+  NotHoldingItem: "<red>You must be holding the item to create an order."
+  # %0 = Max item stack from material specified (or held)
+  # This message is only used if MaximumItems is set to -1 in config.yml
+  StackSizeExceeded: "<red>Amount must be less than or equal to %0"
+  MaxOrdersExceeded: "<red>You cannot have more than %0 orders at once."
+  # %0 = Order Info
+  # %1 = Order Reward
+  # %2 = Order Expires (in hours)
+  OrderCreated: |-
+    <green>Order created for %0
+    <green>Reward: <white>%1<reset>
+    <green>Expires in <white>%2<reset><white> hours
+
