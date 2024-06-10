@@ -20,6 +20,65 @@ class CommandErrorHandler : DefaultExceptionHandler() {
         )
     }
 
+    override fun invalidSubcommand(actor: CommandActor, exception: InvalidSubcommandException) {
+        actor.sender.sendMessage(
+            MessageUtil.getMessage(
+                "General.InvalidEnum",
+                listOf(
+                    MessageReplacement(exception.input),
+                )
+            )
+        )
+    }
+
+    override fun invalidBoolean(actor: CommandActor, exception: InvalidBooleanException) {
+        actor.sender.sendMessage(
+            MessageUtil.getMessage(
+                "General.InvalidBoolean",
+                listOf(
+                    MessageReplacement(exception.input),
+                )
+            )
+        )
+    }
+
+    override fun cooldown(actor: CommandActor, exception: CooldownException) {
+        actor.errorLocalized("OnCooldown", formatTimeFancy(exception.timeLeftMillis))
+        actor.sender.sendMessage(
+            MessageUtil.getMessage(
+                "General.OnCooldown",
+                listOf(
+                    MessageReplacement(formatTimeFancy(exception.timeLeftMillis))),
+                )
+            )
+    }
+
+    override fun numberNotInRange(actor: CommandActor, exception: NumberNotInRangeException) {
+        actor.sender.sendMessage(
+            MessageUtil.getMessage(
+                "General.NumNotInRange",
+                listOf(
+            MessageReplacement(exception.parameter.name),
+            MessageReplacement(FORMAT.format(exception.minimum)),
+            MessageReplacement(FORMAT.format(exception.maximum)),
+            MessageReplacement(FORMAT.format(exception.input)),
+                )
+            )
+        )
+    }
+
+    override fun invalidEnumValue(actor: CommandActor, exception: EnumNotFoundException) {
+        actor.sender.sendMessage(
+            MessageUtil.getMessage(
+                "General.InvalidEnum",
+                listOf(
+                    MessageReplacement(exception.parameter.name),
+                    MessageReplacement(exception.input),
+                )
+            )
+        )
+    }
+
     override fun commandInvocation(actor: CommandActor, exception: CommandInvocationException) {
         MessageUtil.getMessage("General.UnexpectedError")
         exception.cause.printStackTrace()

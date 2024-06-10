@@ -4,7 +4,7 @@
 #
 
 # This plugin uses MiniMessage for formatting.
-# The legacy Ampersand (&) is not supported.
+# The Ampersand character (&) and Section character (§) is not supported.
 # For more information, see https://docs.advntr.dev/minimessage/format.html
 
 General:
@@ -23,6 +23,19 @@ General:
   OrderAlreadyClaimed: "<red>Order is not pending. Someone might have already accepted it."
   OrderExpired: "<red>Order has expired."
   Ignored: "<red>You cannot accept orders from players who have you ignored or you ignored yourself."
+  # %0 = Type
+  # %1 = Value
+  InvalidEnum: "<red>Invalid %0: %1"
+  # %0 = Invalid Input Value
+  InvalidBoolean: "<red>Expected true or false, but found \''{0}\''."
+  InvalidSubcommand: "<red>Invalid subcommand:  %0"
+  OnCooldown: "<red>You must wait %0 before using this command again."
+  # %0 = Parameter Name
+  # %1 = Min Number
+  # %2 = Max Number
+  # %3 = Found Number
+  NumNotInRange: "%0 must be between %1 and %2 (found %3)"
+  InvalidURL:
 Reload:
   Reloaded: "<green>Plugin reloaded."
 OrderComplete:
