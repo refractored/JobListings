@@ -5,7 +5,6 @@ import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.exceptions.CommandErrorHandler
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
@@ -91,6 +90,7 @@ class JobListings : JavaPlugin() {
         handler.register(ClaimedOrders())
         handler.register(CompleteOrders())
         handler.register(HelpCommand())
+        handler.register(ReloadCommand())
         handler.registerBrigadier()
 
         // Register listeners
@@ -106,7 +106,9 @@ class JobListings : JavaPlugin() {
     }
 
     override fun onDisable() {
-        handler.unregisterAllCommands()
+        if (this::handler.isInitialized) {
+            handler.unregisterAllCommands()
+        }
         cleanDatabase.cancel()
         logger.info("JobListings has been disabled!")
     }
