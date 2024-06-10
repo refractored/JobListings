@@ -35,10 +35,11 @@ class CompleteOrders {
         val orderCount = orders.count()
         var ordersUpdated = 0
         var ordersCompleted = 0
+        // TODO: REWRITE THIS ATROCITY
         forEachOrder@ for (order in orders) {
             forEachItem@ for (item in actor.player.inventory.storageContents){
-                item ?: continue@forEachItem
-                if (!isMatchingItem(item, order)) continue
+                if (item == null) continue@forEachItem
+                if (!isMatchingItem(item, order)) continue@forEachItem
                 if (order.item is Damageable && item.itemMeta is Damageable) {
                     if ((order.item as Damageable).damage != (item.itemMeta as Damageable).damage) {
                         actor.reply(
@@ -98,11 +99,9 @@ class CompleteOrders {
                 "OrderComplete.OrderProgress",
                 listOf(
                     MessageReplacement(ordersCompleted.toString()),
-                    MessageReplacement(orderCount.toString()),
                     MessageReplacement(ordersUpdated.toString()),
                     MessageReplacement(orderCount.toString()),
-                )
-
+                    )
             )
         )
     }

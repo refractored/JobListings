@@ -23,6 +23,8 @@ General:
   OrderAlreadyClaimed: "<red>Order is not pending. Someone might have already accepted it."
   OrderExpired: "<red>Order has expired."
   Ignored: "<red>You cannot accept orders from players who have you ignored or you ignored yourself."
+Reload:
+  Reloaded: "<green>Plugin reloaded."
 OrderComplete:
   NoOrdersToComplete: "<red>There are no orders to complete."
   # %0 = Order Info
@@ -119,4 +121,4 @@ AllOrders:
   # %0 = Order Info
   # %1 = Order Assignee
   # This message is sent to the creator of the order.
-  OrderAcceptedNotification: "One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
+  OrderAcceptedNotification: "<green>One of your orders, <gray>%0 <green>, was accepted by %1<green>!"

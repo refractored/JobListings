@@ -3,9 +3,11 @@ package net.refractored.joblistings.gui
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
+import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import net.refractored.joblistings.JobListings.Companion.eco
+import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
@@ -15,8 +17,10 @@ import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.ItemStack
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
+import revxrsal.commands.bukkit.playerOrNull
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.math.ceil
@@ -177,7 +181,7 @@ class MyOrders {
                             )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, order.cost)
-                            Database.orderDao.delete(order)
+                            orderDao.delete(order)
                             reloadItems(gui, actor)
                             gui.refreshInventory(actor.player)
                         }
@@ -190,9 +194,9 @@ class MyOrders {
                             order.status = OrderStatus.INCOMPLETE
                             // No need to refund items to assignee, if no items were ever turned in
                             if (order.itemCompleted == 0){
-                                Database.orderDao.delete(order)
+                                orderDao.delete(order)
                             } else {
-                                Database.orderDao.update(order)
+                                orderDao.update(order)
                             }
                             val assigneeMessage = Component.text()
                                 .append(MessageUtil.toComponent(
@@ -208,22 +212,6 @@ class MyOrders {
                             gui.refreshInventory(actor.player)
                         }
                         OrderStatus.COMPLETED -> {
-                            gui.removeButton((index + 10) + (gui.currentPage * 45))
-                            val inventoryFull = actor.player.inventory.storageContents.none { it == null }
-                            if (inventoryFull) {
-                                actor.player.closeInventory()
-                                event.whoClicked.sendMessage(
-                                    MessageUtil.toComponent("<red>Your inventory is full!")
-                                )
-                                return@withListener
-                            }
-                            actor.player.inventory.addItem(order.item)
-                            Database.orderDao.delete(order)
-                            reloadItems(gui, actor)
-                            gui.refreshInventory(actor.player)
-                            event.whoClicked.sendMessage(
-                                MessageUtil.toComponent("<green>Order claimed!")
-                            )
                             val inventorySpaces = actor.player.inventory.storageContents.count{
                                 it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize)
                             }
@@ -234,14 +222,20 @@ class MyOrders {
                                 )
                                 return@withListener
                             }
-                            if (order.itemCompleted == order.itemsReturned) {
+                            giveOrderItems(order, actor)
+                            if (order.itemCompleted == order.itemsObtained) {
                                 actor.player.closeInventory()
                                 event.whoClicked.sendMessage(
-                                    MessageUtil.toComponent("<red>You have already refunded this order!")
+                                    MessageUtil.toComponent("<red>You have already claimed this order!")
                                 )
+                                gui.removeButton((index + 10) + (gui.currentPage * 45))
+                                reloadItems(gui, actor)
+                                gui.refreshInventory(actor.player)
                                 return@withListener
                             }
-                            giveOrderItems(order, actor)
+                            event.whoClicked.sendMessage(
+                                MessageUtil.toComponent("<green>Order claimed!")
+                            )
                         }
 
                         OrderStatus.INCOMPLETE -> {
@@ -250,7 +244,7 @@ class MyOrders {
                             )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost) )
-                            Database.orderDao.delete(order)
+                            orderDao.delete(order)
                             reloadItems(gui, actor)
                             gui.refreshInventory(actor.player)
                         }
@@ -260,7 +254,7 @@ class MyOrders {
                             )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost) )
-                            Database.orderDao.delete(order)
+                            orderDao.delete(order)
                             reloadItems(gui, actor)
                             gui.refreshInventory(actor.player)
                         }
@@ -284,37 +278,45 @@ class MyOrders {
             gui.refreshInventory(actor.player)
         }
 
-        private fun giveOrderItems(order: Order ,actor: BukkitCommandActor){
-            val inventory = actor.player.inventory.storageContents
-            for ((inventoryIndex, inventoryItem) in inventory.withIndex()) {
-                if (order.itemCompleted == order.itemsObtained) break
-                if (inventoryItem == null) {
-                    val inventoryNewItem = order.item.clone().apply {
-                        amount = if (order.itemsObtained + maxStackSize >= order.itemCompleted) {
-                            order.itemCompleted - order.itemsObtained
-                        } else {
-                            maxStackSize
-                        }
-                    }
-                    order.itemsObtained += inventoryNewItem.amount
-                    actor.player.inventory.storageContents[inventoryIndex] = inventoryNewItem
-                    break
-                } else if (inventoryItem.isSimilar(order.item)) {
-                    if (inventoryItem.amount == inventoryItem.maxStackSize) continue
-                    val itemsNeeded = inventoryItem.maxStackSize - inventoryItem.amount
-                    val itemsToAdd = if (order.itemsObtained + itemsNeeded >= order.itemCompleted) {
-                        order.itemCompleted - order.itemsObtained
-                    } else {
-                        itemsNeeded
-                    }
-                    inventoryItem.amount += itemsToAdd
-                    order.itemsObtained += itemsToAdd
-                    break
+        /**
+         * Returns whether the given item matches the order
+         */
+        private fun isMatchingItem(item: ItemStack, order: Order): Boolean {
+            ecoPlugin.let{
+                if (Items.isCustomItem(item)) {
+                    return Items.getCustomItem(order.item)!!.matches(item)
                 }
             }
+            return order.item.isSimilar(item)
+        }
+
+        private fun giveOrderItems(order: Order ,actor: BukkitCommandActor){
+            var itemsLeft = order.itemCompleted - order.itemsObtained
+            while (itemsLeft > 0){
+                if (actor.player.inventory.storageContents.count{
+                    it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize)
+                } == 0){
+                    break
+                }
+                val itemAmount = if (itemsLeft < order.item.maxStackSize){
+                    itemsLeft
+                } else {
+                    order.item.maxStackSize
+                }
+                itemsLeft -= itemAmount
+                val item = order.item.clone().apply {
+                    amount = itemAmount
+                }
+                val unaddeditems = actor.player.inventory.addItem(item)
+                itemsLeft += unaddeditems.values.sumOf { it.amount }
+                if (itemsLeft == 0) break
+            }
+            order.itemsObtained += order.itemCompleted - itemsLeft
             orderDao.update(order)
             if (order.itemsObtained == order.itemCompleted) {
-                MessageUtil.toComponent("<green>Order fully obtained!")
+                actor.reply(
+                    MessageUtil.toComponent("<green>Order Obtained!")
+                )
                 actor.player.closeInventory()
                 orderDao.delete(order)
             }
