@@ -50,7 +50,7 @@ class CreateOrderHand {
             )
         }
 
-        if (hours > JobListings.instance.config.getLong("CreateOrder.MaxOrdersTime")) {
+        if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMaxHoursConfig",

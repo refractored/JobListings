@@ -19,10 +19,14 @@ General:
   # %0 = Command
   InvalidCommand: "<red>Invalid command: %0."
   InvalidNumber: "<red>Expected a number, but found ''%0''."
+  CannotAcceptOwnOrder: "<red>You cannot accept your own order."
+  OrderAlreadyClaimed: "<red>Order is not pending. Someone might have already accepted it."
+  OrderExpired: "<red>Order has expired."
+  Ignored: "<red>You cannot accept orders from players who have you ignored or you ignored yourself."
 OrderComplete:
   NoOrdersToComplete: "<red>There are no orders to complete."
   # %0 = Order Info
-  DamagedItem: "<red>One of your orders call for a, %0<red> ,but the item you have is damaged and cannot be delivered."
+  DamagedItem: "<red>One of your orders call for a, %0<red>, but the item you have is damaged and cannot be delivered."
   # %0 = Orders Completed
   # %1 = Orders Updated (Orders that have had more items turned in)
   # %2 = Total Order Count
@@ -35,18 +39,20 @@ OrderComplete:
   # This message is send to the player when they have made progress on an order.
   ProgressMessageAssignee: |-
     <green>You have made progress on the order <gray>%0.<green>.
-    <green>You have turned in <gray>%1 <green>of <gray>%2 <green>items.
+    <green>You have turned in <gray>%1 <green>of <gray>%2 <green> items.
   # %0 = Order Info
   # %1 = Order Assignee
   # %2 = Order Item Progress
   # %3 = Order Item Requirement
-  # This message is send to the order owner when progress was made on a order.
+  # This message is send to the order owner when progress was made on an order they own.
   ProgressMessageOwner: |-
     <green>One of your orders, <gray>%0 <green>has been updated by %1<green>!
     <green>They have turned in <gold>%2</gold> out of <gold>%3</gold> items!
   # %0 = Order Info
   # %1 = Order Reward
   CompletedMessageAssignee: "<green>You have completed the order <gray>%0<green> and received <gold>%1</gold>."
+  # %0 = Order Info
+  # %1 = Order Assignee Name
   CompletedMessageOwner: "<green><green>One of your orders, <gray>%0 <green>has been completed by %1<green>!"
   NoItemsFound: "<red>None of your order's requirements were met."
   AllOrdersCompleted: "<green>All orders have been completed."
@@ -65,7 +71,8 @@ CreateOrder:
   # %0 = Max item stack from material specified (or held)
   # This message is only used if MaximumItems is set to -1 in config.yml
   StackSizeExceeded: "<red>Amount must be less than or equal to %0"
-  MaxOrdersExceeded: "<red>You cannot have more than %0 orders at once."
+  # %0 = MaximumItems from config.yml
+  MaxOrdersExceeded: "<red>You cannot have more than %0 items in an order."
   MaterialSetToAir: "<red>Item cannot be air."
   # %0 = Order Info
   # %1 = Order Reward
@@ -85,4 +92,22 @@ Help:
     <gray>/joblistings create hand<white>: Create an order from the item in your hand
     <gray>/joblistings create material<white>: Create an order from the specified material
     <gray>/joblistings<white>: Displays this menu
-  
+# The All Orders menu, this does not apply to ALL orders.
+AllOrders:
+  # The library I use for GUI's has a different way of handling placeholders:
+  # {currentPage} = Current Page
+  # {maxPage} = Max Pages
+  Title: "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page {currentPage}/{maxPage})"
+  NextPage: "<gray>Next Page"
+  PreviousPage: "<gray>Previous Page"
+  # The order info is displayed in the lore of the item.
+  # For newlines here, use a new line, not the <newline> tag.
+  OrderItemLore: |-
+    
+    <#69b85c>Reward: <white>%0
+    <#69b85c>User: <white>%1
+    <#69b85c>Created: <white>%2
+    <#69b85c>Expires: <white>%3
+    
+    <gray>(Click to accept order)
+    

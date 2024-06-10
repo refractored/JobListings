@@ -15,6 +15,7 @@ import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -32,9 +33,7 @@ class AllOrders {
             val gui = spiGUI.create(
                 // Me when no component support :((((
                 LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                    MessageUtil.toComponent(
-                        "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page {currentPage}/{maxPage})"
-                    )
+                    MessageUtil.getMessage("AllOrders.Title")
                 ),
                 5)
 
@@ -84,7 +83,11 @@ class AllOrders {
                 ((gui.currentPage * 45) + 44),
                 SGButton(
                     ItemBuilder(Material.ARROW)
-                    .name("Next page")
+                    .name(
+                        LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                            MessageUtil.getMessage("AllOrders.NextPage")
+                        )
+                    )
                     .build()
                 ).withListener { event: InventoryClickEvent ->
                     gui.nextPage(actor.player)
@@ -94,7 +97,11 @@ class AllOrders {
                 ((gui.currentPage * 45) + 36),
                 SGButton(
                     ItemBuilder(Material.ARROW)
-                    .name("Previous page")
+                    .name(
+                        LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                            MessageUtil.getMessage("AllOrders.PreviousPage")
+                        )
+                    )
                     .build()
                 ).withListener { event: InventoryClickEvent ->
                     gui.previousPage(actor.player)
@@ -107,22 +114,34 @@ class AllOrders {
                 val expireDurationText = "${expireDuration.toDays()} Days, ${expireDuration.toHoursPart()} Hours, ${expireDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
                 val createdDurationText = "${createdDuration.toDays()} Days ${createdDuration.toHoursPart()} Hours, ${createdDuration.toMinutesPart()} Minutes"
-                val infoLore = listOf(
-                    MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>Created: <white>${createdDurationText} ago").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>Expires: <white>${expireDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<gray>(Click to accept order)").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+//                val infoLore = listOf(
+//                    MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+//                    MessageUtil.toComponent("<#69b85c>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+//                    MessageUtil.toComponent("<#69b85c>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+//                    MessageUtil.toComponent("<#69b85c>Created: <white>${createdDurationText} ago").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+//                    MessageUtil.toComponent("<#69b85c>Expires: <white>${expireDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+//                    MessageUtil.toComponent(""),
+//                    MessageUtil.toComponent("<gray>(Click to accept order)").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+//                )
+
+                val OrderItemLore = MessageUtil.getMessageList(
+                    "AllOrders.OrderItemLore",
+                    listOf(
+                        MessageReplacement(order.cost.toString()),
+                        MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
+                        MessageReplacement(createdDurationText),
+                        MessageReplacement(expireDurationText),
+                    )
                 )
+
+
 
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
-                    itemLore.addAll(infoLore)
+                    itemLore.addAll(OrderItemLore)
                     itemMetaCopy.lore(itemLore)
                 } else {
-                    itemMetaCopy.lore(infoLore)
+                    itemMetaCopy.lore(OrderItemLore)
                 }
 
                 item.itemMeta = itemMetaCopy
@@ -133,21 +152,21 @@ class AllOrders {
                     if (order.user == actor.uniqueId) {
                         event.whoClicked.closeInventory()
                         actor.reply(
-                            MessageUtil.toComponent("<red>You cannot accept your own order.")
+                            MessageUtil.getMessage("General.CannotAcceptOwnOrder")
                         )
                         return@withListener
                     }
                     if (order.status != OrderStatus.PENDING) {
                         event.whoClicked.closeInventory()
                         actor.reply(
-                            MessageUtil.toComponent("<red>Order is not pending. Someone might have already accepted it.")
+                            MessageUtil.getMessage("General.OrderAlreadyClaimed")
                         )
                         return@withListener
                     }
                     if (order.isOrderExpired()) {
                         event.whoClicked.closeInventory()
                         actor.reply(
-                            MessageUtil.toComponent("<red>Order has expired.")
+                            MessageUtil.getMessage("General.OrderExpired")
                         )
                         return@withListener
                     }
@@ -162,7 +181,7 @@ class AllOrders {
                             if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
                                 event.whoClicked.closeInventory()
                                 actor.reply(
-                                    MessageUtil.toComponent("<red>You cannot accept orders from players who have you ignored or you ignored yourself.")
+                                    MessageUtil.getMessage("General.Ignored")
                                 )
                                 return@withListener
                             }

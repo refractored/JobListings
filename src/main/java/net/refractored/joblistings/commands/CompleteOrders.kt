@@ -31,7 +31,7 @@ class CompleteOrders {
         queryBuilder.where().eq("assignee", actor.uniqueId).and().eq("status", OrderStatus.CLAIMED)
         val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         if (orders.isEmpty()) {
-            throw CommandErrorException(MessageUtil.getMessage("Orders.NoOrdersToComplete"))
+            throw CommandErrorException(MessageUtil.getMessage("OrderComplete.NoOrdersToComplete"))
         }
         val orderCount = orders.count()
         var ordersUpdated = 0
