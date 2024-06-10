@@ -35,9 +35,9 @@ class CompleteOrders {
         val orderCount = orders.count()
         var ordersUpdated = 0
         var ordersCompleted = 0
-        for (order in orders) {
-            for (item in actor.player.inventory.storageContents){
-                item ?: continue
+        forEachOrder@ for (order in orders) {
+            forEachItem@ for (item in actor.player.inventory.storageContents){
+                item ?: continue@forEachItem
                 if (!isMatchingItem(item, order)) continue
                 if (order.item is Damageable && item.itemMeta is Damageable) {
                     if ((order.item as Damageable).damage != (item.itemMeta as Damageable).damage) {
@@ -49,7 +49,7 @@ class CompleteOrders {
                                 )
                             )
                         )
-                        continue
+                        continue@forEachItem
                     }
                 }
                 if (order.itemCompleted + item.amount >= order.itemAmount) {
@@ -67,7 +67,7 @@ class CompleteOrders {
                     item.amount = itemsLeft
                     ordersCompleted++
                     messageCompletion(actor, order)
-                    continue
+                    continue@forEachOrder
                 }
                 // Order not completed :(
                 order.itemCompleted += item.amount
@@ -75,10 +75,10 @@ class CompleteOrders {
                 item.amount = 0
                 ordersUpdated++
                 messageProgress(actor, order)
-
+                continue@forEachItem
             }
         }
-        if (ordersUpdated == 0) {
+        if (ordersUpdated  == 0 && ordersCompleted == 0) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
                     "OrderComplete.NoItemsFound",
@@ -113,7 +113,7 @@ class CompleteOrders {
     private fun isMatchingItem(item: ItemStack,order: Order): Boolean {
         ecoPlugin.let{
             if (Items.isCustomItem(item)) {
-                return !Items.getCustomItem(order.item)!!.matches(item)
+                return Items.getCustomItem(order.item)!!.matches(item)
             }
         }
         return order.item.isSimilar(item)
