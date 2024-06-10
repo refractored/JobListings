@@ -10,7 +10,14 @@ import revxrsal.commands.exception.*
 // This is for only the commands :3
 class CommandErrorHandler : DefaultExceptionHandler() {
     override fun invalidNumber(actor: CommandActor, exception: InvalidNumberException) {
-        actor.error("Wrong number input :(")
+        actor.sender.sendMessage(
+            MessageUtil.getMessage(
+                "General.InvalidNumber",
+                listOf(
+                    MessageReplacement(exception.input)
+                )
+            )
+        )
     }
 
     override fun commandInvocation(actor: CommandActor, exception: CommandInvocationException) {
