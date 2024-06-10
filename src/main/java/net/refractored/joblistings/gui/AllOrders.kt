@@ -114,15 +114,6 @@ class AllOrders {
                 val expireDurationText = "${expireDuration.toDays()} Days, ${expireDuration.toHoursPart()} Hours, ${expireDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
                 val createdDurationText = "${createdDuration.toDays()} Days ${createdDuration.toHoursPart()} Hours, ${createdDuration.toMinutesPart()} Minutes"
-//                val infoLore = listOf(
-//                    MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-//                    MessageUtil.toComponent("<#69b85c>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-//                    MessageUtil.toComponent("<#69b85c>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-//                    MessageUtil.toComponent("<#69b85c>Created: <white>${createdDurationText} ago").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-//                    MessageUtil.toComponent("<#69b85c>Expires: <white>${expireDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-//                    MessageUtil.toComponent(""),
-//                    MessageUtil.toComponent("<gray>(Click to accept order)").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-//                )
 
                 val OrderItemLore = MessageUtil.getMessageList(
                     "AllOrders.OrderItemLore",
@@ -193,25 +184,27 @@ class AllOrders {
                     if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted") ) {
                         event.whoClicked.closeInventory()
                         actor.reply(
-                            MessageUtil.toComponent("<red>You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
+                            MessageUtil.getMessage(
+                                "AllOrders.OrderItemLore",
+                                listOf(
+                                    MessageReplacement(JobListings.instance.config.getInt("Orders.MaxOrdersAccepted").toString()),
+                                )
+                            )
                         )
                     }
-                    val ownerMessage = Component.text()
-                        .append(MessageUtil.toComponent(
-                            "<green>One of your orders, <gray>"
-                        ))
-                        .append(order.getItemInfo())
-                        .append(MessageUtil.toComponent(
-                            "<green>, was accepted by "
-                        ))
-                        .append(actor.player.displayName())
-                        .append(MessageUtil.toComponent(
-                            "<green>!"
-                        ))
-                        .build()
+                    val ownerMessage =
+                            MessageUtil.getMessage(
+                                "AllOrders.OrderAcceptedNotification",
+                                listOf(
+                                    MessageReplacement(order.getItemInfo()),
+                                    MessageReplacement(actor.player.displayName()),
+                                ),
+                    )
                     order.messageOwner(ownerMessage)
                     actor.reply(
-                        MessageUtil.toComponent("<green>Order accepted!")
+                        MessageUtil.getMessage(
+                            "AllOrders.OrderAccepted",
+                        )
                     )
                     order.acceptOrder(actor.player)
                     event.whoClicked.closeInventory()

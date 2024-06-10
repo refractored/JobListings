@@ -110,4 +110,11 @@ AllOrders:
     <#69b85c>Expires: <white>%3
     
     <gray>(Click to accept order)
-    
+
+  # %0 = MaxOrdersAccepted from config.yml
+  MaxOrdersAccepted: "<red>You cannot have more than %0 claimed orders at once."
+  OrderAccepted: "<green>Order accepted."
+  # %0 = Order Info
+  # %1 = Order Assignee
+  # This message is sent to the creator of the order.
+  OrderAcceptedNotification: "One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
