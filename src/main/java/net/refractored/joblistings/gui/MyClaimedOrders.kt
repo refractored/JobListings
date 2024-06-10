@@ -25,7 +25,7 @@ class MyClaimedOrders {
             val gui = spiGUI.create("&5&lMy Claimed Orders &5(Page {currentPage}/{maxPage})", 5)
 
             val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
-                ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
+                ceil(orderDao.countOf().toDouble() / 21).toInt()
             } else {
                 1
             }

@@ -59,7 +59,7 @@ class AllOrders {
                     gui.setButton(
                         (it + pageSlot),
                         SGButton(
-                            ItemBuilder(Material.GREEN_STAINED_GLASS_PANE)
+                            ItemBuilder(Material.valueOf(JobListings.instance.config.getString("AllOrders.BorderItem") ?: "STONE"))
                             .name(" ")
                             .build()
                         ),

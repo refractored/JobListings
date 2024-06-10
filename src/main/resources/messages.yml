@@ -94,6 +94,8 @@ Help:
     <gray>/joblistings<white>: Displays this menu
 # The All Orders menu, this does not apply to ALL orders.
 AllOrders:
+  # The item used for the frame of the GUI.
+  BorderItem: "GREEN_STAINED_GLASS_PANE"
   # The library I use for GUI's has a different way of handling placeholders:
   # {currentPage} = Current Page
   # {maxPage} = Max Pages

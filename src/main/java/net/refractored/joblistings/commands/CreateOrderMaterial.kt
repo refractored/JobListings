@@ -17,7 +17,6 @@ import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
-import revxrsal.commands.exception.CommandErrorException
 import java.time.LocalDateTime
 import java.util.*
 

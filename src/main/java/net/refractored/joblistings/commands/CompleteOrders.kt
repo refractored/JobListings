@@ -2,7 +2,6 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import com.willfp.eco.core.items.Items
-import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.database.Database.Companion.orderDao
