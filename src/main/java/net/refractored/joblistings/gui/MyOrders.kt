@@ -11,6 +11,7 @@ import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.gui.MyClaimedOrders.Companion
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
@@ -61,9 +62,11 @@ class MyOrders {
             }
 
             gui.setOnPageChange { inventory ->
-                if (gui.getButton(44 + (inventory.currentPage * 45)) == null) {
-                    loadItems(inventory, actor)
-                }
+//                if (gui.getButton(44 + (inventory.currentPage * 45)) == null) {
+//                    loadItems(inventory, actor)
+//                }
+                reloadItems(gui, actor)
+                gui.refreshInventory(actor.player)
             }
 
 

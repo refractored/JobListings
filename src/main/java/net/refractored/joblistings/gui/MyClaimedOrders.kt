@@ -184,21 +184,21 @@ class MyClaimedOrders {
                             if (inventorySpaces == 0) {
                                 actor.player.closeInventory()
                                 event.whoClicked.sendMessage(
-                                    MessageUtil.toComponent("<red>Your inventory is full!")
+                                    MessageUtil.getMessage("General.InventoryFull")
                                 )
                                 return@withListener
                             }
                             if (order.itemCompleted == order.itemsReturned) {
                                 actor.player.closeInventory()
                                 event.whoClicked.sendMessage(
-                                    MessageUtil.toComponent("<red>You have already refunded this order!")
+                                    MessageUtil.getMessage("ClaimedOrders.OrderAlreadyRefunded")
                                 )
                                 return@withListener
                             }
                             if (giveRefundableItems(order, actor)) {
                                 actor.player.closeInventory()
                                 event.whoClicked.sendMessage(
-                                    MessageUtil.toComponent("<green>Order Fully Refunded!")
+                                    MessageUtil.getMessage("ClaimedOrders.OrderFullyRefunded")
                                 )
                                 gui.removeButton((index + 10) + (gui.currentPage * 45))
                                 orderDao.delete(order)
@@ -207,7 +207,11 @@ class MyClaimedOrders {
                             } else {
                                 actor.player.closeInventory()
                                 event.whoClicked.sendMessage(
-                                    MessageUtil.toComponent("<green>Order Refunded! You have ${order.itemCompleted - order.itemsReturned} items left to claim.")
+                                    MessageUtil.getMessage("ClaimedOrders.OrderPartiallyRefunded",
+                                        listOf(
+                                            MessageReplacement((order.itemCompleted - order.itemsReturned).toString())
+                                        )
+                                    )
                                 )
                             }
 
