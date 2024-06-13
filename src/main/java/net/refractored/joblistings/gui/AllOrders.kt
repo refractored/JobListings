@@ -33,7 +33,14 @@ class AllOrders {
             val gui = spiGUI.create(
                 // Me when no component support :((((
                 LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                    MessageUtil.getMessage("AllOrders.Title")
+                    MessageUtil.getMessage(
+                        "AllOrders.Title",
+                        listOf(
+                            // I only did this for consistency in the messages.yml
+                            MessageReplacement("{currentPage}"),
+                            MessageReplacement("{maxPage}"),
+                        )
+                    )
                 ),
                 5)
 
@@ -60,7 +67,8 @@ class AllOrders {
                         (it + pageSlot),
                         SGButton(
                             ItemBuilder(Material.valueOf(
-                                MessageUtil.getMessageUnformatted("AllOrders.BorderItem")))
+                                MessageUtil.getMessageUnformatted("AllOrders.BorderItem"))
+                            )
                             .name(" ")
                             .build()
                         ),
@@ -110,6 +118,11 @@ class AllOrders {
             )
             Order.getPendingOrders(21, gui.currentPage * 21 ).forEachIndexed { index, order ->
                 val item = order.item.clone()
+                item.amount = if (order.itemAmount <= item.maxStackSize) {
+                    order.itemAmount
+                } else {
+                    item.maxStackSize
+                }
                 val itemMetaCopy = item.itemMeta
                 val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
                 val expireDurationText = "${expireDuration.toDays()} Days, ${expireDuration.toHoursPart()} Hours, ${expireDuration.toMinutesPart()} Minutes"
@@ -123,6 +136,7 @@ class AllOrders {
                         MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
                         MessageReplacement(createdDurationText),
                         MessageReplacement(expireDurationText),
+                        MessageReplacement(order.itemAmount.toString()),
                     )
                 )
 

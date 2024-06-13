@@ -3,12 +3,14 @@ package net.refractored.joblistings.gui
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
-import net.kyori.adventure.text.format.TextDecoration
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings.Companion.spiGUI
-import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.gui.MyOrders.Companion
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -22,9 +24,20 @@ import kotlin.math.ceil
 class MyClaimedOrders {
     companion object {
         fun openMyClaimedOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create("&5&lMy Claimed Orders &5(Page {currentPage}/{maxPage})", 5)
+            val gui = spiGUI.create(
+                LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                    MessageUtil.getMessage(
+                        "ClaimedOrders.Title",
+                        listOf(
+                            // I only did this for consistency in the messages.yml
+                            MessageReplacement("{currentPage}"),
+                            MessageReplacement("{maxPage}"),
+                        )
+                    )
+                )
+                , 5)
 
-            val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
+            val pageCount = if (ceil(orderDao.countOf().toDouble() / 21).toInt() > 0) {
                 ceil(orderDao.countOf().toDouble() / 21).toInt()
             } else {
                 1
@@ -35,7 +48,7 @@ class MyClaimedOrders {
                 9,                              17,
                 18,                             26,
                 27,                             35,
-                   37, 38, 39, 40, 41, 42, 43,
+                    37, 38, 39, 40, 41, 42, 43,
             )
 
 
@@ -45,24 +58,30 @@ class MyClaimedOrders {
                     gui.setButton(
                         (it + pageSlot),
                         SGButton(
-                            ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE)
+                            ItemBuilder(Material.valueOf(
+                                MessageUtil.getMessageUnformatted("ClaimedOrders.BorderItem"))
+                            )
                                 .name(" ")
                                 .build()
                         ),
                     )
+                    gui.stickSlot(it + pageSlot)
                 }
             }
 
             gui.setOnPageChange { inventory ->
-                if (gui.getButton(44 + (inventory.currentPage * 45)) == null) {
-                    loadItems(inventory, actor)
-                }
+//                if (gui.getButton(44 + (inventory.currentPage * 45)) == null) {
+//                    loadItems(inventory, actor)
+//                }
+                reloadItems(gui, actor)
+                gui.refreshInventory(actor.player)
             }
 
 
             actor.player.openInventory(gui.inventory)
             loadItems(gui, actor)
         }
+
         private fun reloadItems(gui: SGMenu, actor: BukkitCommandActor) {
             gui.clearAllButStickiedSlots()
             loadItems(gui, actor)
@@ -73,7 +92,11 @@ class MyClaimedOrders {
                 ((gui.currentPage * 45) + 44),
                 SGButton(
                     ItemBuilder(Material.ARROW)
-                        .name("Next page")
+                        .name(
+                            LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                                MessageUtil.getMessage("ClaimedOrders.NextPage")
+                            )
+                        )
                         .build()
                 ).withListener { event: InventoryClickEvent ->
                     gui.nextPage(actor.player)
@@ -83,7 +106,11 @@ class MyClaimedOrders {
                 ((gui.currentPage * 45) + 36),
                 SGButton(
                     ItemBuilder(Material.ARROW)
-                        .name("Previous page")
+                        .name(
+                            LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                                MessageUtil.getMessage("ClaimedOrders.PreviousPage")
+                            )
+                        )
                         .build()
                 ).withListener { event: InventoryClickEvent ->
                     gui.previousPage(actor.player)
@@ -94,21 +121,45 @@ class MyClaimedOrders {
                 val displayItem = order.item.clone()
                 val itemMetaCopy = displayItem.itemMeta
                 val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
-                val deadlineDurationText = "${deadlineDuration.toDays()} Days, ${deadlineDuration.toHoursPart()} Hours, ${deadlineDuration.toMinutesPart()} Minutes"
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toDays()} Days, ${createdDuration.toHours()} Hours, ${createdDuration.toMinutesPart()} Minutes"
-                val infoLore = mutableListOf(
-                    MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<reset><red>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<reset><red>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<reset><red>Created: <white>${createdDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<reset><red>Deadline in: <white>${deadlineDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<reset><red>Status: <white>${order.status}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent(""),
+                val createdDurationText = MessageUtil.getMessage(
+                    "General.DatePastTense",
+                    listOf(
+                        MessageReplacement(createdDuration.toDays().toString()),
+                        MessageReplacement(createdDuration.toHoursPart().toString()),
+                        MessageReplacement(createdDuration.toMinutesPart().toString()),
+                    )
                 )
-                if (order.status == OrderStatus.INCOMPLETE){
-                    infoLore.add(
-                        MessageUtil.toComponent("<reset><red>(Click to refund order)")
+                val deadlineDurationText = MessageUtil.getMessage(
+                    "General.DateFormat",
+                    listOf(
+                        MessageReplacement(deadlineDuration.toDays().toString()),
+                        MessageReplacement(deadlineDuration.toHoursPart().toString()),
+                        MessageReplacement(deadlineDuration.toMinutesPart().toString()),
+                    )
+                )
+                val infoLore = if (order.status != OrderStatus.INCOMPLETE){
+                    MessageUtil.getMessageList(
+                        "AllOrders.OrderItemLore",
+                        listOf(
+                            MessageReplacement(order.cost.toString()),
+                            MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
+                            MessageReplacement(createdDurationText),
+                            MessageReplacement(deadlineDurationText),
+                            MessageReplacement(order.itemAmount.toString()),
+                            MessageReplacement(order.itemCompleted.toString()),
+                        )
+                    )
+                } else {
+                    MessageUtil.getMessageList(
+                        "AllOrders.OrderItemLoreIncomplete",
+                        listOf(
+                            MessageReplacement(order.cost.toString()),
+                            MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
+                            MessageReplacement(createdDurationText),
+                            MessageReplacement(order.itemAmount.toString()),
+                            MessageReplacement(order.itemsReturned.toString()),
+                        )
                     )
                 }
 
@@ -144,7 +195,23 @@ class MyClaimedOrders {
                                 )
                                 return@withListener
                             }
-                            giveRefundableItems(order, actor)
+                            if (giveRefundableItems(order, actor)) {
+                                actor.player.closeInventory()
+                                event.whoClicked.sendMessage(
+                                    MessageUtil.toComponent("<green>Order Fully Refunded!")
+                                )
+                                gui.removeButton((index + 10) + (gui.currentPage * 45))
+                                orderDao.delete(order)
+                                reloadItems(gui, actor)
+                                gui.refreshInventory(actor.player)
+                            } else {
+                                actor.player.closeInventory()
+                                event.whoClicked.sendMessage(
+                                    MessageUtil.toComponent("<green>Order Refunded! You have ${order.itemCompleted - order.itemsReturned} items left to claim.")
+                                )
+                            }
+
+
                         }
 
                         else -> return@withListener
@@ -172,40 +239,31 @@ class MyClaimedOrders {
         /**
          * Refunds the items to the assignee of the order
          * This also updates the order itemsReturned
+         * @return true if all items have been refunded
          */
-        private fun giveRefundableItems(order: Order ,actor: BukkitCommandActor){
-            val inventory = actor.player.inventory.storageContents
-            for ((inventoryIndex, inventoryItem) in inventory.withIndex()) {
-                if (order.itemCompleted == order.itemsReturned) break
-                if (inventoryItem == null) {
-                    val inventoryNewItem = order.item.clone().apply {
-                        amount = if (order.itemsReturned + maxStackSize >= order.itemCompleted) {
-                            order.itemCompleted - order.itemsReturned
-                        } else {
-                            maxStackSize
-                        }
-                    }
-                    order.itemsReturned += inventoryNewItem.amount
-                    actor.player.inventory.storageContents[inventoryIndex] = inventoryNewItem
-                    break
-                } else if (inventoryItem.isSimilar(order.item)) {
-                    if (inventoryItem.amount == inventoryItem.maxStackSize) continue
-                    val itemsNeeded = inventoryItem.maxStackSize - inventoryItem.amount
-                    val itemsToAdd = if (order.itemsReturned + itemsNeeded >= order.itemCompleted) {
-                        order.itemCompleted - order.itemsReturned
-                    } else {
-                        itemsNeeded
-                    }
-                    inventoryItem.amount += itemsToAdd
-                    order.itemsReturned += itemsToAdd
+        private fun giveRefundableItems(order: Order , actor: BukkitCommandActor): Boolean {
+            var itemsLeft = order.itemCompleted - order.itemsReturned
+            while (itemsLeft > 0){
+                if (actor.player.inventory.storageContents.count{
+                    it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize) } == 0)
+                {
                     break
                 }
+                val itemAmount = if (itemsLeft < order.item.maxStackSize){
+                    itemsLeft
+                } else {
+                    order.item.maxStackSize
+                }
+                itemsLeft -= itemAmount
+                val item = order.item.clone().apply {
+                    amount = itemAmount
+                }
+                val excessItems = actor.player.inventory.addItem(item)
+                itemsLeft += excessItems.values.sumOf { it.amount }
             }
+            order.itemsReturned = order.itemCompleted - itemsLeft
             orderDao.update(order)
-            if (order.itemsReturned == order.itemCompleted) {
-                MessageUtil.toComponent("<green>Order fully refunded!")
-                actor.player.closeInventory()
-            }
+            return (order.itemsReturned == order.itemCompleted)
         }
 
     }

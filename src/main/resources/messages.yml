@@ -35,6 +35,14 @@ General:
   # %2 = Max Number
   # %3 = Found Number
   NumNotInRange: "%0 must be between %1 and %2 (found %3)"
+  # %0 = Days
+  # %1 = Hours
+  # %2 = Minutes
+  DateFormat: "<white>%0 Days, %1 Hours, %2 Minutes"
+  # %0 = Days
+  # %1 = Hours
+  # %2 = Minutes
+  DatePastTense: "<white>%0 Days, %1 Hours, %2 Minutes ago"
   InvalidURL:
 Reload:
   Reloaded: "<green>Plugin reloaded."
@@ -111,22 +119,115 @@ Help:
 AllOrders:
   # The item used for the frame of the GUI.
   BorderItem: "GREEN_STAINED_GLASS_PANE"
-  # The library I use for GUI's has a different way of handling placeholders:
-  # {currentPage} = Current Page
-  # {maxPage} = Max Pages
-  Title: "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page {currentPage}/{maxPage})"
+  # %0 = Current Page
+  # %1 = Max Pages
+  Title: "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page %0/%1)"
   NextPage: "<gray>Next Page"
   PreviousPage: "<gray>Previous Page"
+  # %0 = Order Reward
+  # %1 = Order Creator
+  # %2 = Order Created
+  # %3 = Order Expires
+  # %4 = Order Amount
   # The order info is displayed in the lore of the item.
-  # For newlines here, use a new line, not the <newline> tag.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work.
   OrderItemLore: |-
     
     <#69b85c>Reward: <white>%0
     <#69b85c>User: <white>%1
     <#69b85c>Created: <white>%2
     <#69b85c>Expires: <white>%3
+    <#69b85c>Amount: <white>%4
     
     <gray>(Click to accept order)
+
+  # %0 = MaxOrdersAccepted from config.yml
+  MaxOrdersAccepted: "<red>You cannot have more than %0 claimed orders at once."
+  OrderAccepted: "<green>Order accepted."
+  # %0 = Order Info
+  # %1 = Order Assignee
+  # This message is sent to the creator of the order.
+  OrderAcceptedNotification: "<green>One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
+# As the name suggests, this gui is only for the orders you own. Includes orders that are pending.
+MyOrders:
+  # The item used for the frame of the GUI.
+  BorderItem: "PURPLE_STAINED_GLASS_PANE"
+  # %0 = Current Page
+  # %1 = Max Pages
+  Title: "<bold><gradient:#C734E6:#AB2BE2>My Orders</gradient></bold> <#3e403f>(Page %0/%1)"
+  NextPage: "<gray>Next Page"
+  PreviousPage: "<gray>Previous Page"
+  # %0 = Order Reward
+  # %1 = Order Creator
+  # %2 = Order Created
+  # %3 = Order Expires
+  # %4 = Order Amount
+  # The order info is displayed in the lore of the item.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work. This applies here cause of the way the lore is handled.
+  OrderItemLore: |-
+    
+    <#69b85c>Reward: <white>%0
+    <#69b85c>User: <white>%1
+    <#69b85c>Created: <white>%2
+    <#69b85c>Expires: <white>%3
+    <#69b85c>Amount: <white>%4
+    
+    <gray>(Click to accept order)
+
+  # %0 = MaxOrdersAccepted from config.yml
+  MaxOrdersAccepted: "<red>You cannot have more than %0 claimed orders at once."
+  OrderAccepted: "<green>Order accepted."
+  # %0 = Order Info
+  # %1 = Order Assignee
+  # This message is sent to the creator of the order.
+  OrderAcceptedNotification: "<green>One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
+# Orders the player claimed and needs to complete for a reward.
+ClaimedOrders:
+  # The item used for the frame of the GUI.
+  BorderItem: "PURPLE_STAINED_GLASS_PANE"
+  # %0 = Current Page
+  # %1 = Max Pages
+  Title: "<bold><gradient:#C734E6:#AB2BE2>My Orders</gradient></bold> <#3e403f>(Page %0/%1)"
+  NextPage: "<gray>Next Page"
+  PreviousPage: "<gray>Previous Page"
+  # %0 = Order Reward
+  # %1 = Order Creator
+  # %2 = Order Created
+  # %3 = Order Deadline
+  # %4 = Order Amount
+  # %5 = Order Completed Amount
+  # The order info is displayed in the lore of the item.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work.
+  OrderItemLore: |-
+    
+    <#C734E6>Reward: <white>%0
+    <#C734E6>User: <white>%1
+    <#C734E6>Created: <white>%2
+    <#C734E6>Deadline: <white>%3
+    <#C734E6>Amount: <white>%4
+    <#C734E6>Amount Completed: <white>%4
+    
+
+  # %0 = Order Reward
+  # %1 = Order Creator
+  # %2 = Order Created
+  # %3 = Order Amount
+  # %4 = Order Refunded Amount
+  # The order info is displayed in the lore of the item.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work.
+  OrderItemLoreIncomplete: |-
+    
+    <#C734E6>Reward: <white>%0
+    <#C734E6>User: <white>%1
+    <#C734E6>Created: <white>%2
+    <#C734E6>Amount: <white>%4
+    <#C734E6>Amount Refunded: <white>%4
+    
+    <gray>(Click to refund order)
 
   # %0 = MaxOrdersAccepted from config.yml
   MaxOrdersAccepted: "<red>You cannot have more than %0 claimed orders at once."
