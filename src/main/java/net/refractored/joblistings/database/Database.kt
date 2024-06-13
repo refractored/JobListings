@@ -52,11 +52,23 @@ class Database {
             JobListings.instance.logger.info("Initializing database...")
             LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
 
-            connectionSource = JdbcPooledConnectionSource(
-                JobListings.instance.config.getString("Database.url"),
-                JobListings.instance.config.getString("Database.user"),
-                JobListings.instance.config.getString("Database.password")
-            )
+            if (JobListings.instance.config.getString("Database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME") {
+                JobListings.instance.logger.severe("Database not setup in config. Disabling plugin.")
+                JobListings.instance.server.pluginManager.disablePlugin(JobListings.instance)
+                return
+            }
+
+            connectionSource = if (JobListings.instance.config.getString("Database.url").equals("file", true)){
+                JdbcConnectionSource(
+                    "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db"
+                )
+            } else {
+                JdbcPooledConnectionSource(
+                    JobListings.instance.config.getString("Database.url"),
+                    JobListings.instance.config.getString("Database.user"),
+                    JobListings.instance.config.getString("Database.password")
+                )
+            }
 
             orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
 
