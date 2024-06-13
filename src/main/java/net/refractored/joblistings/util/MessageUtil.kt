@@ -25,7 +25,6 @@ class MessageUtil {
         fun getMessageList(key: String, replacements: List<MessageReplacement>): List<Component> {
             var replacedMessage = getMessageUnformatted(key)
 
-
             for ((index, replacement) in replacements.withIndex()) {
                 if (replacement.string != null) {
                     replacedMessage = replacedMessage.replace("%$index", replacement.string)

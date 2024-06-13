@@ -32,7 +32,8 @@ Mail:
   # Mail Expire time in days
   # 0 = Never expire
   ExpireTime: 30
-  # All mail will be sent to this player when they rejoin after their order is updated
+  # All mail will be sent to this player when they join after their order is updated
+  # This is in seconds.
   # This does not apply to essentials mail.
   JoinDelay: 10
 

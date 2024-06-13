@@ -44,7 +44,6 @@ General:
   # %2 = Minutes
   DatePastTense: "<white>%0 Days, %1 Hours, %2 Minutes ago"
   InventoryFull: "<red>Your inventory is full."
-  InvalidURL:
 Reload:
   Reloaded: "<green>Plugin reloaded."
 OrderComplete:
@@ -148,42 +147,77 @@ AllOrders:
   OrderAccepted: "<green>Order accepted."
   # %0 = Order Info
   # %1 = Order Assignee
-  # This message is sent to the creator of the order.
+  # This message is sent to the creator of the order as mail.
   OrderAcceptedNotification: "<green>One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
 # As the name suggests, this gui is only for the orders you own. Includes orders that are pending.
 MyOrders:
   # The item used for the frame of the GUI.
-  BorderItem: "PURPLE_STAINED_GLASS_PANE"
+  BorderItem: "BLUE_STAINED_GLASS_PANE"
   # %0 = Current Page
   # %1 = Max Pages
-  Title: "<bold><gradient:#C734E6:#AB2BE2>My Orders</gradient></bold> <#3e403f>(Page %0/%1)"
+  Title: "<bold><gradient:#2A77EE:#045CE5>My Orders</gradient></bold> <#3e403f>(Page %0/%1)"
   NextPage: "<gray>Next Page"
   PreviousPage: "<gray>Previous Page"
-  # %0 = Order Reward
-  # %1 = Order Creator
-  # %2 = Order Created
-  # %3 = Order Expires
-  # %4 = Order Amount
   # The order info is displayed in the lore of the item.
   # Due to the way lore is handled, to create a new line, just add a new line.
   # DONT use \n or <newline> as it will not work. This applies here cause of the way the lore is handled.
-  OrderItemLore: |-
-    
-    <#69b85c>Reward: <white>%0
-    <#69b85c>User: <white>%1
-    <#69b85c>Created: <white>%2
-    <#69b85c>Expires: <white>%3
-    <#69b85c>Amount: <white>%4
-    
-    <gray>(Click to accept order)
+  OrderItemLore:
+    # %0 = Order Reward
+    # %1 = Order Created
+    # %2 = Order Status
+    # %3 = Order Amount
+    # %4 = Order Expires
+    Pending: |-
+      
+      <#2A77EE>Reward: <white>%0
+      <#2A77EE>Created: <white>%1
+      <#2A77EE>Status: <white>%2
+      <#2A77EE>Amount: <white>%3
+      <#2A77EE>Expires in: <white>%4
+      
+      <reset><red>(Click to cancel order)
 
-  # %0 = MaxOrdersAccepted from config.yml
-  MaxOrdersAccepted: "<red>You cannot have more than %0 claimed orders at once."
-  OrderAccepted: "<green>Order accepted."
-  # %0 = Order Info
-  # %1 = Order Assignee
-  # This message is sent to the creator of the order.
-  OrderAcceptedNotification: "<green>One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
+    # %0 = Order Reward
+    # %1 = Order Created
+    # %2 = Order Status
+    # %3 = Order Amount
+    # %4 = Order Deadline
+    # %5 = Order Assignee
+    Claimed: |-
+      
+      <#2A77EE>Reward: <white>%0
+      <#2A77EE>Created: <white>%1
+      <#2A77EE>Status: <white>%2
+      <#2A77EE>Amount: <white>%3
+      <#2A77EE>Deadline: <white>%4
+      <#2A77EE>Assignee: <white>%5
+      
+      <reset><gray>In-progress orders only return half the payment.
+      <reset><yellow>(Click to cancel order)
+    # %0 = Order Reward
+    # %1 = Order Created
+    # %2 = Order Status
+    # %3 = Order Amount
+    # %4 = Order Claimed Amount
+    # %5 = Order Assignee
+    Completed: |-
+      
+      <#2A77EE>Reward: <white>%0
+      <#2A77EE>Created: <white>%1
+      <#2A77EE>Status: <white>%2
+      <#2A77EE>Amount: <white>%3
+      <#2A77EE>Claimed: <white>%4
+      <#2A77EE>Assignee: <white>%5
+      
+      <reset><green>(Click to claim order)
+      
+    OrderCancelled: "<green>Order cancelled."
+    # %0 = Order Info
+    # This message is sent to the assignee as mail if the order is cancelled.
+    OrderCancelledNotification: "<red>One of your orders, <gray>%0 <red>, was cancelled by the owner!"
+    OrderAlreadyClaimed: "<red>You already claimed this order!"
+    OrderClaimed: "<green>Order Claimed!"
+
 # Orders the player claimed and needs to complete for a reward.
 ClaimedOrders:
   # The item used for the frame of the GUI.
