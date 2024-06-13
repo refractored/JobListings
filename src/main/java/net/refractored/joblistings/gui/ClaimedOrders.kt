@@ -7,7 +7,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database.Companion.orderDao
-import net.refractored.joblistings.gui.MyOrders.Companion
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
@@ -21,7 +20,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.math.ceil
 
-class MyClaimedOrders {
+class ClaimedOrders {
     companion object {
         fun openMyClaimedOrders(actor: BukkitCommandActor) {
             val gui = spiGUI.create(

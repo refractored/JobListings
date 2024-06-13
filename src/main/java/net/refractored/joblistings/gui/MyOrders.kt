@@ -11,7 +11,6 @@ import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
-import net.refractored.joblistings.gui.MyClaimedOrders.Companion
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageUtil
@@ -21,7 +20,6 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.player
-import revxrsal.commands.bukkit.playerOrNull
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.math.ceil
