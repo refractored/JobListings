@@ -118,6 +118,11 @@ class ClaimedOrders {
 
             Order.getPlayerAcceptedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
                 val displayItem = order.item.clone()
+                displayItem.amount = if (order.itemAmount <= displayItem.maxStackSize) {
+                    order.itemAmount
+                } else {
+                    displayItem.maxStackSize
+                }
                 val itemMetaCopy = displayItem.itemMeta
                 val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())

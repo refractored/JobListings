@@ -127,6 +127,11 @@ class MyOrders {
 
             Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
                 val item = order.item.clone()
+                item.amount = if (order.itemAmount <= item.maxStackSize) {
+                    order.itemAmount
+                } else {
+                    item.maxStackSize
+                }
                 val itemMetaCopy = item.itemMeta
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
                 val createdDurationText = MessageUtil.getMessage(
