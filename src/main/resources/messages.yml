@@ -27,7 +27,7 @@ General:
   # %1 = Value
   InvalidEnum: "<red>Invalid %0: %1"
   # %0 = Invalid Input Value
-  InvalidBoolean: "<red>Expected true or false, but found \''{0}\''."
+  InvalidBoolean: "<red>Expected true or false, but found: {0}"
   InvalidSubcommand: "<red>Invalid subcommand:  %0"
   OnCooldown: "<red>You must wait %0 before using this command again."
   # %0 = Parameter Name

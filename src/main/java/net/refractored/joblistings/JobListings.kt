@@ -109,7 +109,9 @@ class JobListings : JavaPlugin() {
         if (this::handler.isInitialized) {
             handler.unregisterAllCommands()
         }
-        cleanDatabase.cancel()
+        if (this::cleanDatabase.isInitialized) {
+            cleanDatabase.cancel()
+        }
         logger.info("JobListings has been disabled!")
     }
 
