@@ -13,6 +13,7 @@ import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.ItemstackSerializers
+import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import java.util.*
 
 
@@ -81,6 +82,8 @@ class Database {
             DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
 
             DataPersisterManager.registerDataPersisters(ComponentSerializers.getSingleton())
+
+            DataPersisterManager.registerDataPersisters(LocalDateTimeSerializers.getSingleton())
 
             System.setProperty("com.j256.ormlite.logger.type", "LOCAL")
             System.setProperty("com.j256.ormlite.logger.level", "ERROR")

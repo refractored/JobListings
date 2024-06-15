@@ -5,13 +5,11 @@ import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
 import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.JobListings.Companion.spiGUI
-import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus

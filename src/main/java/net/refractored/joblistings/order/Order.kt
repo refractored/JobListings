@@ -10,6 +10,7 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
+import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -44,19 +45,19 @@ data class Order(
     @DatabaseField
     var assignee: UUID?,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCreated: LocalDateTime,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeExpires: LocalDateTime,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeClaimed: LocalDateTime?,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeDeadline: LocalDateTime?,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCompleted: LocalDateTime?,
 
     /**

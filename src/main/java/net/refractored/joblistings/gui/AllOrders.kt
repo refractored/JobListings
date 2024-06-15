@@ -4,14 +4,11 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import net.refractored.joblistings.JobListings
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.essentials
 import net.refractored.joblistings.JobListings.Companion.spiGUI
-import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
