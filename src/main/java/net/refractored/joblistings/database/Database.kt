@@ -60,7 +60,7 @@ class Database {
             }
 
             connectionSource = if (JobListings.instance.config.getString("Database.url").equals("file", true)){
-                JdbcConnectionSource(
+                JdbcPooledConnectionSource(
                     "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db"
                 )
             } else {
