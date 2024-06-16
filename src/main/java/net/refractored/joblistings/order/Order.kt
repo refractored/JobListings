@@ -161,10 +161,8 @@ data class Order(
      * @return The assignee of the order, or null if there is no assignee
      */
     fun getAssignee() : OfflinePlayer? {
-        assignee.let {
-            it ?: return null
-            return Bukkit.getOfflinePlayer(it)
-        }
+        val assigneeUUID = assignee ?: return null
+        return Bukkit.getOfflinePlayer(assigneeUUID)
     }
 
     /**
@@ -173,11 +171,7 @@ data class Order(
      * @throws IllegalStateException if the order does not have an assignee
      */
     fun messageOwner(message: Component) {
-        getOwner().player?.sendMessage(message)
-            ?: run {
-                Mail.createMail(user, message)
-                return
-            }
+        getOwner().player?.sendMessage(message) ?: Mail.createMail(user, message)
     }
 
     /**
@@ -186,13 +180,8 @@ data class Order(
      * @throws IllegalStateException if the order does not have an assignee
      */
     fun messageAssignee(message: Component) {
-        getAssignee().let {
-            it ?: throw IllegalStateException("Order does not have an assignee")
-            it.player?.sendMessage(message) ?: run {
-                Mail.createMail(it.uniqueId, message)
-                return
-            }
-        }
+        val offlineAssignee = getAssignee() ?: throw IllegalStateException("Order does not have an assignee")
+        offlineAssignee.player?.sendMessage(message) ?: Mail.createMail(offlineAssignee.uniqueId, message)
     }
 
     /**
@@ -247,25 +236,23 @@ data class Order(
         orderDao.delete(this)
     }
 
-
     /**
      * Complete the order and pay the assignee
      * @param pay Whether to pay the assignee, default is true
      * @param notify Whether to notify the user and assignee, default is true
      */
     fun completeOrder(pay: Boolean = true, notify: Boolean = true) {
+        val assigneePlayer = getAssignee() ?: throw IllegalStateException("Order does not have an assignee")
         itemCompleted = itemAmount
         status = OrderStatus.COMPLETED
         timeCompleted = LocalDateTime.now()
         timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.PickupDeadline"))
         orderDao.update(this)
         if (pay) {
-            getAssignee()?.let {
-                eco.depositPlayer(
-                    it,
-                    cost
-                )
-            }
+            eco.depositPlayer(
+                assigneePlayer,
+                cost
+            )
         }
         if (!notify) return
         val assigneeMessage = MessageUtil.getMessage(
@@ -351,7 +338,7 @@ data class Order(
     }
 
     /**
-     * Checks if itemstack matches the order itemstack
+     * Checks if itemstack matches the order's itemstack
      * @param itemArg The itemstack to compare
      * @return Whether the itemstack matches the order itemstack
      */
