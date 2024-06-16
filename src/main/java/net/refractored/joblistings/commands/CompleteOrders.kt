@@ -39,7 +39,7 @@ class CompleteOrders {
         forEachOrder@ for (order in orders) {
             forEachItem@ for (item in actor.player.inventory.storageContents){
                 if (item == null) continue@forEachItem
-                if (!isMatchingItem(item, order)) continue@forEachItem
+                if (!order.itemMatches(item)) continue@forEachItem
                 if (order.item is Damageable && item.itemMeta is Damageable) {
                     if ((order.item as Damageable).damage != (item.itemMeta as Damageable).damage) {
                         actor.reply(
@@ -56,15 +56,9 @@ class CompleteOrders {
                 if (order.itemCompleted + item.amount >= order.itemAmount) {
                     // Order completed YIPPEE
                     val itemsLeft = (order.itemCompleted + item.amount) - order.itemAmount
-                    order.completeOrder()
-                    // If order completed send the reward :D
-                    eco.depositPlayer(
-                        Bukkit.getOfflinePlayer(actor.uniqueId),
-                        order.cost
-                    )
+                    order.completeOrder(true)
                     item.amount = itemsLeft
                     ordersCompleted++
-                    messageCompletion(actor, order)
                     continue@forEachOrder
                 }
                 // Order not completed :(
@@ -101,37 +95,6 @@ class CompleteOrders {
                     )
             )
         )
-    }
-
-    /**
-     * Returns whether the given item matches the order
-     */
-    private fun isMatchingItem(item: ItemStack,order: Order): Boolean {
-        ecoPlugin.let{
-            if (Items.isCustomItem(item)) {
-                return Items.getCustomItem(order.item)!!.matches(item)
-            }
-        }
-        return order.item.isSimilar(item)
-    }
-
-    private fun messageCompletion(actor: BukkitCommandActor, order: Order) {
-        val assigneeMessage = MessageUtil.getMessage(
-            "OrderComplete.CompletedMessageAssignee",
-            listOf(
-                MessageReplacement(order.getItemInfo()),
-                MessageReplacement(order.cost.toString()),
-            )
-        )
-        actor.reply(assigneeMessage)
-        val ownerMessage = MessageUtil.getMessage(
-            "OrderComplete.CompletedMessageOwner",
-            listOf(
-                MessageReplacement(order.getItemInfo()),
-                MessageReplacement(actor.player.displayName()),
-            )
-        )
-        order.messageOwner(ownerMessage)
     }
 
     private fun messageProgress(actor: BukkitCommandActor, order: Order){

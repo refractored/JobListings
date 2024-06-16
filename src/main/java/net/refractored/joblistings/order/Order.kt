@@ -4,8 +4,11 @@ import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
+import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.JobListings.Companion.eco
+import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -202,11 +205,36 @@ data class Order(
         )
     }
 
-    fun completeOrder(){
+    fun completeOrder(pay: Boolean = true, notify: Boolean = true) {
         itemCompleted = itemAmount
         status = OrderStatus.COMPLETED
         timeCompleted = LocalDateTime.now()
         orderDao.update(this)
+        if (pay) {
+            getAssignee()?.let {
+                eco.depositPlayer(
+                    it,
+                    cost
+                )
+            }
+        }
+        if (!notify) return
+        val assigneeMessage = MessageUtil.getMessage(
+            "OrderComplete.CompletedMessageAssignee",
+            listOf(
+                MessageReplacement(getItemInfo()),
+                MessageReplacement(cost.toString()),
+            )
+        )
+        messageAssignee(assigneeMessage)
+        val ownerMessage = MessageUtil.getMessage(
+            "OrderComplete.CompletedMessageOwner",
+            listOf(
+                MessageReplacement(getItemInfo()),
+                MessageReplacement(getAssignee()?.name ?: "Unknown"),
+            )
+        )
+        messageOwner(ownerMessage)
     }
 
     fun expireOrder(notify: Boolean = true) {
@@ -263,6 +291,15 @@ data class Order(
             ))
             .build()
         messageAssignee(assigneeMessage)
+    }
+
+     fun itemMatches(itemArg: ItemStack): Boolean {
+        ecoPlugin.let{
+            Items.getCustomItem(item)?.let { customItem ->
+                return customItem.matches(itemArg)
+            }
+        }
+        return itemArg.isSimilar(item)
     }
 
     fun isOrderExpired(): Boolean {

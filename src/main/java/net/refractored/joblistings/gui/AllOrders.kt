@@ -144,7 +144,7 @@ class AllOrders {
                     "AllOrders.OrderItemLore",
                     listOf(
                         MessageReplacement(order.cost.toString()),
-                        MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
+                        MessageReplacement(order.getOwner().name ?: "Unknown"),
                         MessageReplacement(createdDurationText),
                         MessageReplacement(expireDurationText),
                         MessageReplacement(order.itemAmount.toString()),
