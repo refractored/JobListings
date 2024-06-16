@@ -21,7 +21,7 @@ enum class OrderStatus {
      */
     INCOMPLETE,
     /**
-     * The order was never claimed and has expired
+     * The order was cancelled by the user
      */
-    EXPIRED,
+    CANCELLED,
 }

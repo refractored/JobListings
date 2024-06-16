@@ -17,8 +17,8 @@ Orders:
   # Maximum/Minimum time in hours orders can be posted for
   MaxOrdersTime: 192
   MinOrdersTime: 48
-  # Time in days to keep orders in the database after they have been fully completed
-  OrderPickup: 14
+  # Time in hours to keep orders in the database after they have been fully completed
+  PickupDeadline: 500
   # Deadline in hours to complete an order
   OrderDeadline: 32
   # Maximum amount of items per order

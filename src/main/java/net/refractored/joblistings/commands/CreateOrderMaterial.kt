@@ -138,18 +138,13 @@ class CreateOrderMaterial {
 
         eco.withdrawPlayer(actor.player, cost)
 
-        Order.createOrder(
+        val orderInfo = Order.createOrder(
             actor.uniqueId,
             cost,
             item,
             amount,
             hours
-        )
-
-        val orderInfo = Component.text()
-            .append(item.displayName())
-            .append(MessageUtil.toComponent(" x${amount}<reset>"))
-            .build()
+        ).getItemInfo()
 
         actor.player.sendMessage(
             MessageUtil.getMessage(

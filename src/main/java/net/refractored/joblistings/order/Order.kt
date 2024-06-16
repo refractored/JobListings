@@ -133,6 +133,10 @@ data class Order(
         0,
     )
 
+    /**
+     * Get the display name of the item
+     * @return The display name of the item
+     */
     fun getItemInfo(): Component {
         return MessageUtil.getMessage(
             "Orders.OrderInfo",
@@ -144,10 +148,18 @@ data class Order(
         )
     }
 
+    /**
+     * Get the OfflinePlayer owner of the order
+     * @return The owner of the order
+     */
     fun getOwner() : OfflinePlayer {
         return Bukkit.getOfflinePlayer(user)
     }
 
+    /**
+     * Get the OfflinePlayer assignee of the order
+     * @return The assignee of the order, or null if there is no assignee
+     */
     fun getAssignee() : OfflinePlayer? {
         assignee.let {
             it ?: return null
@@ -155,6 +167,11 @@ data class Order(
         }
     }
 
+    /**
+     * Sends a message to the owner if they are online, otherwise it will be sent as a mail
+     * @param message The message to send
+     * @throws IllegalStateException if the order does not have an assignee
+     */
     fun messageOwner(message: Component) {
         getOwner().player?.sendMessage(message)
             ?: run {
@@ -163,6 +180,11 @@ data class Order(
             }
     }
 
+    /**
+     * Sends a message to the assignee if they are online, otherwise it will be sent as a mail
+     * @param message The message to send
+     * @throws IllegalStateException if the order does not have an assignee
+     */
     fun messageAssignee(message: Component) {
         getAssignee().let {
             it ?: throw IllegalStateException("Order does not have an assignee")
@@ -173,6 +195,14 @@ data class Order(
         }
     }
 
+    /**
+     * Accept the order and assign it to a player
+     * @param assigneePlayer The player who accepted the order
+     * @param notify Whether to notify the user and assignee, default is true
+     * @throws IllegalArgumentException if the order already has an assignee
+     * @throws IllegalArgumentException if the assignee is the same as the user
+     * @throws IllegalArgumentException if the order is not pending
+     */
     fun acceptOrder(assigneePlayer: Player, notify: Boolean = true) {
         if (assignee != null) {
             throw IllegalArgumentException("Order already has an assignee")
@@ -205,10 +235,29 @@ data class Order(
         )
     }
 
+    /**
+     * Remove the order from the database and refund the user
+     * @throws IllegalStateException if the order is not pending
+     */
+    fun removeOrder() {
+        if (status != OrderStatus.PENDING) {
+            throw IllegalStateException("Order cannot be removed if it is not pending")
+        }
+        eco.depositPlayer(getOwner(), cost)
+        orderDao.delete(this)
+    }
+
+
+    /**
+     * Complete the order and pay the assignee
+     * @param pay Whether to pay the assignee, default is true
+     * @param notify Whether to notify the user and assignee, default is true
+     */
     fun completeOrder(pay: Boolean = true, notify: Boolean = true) {
         itemCompleted = itemAmount
         status = OrderStatus.COMPLETED
         timeCompleted = LocalDateTime.now()
+        timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.PickupDeadline"))
         orderDao.update(this)
         if (pay) {
             getAssignee()?.let {
@@ -237,15 +286,16 @@ data class Order(
         messageOwner(ownerMessage)
     }
 
+    /**
+     * Mark the order as expired and refund the user
+     * @param notify Whether to notify the user, default is true
+     */
     fun expireOrder(notify: Boolean = true) {
-        if (status == OrderStatus.EXPIRED) {
-            throw IllegalStateException("Order is already expired")
-        }
         if (status == OrderStatus.INCOMPLETE) {
             throw IllegalStateException("Order cannot be marked expired if its status is INCOMPLETE")
         }
-        status = OrderStatus.EXPIRED
-        orderDao.update(this)
+        eco.depositPlayer(getOwner(), cost)
+        orderDao.delete(this)
         if (notify) {
             val message = Component.text()
                 .append(MessageUtil.toComponent(
@@ -253,22 +303,29 @@ data class Order(
                 ))
                 .append(getItemInfo())
                 .append(MessageUtil.toComponent(
-                    "<red>has expired!"
+                    "<red>has expired and you were refunded!"
                 ))
                 .build()
             messageOwner(message)
         }
     }
 
+    /**
+     * Mark the order as incomplete and refund the user
+     * @param notify Whether to notify the user and assignee, default is true
+     */
     fun incompleteOrder(notify: Boolean = true) {
         if (status == OrderStatus.INCOMPLETE) {
             throw IllegalStateException("Order is already marked incomplete")
         }
-        if (status == OrderStatus.EXPIRED) {
-            throw IllegalStateException("Order cannot be marked incomplete if it is expired")
-        }
         status = OrderStatus.INCOMPLETE
-        orderDao.update(this)
+        eco.depositPlayer(getOwner(), cost)
+        if (itemCompleted == 0) {
+            // No point of keeping the order if no items were turned in
+            orderDao.delete(this)
+        } else {
+            orderDao.update(this)
+        }
         if (!notify) return
         val ownerMessage = Component.text()
             .append(MessageUtil.toComponent(
@@ -276,7 +333,7 @@ data class Order(
             ))
             .append(getItemInfo())
             .append(MessageUtil.toComponent(
-                "<red>could not be completed in time!"
+                "<red>could not be completed in time and you were refunded!"
             ))
             .build()
         messageOwner(ownerMessage)
@@ -293,13 +350,18 @@ data class Order(
         messageAssignee(assigneeMessage)
     }
 
+    /**
+     * Checks if itemstack matches the order itemstack
+     * @param itemArg The itemstack to compare
+     * @return Whether the itemstack matches the order itemstack
+     */
      fun itemMatches(itemArg: ItemStack): Boolean {
         ecoPlugin.let{
             Items.getCustomItem(item)?.let { customItem ->
                 return customItem.matches(itemArg)
             }
         }
-        return itemArg.isSimilar(item)
+        return item.isSimilar(itemArg)
     }
 
     fun isOrderExpired(): Boolean {
@@ -311,8 +373,22 @@ data class Order(
         return LocalDateTime.now().isAfter(deadline)
     }
 
+    fun isOrderPickupPassed(): Boolean {
+        val pickupTime = timePickup ?: return false
+        return LocalDateTime.now().isAfter(pickupTime)
+    }
+
     companion object {
 
+        /**
+         * Create a new order and insert it into the database
+         * @param user The user who created the order
+         * @param cost The reward for completing the order
+         * @param item The itemstack required to complete the order
+         * @param amount The amount of items required to complete the order
+         * @param hours The amount of hours the order will be available for
+         * @return The created order
+         */
         fun createOrder(
             user: UUID,
             cost: Double,
@@ -406,6 +482,9 @@ data class Order(
 
         }
 
+        /**
+         * If the order was never claimed, and the order expire date has passed it will be marked as expired
+         */
         fun updateExpiredOrders() {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.orderBy("timeCreated", true)
@@ -417,6 +496,9 @@ data class Order(
             }
         }
 
+        /**
+         * Updates all orders that have passed their deadline
+         */
         fun updateDeadlineOrders() {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.orderBy("timeClaimed", true)
@@ -426,5 +508,20 @@ data class Order(
                 order.incompleteOrder()
             }
         }
+
+        /**
+         * Deletes all orders that were not picked up in time
+         */
+        fun updatePickupDeadline() {
+            val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+            queryBuilder.orderBy("timeClaimed", true)
+            queryBuilder.where().eq("status", OrderStatus.CLAIMED)
+            orderDao.query(queryBuilder.prepare()).forEach { order ->
+                if (!order.isOrderPickupPassed()) return
+                orderDao.delete(order)
+            }
+        }
+
+
     }
 }

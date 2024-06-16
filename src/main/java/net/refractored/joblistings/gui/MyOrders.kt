@@ -250,14 +250,7 @@ class MyOrders {
                             )
                             gui.removeButton((index + 10) + (gui.currentPage * 45))
                             eco.depositPlayer(actor.player, (order.cost / 2) )
-                            order.moneyReturned = true
-                            order.status = OrderStatus.INCOMPLETE
-                            // No need to refund items to assignee, if no items were ever turned in
-                            if (order.itemCompleted == 0){
-                                orderDao.delete(order)
-                            } else {
-                                orderDao.update(order)
-                            }
+                            order.incompleteOrder()
                             val assigneeMessage = MessageUtil.getMessage(
                                 "MyOrders.AssigneeMessage",
                                 listOf(
