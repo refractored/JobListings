@@ -56,10 +56,7 @@ class CompleteOrders {
                 if (order.itemCompleted + item.amount >= order.itemAmount) {
                     // Order completed YIPPEE
                     val itemsLeft = (order.itemCompleted + item.amount) - order.itemAmount
-                    order.itemCompleted = order.itemAmount
-                    order.status = OrderStatus.COMPLETED
-                    order.timeCompleted = LocalDateTime.now()
-                    orderDao.update(order)
+                    order.completeOrder()
                     // If order completed send the reward :D
                     eco.depositPlayer(
                         Bukkit.getOfflinePlayer(actor.uniqueId),

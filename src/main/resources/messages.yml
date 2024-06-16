@@ -44,6 +44,13 @@ General:
   # %2 = Minutes
   DatePastTense: "<white>%0 Days, %1 Hours, %2 Minutes ago"
   InventoryFull: "<red>Your inventory is full."
+Orders:
+    # %0 = Order itemstack name
+    # %1 = Order amount
+    # %2 = Order reward
+    # This is considered the Order Info and is used in various messages.
+  OrderInfo: "<gray>%0 <white>x <gray>%1"
+
 Reload:
   Reloaded: "<green>Plugin reloaded."
 OrderComplete:

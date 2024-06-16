@@ -122,9 +122,23 @@ class AllOrders {
                 }
                 val itemMetaCopy = item.itemMeta
                 val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
-                val expireDurationText = "${expireDuration.toDays()} Days, ${expireDuration.toHoursPart()} Hours, ${expireDuration.toMinutesPart()} Minutes"
+                val expireDurationText = MessageUtil.getMessage(
+                    "AllOrders.ExpireDuration",
+                    listOf(
+                        MessageReplacement(expireDuration.toDays().toString()),
+                        MessageReplacement(expireDuration.toHoursPart().toString()),
+                        MessageReplacement(expireDuration.toMinutesPart().toString()),
+                    )
+                )
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toDays()} Days ${createdDuration.toHoursPart()} Hours, ${createdDuration.toMinutesPart()} Minutes"
+                val createdDurationText = MessageUtil.getMessage(
+                    "AllOrders.CreatedDuration",
+                    listOf(
+                        MessageReplacement(createdDuration.toDays().toString()),
+                        MessageReplacement(createdDuration.toHoursPart().toString()),
+                        MessageReplacement(createdDuration.toMinutesPart().toString()),
+                    )
+                )
 
                 val OrderItemLore = MessageUtil.getMessageList(
                     "AllOrders.OrderItemLore",
@@ -136,8 +150,6 @@ class AllOrders {
                         MessageReplacement(order.itemAmount.toString()),
                     )
                 )
-
-
 
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
@@ -204,20 +216,7 @@ class AllOrders {
                             )
                         )
                     }
-                    val ownerMessage =
-                            MessageUtil.getMessage(
-                                "AllOrders.OrderAcceptedNotification",
-                                listOf(
-                                    MessageReplacement(order.getItemInfo()),
-                                    MessageReplacement(actor.player.displayName()),
-                                ),
-                    )
-                    order.messageOwner(ownerMessage)
-                    actor.reply(
-                        MessageUtil.getMessage(
-                            "AllOrders.OrderAccepted",
-                        )
-                    )
+
                     order.acceptOrder(actor.player)
                     event.whoClicked.closeInventory()
                 }

@@ -1,6 +1,5 @@
 package net.refractored.joblistings.order
 
-import com.j256.ormlite.field.DataType
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
@@ -11,11 +10,14 @@ import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
+import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import revxrsal.commands.bukkit.player
 import java.time.LocalDateTime
 import java.util.*
 
@@ -60,6 +62,9 @@ data class Order(
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCompleted: LocalDateTime?,
 
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
+    var timePickup: LocalDateTime?,
+
     /**
      * The status of the order
      * @see OrderStatus
@@ -102,12 +107,6 @@ data class Order(
     @DatabaseField
     var itemsObtained: Int,
 
-    /**
-     * True if the order has been expired, and the user has been refunded
-     */
-    @DatabaseField
-    var moneyReturned: Boolean,
-
 ) {
     /**
      * This constructor should only be used for ORMLite
@@ -122,28 +121,39 @@ data class Order(
         null,
         null,
         null,
+        null,
         OrderStatus.PENDING,
         (ItemBuilder(Material.STONE).amount(1).build()),
         69,
         0,
         0,
         0,
-        false
     )
 
     fun getItemInfo(): Component {
-        return Component.text()
-            .append(
-                item.displayName()
+        return MessageUtil.getMessage(
+            "Orders.OrderInfo",
+            listOf(
+                MessageReplacement(item.displayName()),
+                MessageReplacement(itemAmount.toString()),
+                MessageReplacement(cost.toString()),
             )
-            .append(
-                MessageUtil.toComponent(" x${itemAmount}<reset>")
-            )
-            .build()
+        )
+    }
+
+    fun getOwner() : OfflinePlayer {
+        return Bukkit.getOfflinePlayer(user)
+    }
+
+    fun getAssignee() : OfflinePlayer? {
+        assignee.let {
+            it ?: return null
+            return Bukkit.getOfflinePlayer(it)
+        }
     }
 
     fun messageOwner(message: Component) {
-        Bukkit.getPlayer(user)?.sendMessage(message)
+        getOwner().player?.sendMessage(message)
             ?: run {
                 Mail.createMail(user, message)
                 return
@@ -151,21 +161,16 @@ data class Order(
     }
 
     fun messageAssignee(message: Component) {
-        val player = assignee
-            ?: throw IllegalStateException("Order does not have an assignee")
-        Bukkit.getPlayer(player)?.sendMessage(message)
-            ?: run {
-                Mail.createMail(player, message)
+        getAssignee().let {
+            it ?: throw IllegalStateException("Order does not have an assignee")
+            it.player?.sendMessage(message) ?: run {
+                Mail.createMail(it.uniqueId, message)
                 return
             }
+        }
     }
 
-    fun isOrderDeadlinePassed(): Boolean {
-        val deadline = timeDeadline ?: return false
-        return LocalDateTime.now().isAfter(deadline)
-    }
-
-    fun acceptOrder(assigneePlayer: Player) {
+    fun acceptOrder(assigneePlayer: Player, notify: Boolean = true) {
         if (assignee != null) {
             throw IllegalArgumentException("Order already has an assignee")
         }
@@ -180,13 +185,142 @@ data class Order(
         timeDeadline = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.OrderDeadline"))
         status = OrderStatus.CLAIMED
         orderDao.update(this)
+        if (!notify) return
+        val ownerMessage =
+            MessageUtil.getMessage(
+                "AllOrders.OrderAcceptedNotification",
+                listOf(
+                    MessageReplacement(getItemInfo()),
+                    MessageReplacement(assigneePlayer.displayName()),
+                ),
+            )
+        messageOwner(ownerMessage)
+        messageAssignee(
+            MessageUtil.getMessage(
+                "AllOrders.OrderAccepted",
+            )
+        )
+    }
+
+    fun completeOrder(){
+        itemCompleted = itemAmount
+        status = OrderStatus.COMPLETED
+        timeCompleted = LocalDateTime.now()
+        orderDao.update(this)
+    }
+
+    fun expireOrder(notify: Boolean = true) {
+        if (status == OrderStatus.EXPIRED) {
+            throw IllegalStateException("Order is already expired")
+        }
+        if (status == OrderStatus.INCOMPLETE) {
+            throw IllegalStateException("Order cannot be marked expired if its status is INCOMPLETE")
+        }
+        status = OrderStatus.EXPIRED
+        orderDao.update(this)
+        if (notify) {
+            val message = Component.text()
+                .append(MessageUtil.toComponent(
+                    "<red>Your order, <gray>"
+                ))
+                .append(getItemInfo())
+                .append(MessageUtil.toComponent(
+                    "<red>has expired!"
+                ))
+                .build()
+            messageOwner(message)
+        }
+    }
+
+    fun incompleteOrder(notify: Boolean = true) {
+        if (status == OrderStatus.INCOMPLETE) {
+            throw IllegalStateException("Order is already marked incomplete")
+        }
+        if (status == OrderStatus.EXPIRED) {
+            throw IllegalStateException("Order cannot be marked incomplete if it is expired")
+        }
+        status = OrderStatus.INCOMPLETE
+        orderDao.update(this)
+        if (!notify) return
+        val ownerMessage = Component.text()
+            .append(MessageUtil.toComponent(
+                "<red>One of your orders, <gray>"
+            ))
+            .append(getItemInfo())
+            .append(MessageUtil.toComponent(
+                "<red>could not be completed in time!"
+            ))
+            .build()
+        messageOwner(ownerMessage)
+        if (assignee == null) return // This should never be null, but just in case
+        val assigneeMessage = Component.text()
+            .append(MessageUtil.toComponent(
+                "<red>You were unable to complete your order, <gray>"
+            ))
+            .append(getItemInfo())
+            .append(MessageUtil.toComponent(
+                "<red>in time!"
+            ))
+            .build()
+        messageAssignee(assigneeMessage)
     }
 
     fun isOrderExpired(): Boolean {
         return LocalDateTime.now().isAfter(timeExpires)
     }
 
+    fun isOrderDeadlinePassed(): Boolean {
+        val deadline = timeDeadline ?: return false
+        return LocalDateTime.now().isAfter(deadline)
+    }
+
     companion object {
+
+        fun createOrder(
+            user: UUID,
+            cost: Double,
+            item: ItemStack,
+            amount: Int,
+            hours: Long,
+        ) : Order {
+            val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
+            when {
+                maxItems == -1 && amount > item.maxStackSize -> {
+                    throw IllegalArgumentException("Item stack size exceeded")
+                }
+                maxItems != 0 && amount >= maxItems -> {
+                    throw IllegalArgumentException("Max orders exceeded")
+                }
+            }
+            if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
+                throw IllegalArgumentException("Order time exceeds maximum")
+            }
+            if (hours < JobListings.instance.config.getLong("Orders.MinOrdersTime")) {
+                throw IllegalArgumentException("Order time exceeds maximum")
+            }
+            item.amount = 1
+            val order = Order(
+                UUID.randomUUID(),
+                cost,
+                user,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(hours),
+                null,
+                null,
+                null,
+                null,
+                OrderStatus.PENDING,
+                item,
+                amount,
+                0,
+                0,
+                0,
+            )
+            orderDao.create(order)
+            return order
+        }
+
         /**
          * Get a specific page of the newest orders from the database
          * @param limit Number of orders per page
@@ -242,18 +376,7 @@ data class Order(
             val orders = orderDao.query(queryBuilder.prepare())
             for (order in orders) {
                 if (!order.isOrderExpired()) return
-                order.status = OrderStatus.EXPIRED
-                orderDao.update(order)
-                val message = Component.text()
-                    .append(MessageUtil.toComponent(
-                    "<red>One of your orders, <gray>"
-                    ))
-                    .append(order.getItemInfo())
-                    .append(MessageUtil.toComponent(
-                        "<red>expired!"
-                    ))
-                    .build()
-                order.messageOwner(message)
+                order.expireOrder()
             }
         }
 
@@ -263,29 +386,7 @@ data class Order(
             queryBuilder.where().eq("status", OrderStatus.CLAIMED)
             orderDao.query(queryBuilder.prepare()).forEach { order ->
                 if (!order.isOrderDeadlinePassed()) return
-                order.status = OrderStatus.INCOMPLETE
-                orderDao.update(order)
-                val ownerMessage = Component.text()
-                .append(MessageUtil.toComponent(
-                    "<red>One of your orders, <gray>"
-                ))
-                .append(order.getItemInfo())
-                .append(MessageUtil.toComponent(
-                    "<red>could not be completed in time!"
-                ))
-                .build()
-                order.messageOwner(ownerMessage)
-                if (order.assignee == null) return // This should never be null, but just in case
-                val assigneeMessage = Component.text()
-                    .append(MessageUtil.toComponent(
-                        "<red>You were unable to complete your order, <gray>"
-                    ))
-                    .append(order.getItemInfo())
-                    .append(MessageUtil.toComponent(
-                        "<red>in time!"
-                    ))
-                    .build()
-                order.messageAssignee(assigneeMessage)
+                order.incompleteOrder()
             }
         }
     }

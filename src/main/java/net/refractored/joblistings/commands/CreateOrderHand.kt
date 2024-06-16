@@ -147,25 +147,12 @@ class CreateOrderHand {
 
         eco.withdrawPlayer(actor.player, cost)
 
-        orderDao.create(
-            Order(
-                id = UUID.randomUUID(),
-                cost = cost,
-                user = actor.uniqueId,
-                assignee = null,
-                timeCreated = LocalDateTime.now(),
-                timeExpires = LocalDateTime.now().plusHours(hours),
-                timeDeadline = null,
-                timeCompleted = null,
-                timeClaimed = null,
-                status = OrderStatus.PENDING,
-                item = item,
-                itemAmount = amount,
-                itemCompleted = 0,
-                itemsReturned = 0,
-                itemsObtained = 0,
-                moneyReturned = false
-            )
+        Order.createOrder(
+            actor.uniqueId,
+            cost,
+            item,
+            amount,
+            hours
         )
 
         val orderInfo = Component.text()
