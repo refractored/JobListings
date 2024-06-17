@@ -1,6 +1,6 @@
 package net.refractored.joblistings.commands
 
-import net.refractored.joblistings.gui.MyClaimedOrders
+import net.refractored.joblistings.gui.ClaimedOrders
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
@@ -11,6 +11,6 @@ class ClaimedOrders {
     @Description("View the orders you claimed")
     @Command("joblistings claimed")
     fun getOrders(actor: BukkitCommandActor) {
-        MyClaimedOrders.openMyClaimedOrders(actor)
+        ClaimedOrders.openMyClaimedOrders(actor)
     }
 }

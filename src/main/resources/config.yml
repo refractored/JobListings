@@ -3,7 +3,10 @@
 # by refractored
 #
 Database:
-  url: "jdbc:mysql://localhost:3306/database"
+  # For the url, you should only need to replace DATABASE_IP , PORT, and DATABASE_NAME.
+  # jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME
+  # replace url with "file" if you want to use sqlite.
+  url: "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME"
   user: "USERNAME"
   password: "PASSWORD"
 
@@ -14,8 +17,14 @@ Orders:
   # Maximum/Minimum time in hours orders can be posted for
   MaxOrdersTime: 192
   MinOrdersTime: 48
+  # Time in hours to keep orders in the database after they have been fully completed
+  PickupDeadline: 500
   # Deadline in hours to complete an order
-  OrderDeadline: 24
+  OrderDeadline: 32
+  # Maximum amount of items per order
+  # Setting this to 0 will disable the limit
+  # Setting this to -1 will use the item's max stack size (May differ with material type)
+  MaximumItems: 256
 
 # Mail is used when an order is updated and the player is offline
 Mail:
@@ -25,8 +34,12 @@ Mail:
   # Mail Expire time in days
   # 0 = Never expire
   ExpireTime: 30
+  # All mail will be sent to this player when they join after their order is updated
+  # This is in seconds.
+  # This does not apply to essentials mail.
+  JoinDelay: 10
 
-# Options here are require the essentials plugin to be installed!
+# Options here require the essentials plugin to be installed!
 # If EssentialsX is not installed, these options will be ignored.
 # https://essentialsx.net/downloads.html
 Essentials:

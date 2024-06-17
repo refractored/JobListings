@@ -13,6 +13,7 @@ import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.ItemstackSerializers
+import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import java.util.*
 
 
@@ -52,11 +53,23 @@ class Database {
             JobListings.instance.logger.info("Initializing database...")
             LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
 
-            connectionSource = JdbcPooledConnectionSource(
-                JobListings.instance.config.getString("Database.url"),
-                JobListings.instance.config.getString("Database.user"),
-                JobListings.instance.config.getString("Database.password")
-            )
+            if (JobListings.instance.config.getString("Database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME") {
+                JobListings.instance.logger.severe("Database not setup in config. Disabling plugin.")
+                JobListings.instance.server.pluginManager.disablePlugin(JobListings.instance)
+                return
+            }
+
+            connectionSource = if (JobListings.instance.config.getString("Database.url").equals("file", true)){
+                JdbcPooledConnectionSource(
+                    "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db"
+                )
+            } else {
+                JdbcPooledConnectionSource(
+                    JobListings.instance.config.getString("Database.url"),
+                    JobListings.instance.config.getString("Database.user"),
+                    JobListings.instance.config.getString("Database.password")
+                )
+            }
 
             orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
 
@@ -69,6 +82,8 @@ class Database {
             DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
 
             DataPersisterManager.registerDataPersisters(ComponentSerializers.getSingleton())
+
+            DataPersisterManager.registerDataPersisters(LocalDateTimeSerializers.getSingleton())
 
             System.setProperty("com.j256.ormlite.logger.type", "LOCAL")
             System.setProperty("com.j256.ormlite.logger.level", "ERROR")

@@ -5,6 +5,7 @@ import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.exceptions.CommandErrorHandler
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
@@ -78,6 +79,9 @@ class JobListings : JavaPlugin() {
         // Create command handler
         handler = BukkitCommandHandler.create(this)
 
+        // Register the command exception handler
+        handler.setExceptionHandler(CommandErrorHandler())
+
         // Register commands
         handler.register(CreateOrderHand())
         handler.register(CreateOrderMaterial())
@@ -86,6 +90,7 @@ class JobListings : JavaPlugin() {
         handler.register(ClaimedOrders())
         handler.register(CompleteOrders())
         handler.register(HelpCommand())
+        handler.register(ReloadCommand())
         handler.registerBrigadier()
 
         // Register listeners
@@ -101,8 +106,12 @@ class JobListings : JavaPlugin() {
     }
 
     override fun onDisable() {
-        handler.unregisterAllCommands()
-        cleanDatabase.cancel()
+        if (this::handler.isInitialized) {
+            handler.unregisterAllCommands()
+        }
+        if (this::cleanDatabase.isInitialized) {
+            cleanDatabase.cancel()
+        }
         logger.info("JobListings has been disabled!")
     }
 

@@ -12,6 +12,7 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.essentials
 import net.refractored.joblistings.database.Database.Companion.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
+import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.entity.Player
 import java.time.LocalDateTime
@@ -25,10 +26,10 @@ data class Mail(
     @DatabaseField
     var user: UUID,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCreated: LocalDateTime,
 
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeExpires: LocalDateTime,
 
     @DatabaseField(persisterClass = ComponentSerializers::class)
