@@ -50,21 +50,42 @@ data class Order(
     @DatabaseField
     var assignee: UUID?,
 
+    /**
+     * The time the order was created
+     */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCreated: LocalDateTime,
 
+    /**
+     * The time the order expires
+     * This is only used if the order was never claimed
+     */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeExpires: LocalDateTime,
 
+    /**
+     * The time the order was claimed
+     */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeClaimed: LocalDateTime?,
 
+    /**
+     * The time the order is due
+     * This is only used if the order was claimed
+     * If this is not completed in time, the order will be marked as incomplete
+     */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeDeadline: LocalDateTime?,
 
+    /**
+     * The time the order was completed
+     */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCompleted: LocalDateTime?,
 
+    /**
+     * The time the order gets permanently removed
+     */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timePickup: LocalDateTime?,
 
@@ -143,13 +164,13 @@ data class Order(
             listOf(
                 MessageReplacement(item.displayName()),
                 MessageReplacement(itemAmount.toString()),
-                MessageReplacement(cost.toString()),
+                MessageReplacement(cost.toString()), // Optional
             )
         )
     }
 
     /**
-     * Get the OfflinePlayer owner of the order
+     * Get the OfflinePlayer of the owner of the order
      * @return The owner of the order
      */
     fun getOwner() : OfflinePlayer {
@@ -157,7 +178,7 @@ data class Order(
     }
 
     /**
-     * Get the OfflinePlayer assignee of the order
+     * Get the OfflinePlayer of the assignee of the order
      * @return The assignee of the order, or null if there is no assignee
      */
     fun getAssignee() : OfflinePlayer? {
@@ -314,6 +335,7 @@ data class Order(
             orderDao.update(this)
         }
         if (!notify) return
+        // TODO: MESSAGE-IFY
         val ownerMessage = Component.text()
             .append(MessageUtil.toComponent(
                 "<red>One of your orders, <gray>"
