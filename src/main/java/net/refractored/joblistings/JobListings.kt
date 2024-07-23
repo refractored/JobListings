@@ -37,14 +37,13 @@ class JobListings : JavaPlugin() {
         // Set the instance
         instance = this
 
-        spiGUI = SpiGUI(this);
+        spiGUI = SpiGUI(this)
 
         // Save default configs
         saveDefaultConfig()
         if (!File(dataFolder, "messages.yml").exists()) {
             saveResource("messages.yml", false)
         }
-
 
         // Load messages config
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
@@ -65,9 +64,9 @@ class JobListings : JavaPlugin() {
             logger.info("Hooked into Essentials")
         } ?: run {
             if (instance.config.getBoolean("Essentials.UseEssentialsMail") || instance.config.getBoolean("Essentials.UseIgnoreList")) {
-               logger.warning("Essentials config options are enabled but Essentials is not found!")
-               logger.warning("Please install Essentials or disable these options in the config.yml.")
-               logger.warning("https://essentialsx.net/downloads.html")
+                logger.warning("Essentials config options are enabled but Essentials is not found!")
+                logger.warning("Please install Essentials or disable these options in the config.yml.")
+                logger.warning("https://essentialsx.net/downloads.html")
             }
         }
 
@@ -96,11 +95,17 @@ class JobListings : JavaPlugin() {
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)
 
-        cleanDatabase = server.scheduler.runTaskTimer(this, Runnable {
-            Order.updateExpiredOrders()
-            Order.updateDeadlineOrders()
-            Mail.purgeMail()
-        }, 20L, 20L)
+        cleanDatabase =
+            server.scheduler.runTaskTimer(
+                this,
+                Runnable {
+                    Order.updateExpiredOrders()
+                    Order.updateDeadlineOrders()
+                    Mail.purgeMail()
+                },
+                20L,
+                20L,
+            )
 
         logger.info("JobListings has been enabled!")
     }
@@ -124,7 +129,6 @@ class JobListings : JavaPlugin() {
     }
 
     companion object {
-
         /**
          * Economy Provider
          */
@@ -134,7 +138,7 @@ class JobListings : JavaPlugin() {
         /**
          * Essentials
          */
-         var essentials: Essentials? = null
+        var essentials: Essentials? = null
             private set
 
         /**

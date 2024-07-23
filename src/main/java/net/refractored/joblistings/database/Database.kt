@@ -14,8 +14,7 @@ import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import java.util.*
-
+import java.util.UUID
 
 /**
  * A static class used for database operations.
@@ -55,26 +54,33 @@ class Database {
 
             if (JobListings.instance.config.getString("Database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME") {
                 JobListings.instance.logger.severe("Database not setup in config. Disabling plugin.")
-                JobListings.instance.server.pluginManager.disablePlugin(JobListings.instance)
+                JobListings.instance.server.pluginManager
+                    .disablePlugin(JobListings.instance)
                 return
             }
 
-            connectionSource = if (JobListings.instance.config.getString("Database.url").equals("file", true)){
-                JdbcPooledConnectionSource(
-                    "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db"
-                )
-            } else {
-                JdbcPooledConnectionSource(
-                    JobListings.instance.config.getString("Database.url"),
-                    JobListings.instance.config.getString("Database.user"),
-                    JobListings.instance.config.getString("Database.password")
-                )
-            }
+            connectionSource =
+                if (JobListings.instance.config
+                        .getString("Database.url")
+                        .equals("file", true)
+                ) {
+                    JdbcPooledConnectionSource(
+                        "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db",
+                    )
+                } else {
+                    JdbcPooledConnectionSource(
+                        JobListings.instance.config.getString("Database.url"),
+                        JobListings.instance.config.getString("Database.user"),
+                        JobListings.instance.config.getString("Database.password"),
+                    )
+                }
 
+            @Suppress("UNCHECKED_CAST")
             orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
 
             TableUtils.createTableIfNotExists(connectionSource, Order::class.java)
 
+            @Suppress("UNCHECKED_CAST")
             mailDao = DaoManager.createDao(connectionSource, Mail::class.java) as Dao<Mail, UUID>
 
             TableUtils.createTableIfNotExists(connectionSource, Mail::class.java)

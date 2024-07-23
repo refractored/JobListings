@@ -28,34 +28,53 @@ import kotlin.math.ceil
 class MyOrders {
     companion object {
         fun openMyOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create(
-                LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                    MessageUtil.getMessage(
-                        "MyOrders.Title",
-                        listOf(
-                            // I only did this for consistency in the messages.yml
-                            MessageReplacement("{currentPage}"),
-                            MessageReplacement("{maxPage}"),
-                        )
-                    )
-                ),
-                5
-            )
+            val gui =
+                spiGUI.create(
+                    LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                        MessageUtil.getMessage(
+                            "MyOrders.Title",
+                            listOf(
+                                // I only did this for consistency in the messages.yml
+                                MessageReplacement("{currentPage}"),
+                                MessageReplacement("{maxPage}"),
+                            ),
+                        ),
+                    ),
+                    5,
+                )
 
-            val pageCount = if (ceil(orderDao.countOf().toDouble() / 21).toInt() > 0) {
-                ceil(orderDao.countOf().toDouble() / 21).toInt()
-            } else {
-                1
-            }
+            val pageCount =
+                if (ceil(orderDao.countOf().toDouble() / 21).toInt() > 0) {
+                    ceil(orderDao.countOf().toDouble() / 21).toInt()
+                } else {
+                    1
+                }
 
-            val borderItems = listOf(
-                0,  1,  2,  3,  4,  5,  6,  7,  8,
-                9,                              17,
-                18,                             26,
-                27,                             35,
-                    37, 38, 39, 40, 41, 42, 43,
-            )
-
+            val borderItems =
+                listOf(
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    17,
+                    18,
+                    26,
+                    27,
+                    35,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                )
 
             for (i in 0..<pageCount) {
                 val pageSlot = 45 * i
@@ -65,11 +84,10 @@ class MyOrders {
                         SGButton(
                             ItemBuilder(
                                 Material.valueOf(
-                                    MessageUtil.getMessageUnformatted("ClaimedOrders.BorderItem")
-                                )
-                            )
-                                .name(" ")
-                                .build()
+                                    MessageUtil.getMessageUnformatted("ClaimedOrders.BorderItem"),
+                                ),
+                            ).name(" ")
+                                .build(),
                         ),
                     )
                     gui.stickSlot(it + pageSlot)
@@ -84,26 +102,31 @@ class MyOrders {
                 gui.refreshInventory(actor.player)
             }
 
-
             actor.player.openInventory(gui.inventory)
             loadItems(gui, actor)
         }
-        private fun reloadItems(gui: SGMenu, actor: BukkitCommandActor) {
+
+        private fun reloadItems(
+            gui: SGMenu,
+            actor: BukkitCommandActor,
+        ) {
             gui.clearAllButStickiedSlots()
             loadItems(gui, actor)
         }
 
-        private fun loadItems(gui: SGMenu, actor: BukkitCommandActor) {
+        private fun loadItems(
+            gui: SGMenu,
+            actor: BukkitCommandActor,
+        ) {
             gui.setButton(
                 ((gui.currentPage * 45) + 44),
                 SGButton(
                     ItemBuilder(Material.ARROW)
                         .name(
                             LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                                MessageUtil.getMessage("MyOrders.NextPage")
-                            )
-                        )
-                        .build()
+                                MessageUtil.getMessage("MyOrders.NextPage"),
+                            ),
+                        ).build(),
                 ).withListener { event: InventoryClickEvent ->
                     gui.nextPage(actor.player)
                 },
@@ -114,10 +137,9 @@ class MyOrders {
                     ItemBuilder(Material.ARROW)
                         .name(
                             LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                                MessageUtil.getMessage("MyOrders.PreviousPage")
-                            )
-                        )
-                        .build()
+                                MessageUtil.getMessage("MyOrders.PreviousPage"),
+                            ),
+                        ).build(),
                 ).withListener { event: InventoryClickEvent ->
                     gui.previousPage(actor.player)
                 },
@@ -125,34 +147,37 @@ class MyOrders {
 
             Order.getPlayerCreatedOrders(21, gui.currentPage * 21, actor.uniqueId).forEachIndexed { index, order ->
                 val item = order.item.clone()
-                item.amount = if (order.itemAmount <= item.maxStackSize) {
-                    order.itemAmount
-                } else {
-                    item.maxStackSize
-                }
+                item.amount =
+                    if (order.itemAmount <= item.maxStackSize) {
+                        order.itemAmount
+                    } else {
+                        item.maxStackSize
+                    }
                 val itemMetaCopy = item.itemMeta
                 val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = MessageUtil.getMessage(
-                "General.DatePastTense",
-                 listOf(
-                    MessageReplacement(createdDuration.toDays().toString()),
-                    MessageReplacement(createdDuration.toHoursPart().toString()),
-                    MessageReplacement(createdDuration.toMinutesPart().toString()),
-                 )
-                )
+                val createdDurationText =
+                    MessageUtil.getMessage(
+                        "General.DatePastTense",
+                        listOf(
+                            MessageReplacement(createdDuration.toDays().toString()),
+                            MessageReplacement(createdDuration.toHoursPart().toString()),
+                            MessageReplacement(createdDuration.toMinutesPart().toString()),
+                        ),
+                    )
                 val infoLore: MutableList<Component> = mutableListOf()
 
                 when (order.status) {
                     OrderStatus.PENDING -> {
                         val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
-                        val expireDurationText = MessageUtil.getMessage(
-                            "General.DateFormat",
-                            listOf(
-                                MessageReplacement(expireDuration.toDays().toString()),
-                                MessageReplacement(expireDuration.toHoursPart().toString()),
-                                MessageReplacement(expireDuration.toMinutesPart().toString()),
+                        val expireDurationText =
+                            MessageUtil.getMessage(
+                                "General.DateFormat",
+                                listOf(
+                                    MessageReplacement(expireDuration.toDays().toString()),
+                                    MessageReplacement(expireDuration.toHoursPart().toString()),
+                                    MessageReplacement(expireDuration.toMinutesPart().toString()),
+                                ),
                             )
-                        )
                         infoLore.addAll(
                             MessageUtil.getMessageList(
                                 "MyOrders.OrderItemLore.Pending",
@@ -162,44 +187,46 @@ class MyOrders {
                                     MessageReplacement(order.status.toString()),
                                     MessageReplacement(order.itemAmount.toString()),
                                     MessageReplacement(expireDurationText),
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
                     OrderStatus.CLAIMED -> {
                         val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
-                        val deadlineDurationText = MessageUtil.getMessage(
-                            "General.DateFormat",
-                            listOf(
-                                MessageReplacement(deadlineDuration.toDays().toString()),
-                                MessageReplacement(deadlineDuration.toHoursPart().toString()),
-                                MessageReplacement(deadlineDuration.toMinutesPart().toString()),
+                        val deadlineDurationText =
+                            MessageUtil.getMessage(
+                                "General.DateFormat",
+                                listOf(
+                                    MessageReplacement(deadlineDuration.toDays().toString()),
+                                    MessageReplacement(deadlineDuration.toHoursPart().toString()),
+                                    MessageReplacement(deadlineDuration.toMinutesPart().toString()),
+                                ),
                             )
-                        )
                         infoLore.addAll(
                             MessageUtil.getMessageList(
-                            "MyOrders.OrderItemLore.Claimed",
-                            listOf(
-                                MessageReplacement(order.cost.toString()),
-                                MessageReplacement(createdDurationText),
-                                MessageReplacement(order.status.toString()),
-                                MessageReplacement(order.itemAmount.toString()),
-                                MessageReplacement(deadlineDurationText),
-                                MessageReplacement(order.assignee?.let { Bukkit.getOfflinePlayer(it).name } ?: "Unknown"),
-                                )
-                            )
+                                "MyOrders.OrderItemLore.Claimed",
+                                listOf(
+                                    MessageReplacement(order.cost.toString()),
+                                    MessageReplacement(createdDurationText),
+                                    MessageReplacement(order.status.toString()),
+                                    MessageReplacement(order.itemAmount.toString()),
+                                    MessageReplacement(deadlineDurationText),
+                                    MessageReplacement(order.assignee?.let { Bukkit.getOfflinePlayer(it).name } ?: "Unknown"),
+                                ),
+                            ),
                         )
                     }
                     OrderStatus.COMPLETED -> {
                         val completedDuration = Duration.between(order.timeCompleted, LocalDateTime.now())
-                        val completedDurationText = MessageUtil.getMessage(
-                            "General.DatePastTense",
-                            listOf(
-                                MessageReplacement(completedDuration.toDays().toString()),
-                                MessageReplacement(completedDuration.toHoursPart().toString()),
-                                MessageReplacement(completedDuration.toMinutesPart().toString()),
+                        val completedDurationText =
+                            MessageUtil.getMessage(
+                                "General.DatePastTense",
+                                listOf(
+                                    MessageReplacement(completedDuration.toDays().toString()),
+                                    MessageReplacement(completedDuration.toHoursPart().toString()),
+                                    MessageReplacement(completedDuration.toMinutesPart().toString()),
+                                ),
                             )
-                        )
                         infoLore.addAll(
                             MessageUtil.getMessageList(
                                 "MyOrders.OrderItemLore.Completed",
@@ -210,8 +237,8 @@ class MyOrders {
                                     MessageReplacement(order.itemAmount.toString()),
                                     MessageReplacement(completedDurationText),
                                     MessageReplacement(order.assignee?.let { Bukkit.getOfflinePlayer(it).name } ?: "Unknown"),
-                                )
-                            )
+                                ),
+                            ),
                         )
                     }
                     else -> {
@@ -230,67 +257,70 @@ class MyOrders {
 
                 item.itemMeta = itemMetaCopy
 
-                val button = SGButton(
-                    item
-                ).withListener { event: InventoryClickEvent ->
-                    when (order.status) {
-                        OrderStatus.PENDING -> {
-                            event.whoClicked.sendMessage(
-                                MessageUtil.getMessage("MyOrders.OrderCancelled")
-                            )
-                            gui.removeButton((index + 10) + (gui.currentPage * 45))
-                            eco.depositPlayer(actor.player, order.cost)
-                            orderDao.delete(order)
-                            reloadItems(gui, actor)
-                            gui.refreshInventory(actor.player)
-                        }
-                        OrderStatus.CLAIMED -> {
-                            event.whoClicked.sendMessage(
-                                MessageUtil.getMessage("MyOrders.OrderCancelled")
-                            )
-                            gui.removeButton((index + 10) + (gui.currentPage * 45))
-                            eco.depositPlayer(actor.player, (order.cost / 2) )
-                            order.incompleteOrder()
-                            val assigneeMessage = MessageUtil.getMessage(
-                                "MyOrders.AssigneeMessage",
-                                listOf(
-                                    MessageReplacement(order.getItemInfo()),
-                                )
-                            )
-                            order.messageAssignee(assigneeMessage)
-                            reloadItems(gui, actor)
-                            gui.refreshInventory(actor.player)
-                        }
-                        OrderStatus.COMPLETED -> {
-                            val inventorySpaces = actor.player.inventory.storageContents.count{
-                                it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize)
-                            }
-                            if (inventorySpaces == 0) {
-                                actor.player.closeInventory()
+                val button =
+                    SGButton(
+                        item,
+                    ).withListener { event: InventoryClickEvent ->
+                        when (order.status) {
+                            OrderStatus.PENDING -> {
                                 event.whoClicked.sendMessage(
-                                    MessageUtil.getMessage("General.InventoryFull")
-                                )
-                                return@withListener
-                            }
-                            giveOrderItems(order, actor)
-                            if (order.itemCompleted == order.itemsObtained) {
-                                actor.player.closeInventory()
-                                event.whoClicked.sendMessage(
-                                    MessageUtil.getMessage("MyOrders.OrderAlreadyClaimed")
+                                    MessageUtil.getMessage("MyOrders.OrderCancelled"),
                                 )
                                 gui.removeButton((index + 10) + (gui.currentPage * 45))
+                                eco.depositPlayer(actor.player, order.cost)
+                                orderDao.delete(order)
                                 reloadItems(gui, actor)
                                 gui.refreshInventory(actor.player)
-                                return@withListener
                             }
-                            event.whoClicked.sendMessage(
-                                MessageUtil.getMessage("MyOrders.OrderClaimed")
-                            )
-                        }
+                            OrderStatus.CLAIMED -> {
+                                event.whoClicked.sendMessage(
+                                    MessageUtil.getMessage("MyOrders.OrderCancelled"),
+                                )
+                                gui.removeButton((index + 10) + (gui.currentPage * 45))
+                                eco.depositPlayer(actor.player, (order.cost / 2))
+                                order.incompleteOrder()
+                                val assigneeMessage =
+                                    MessageUtil.getMessage(
+                                        "MyOrders.AssigneeMessage",
+                                        listOf(
+                                            MessageReplacement(order.getItemInfo()),
+                                        ),
+                                    )
+                                order.messageAssignee(assigneeMessage)
+                                reloadItems(gui, actor)
+                                gui.refreshInventory(actor.player)
+                            }
+                            OrderStatus.COMPLETED -> {
+                                val inventorySpaces =
+                                    actor.player.inventory.storageContents.count {
+                                        it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize)
+                                    }
+                                if (inventorySpaces == 0) {
+                                    actor.player.closeInventory()
+                                    event.whoClicked.sendMessage(
+                                        MessageUtil.getMessage("General.InventoryFull"),
+                                    )
+                                    return@withListener
+                                }
+                                giveOrderItems(order, actor)
+                                if (order.itemCompleted == order.itemsObtained) {
+                                    actor.player.closeInventory()
+                                    event.whoClicked.sendMessage(
+                                        MessageUtil.getMessage("MyOrders.OrderAlreadyClaimed"),
+                                    )
+                                    gui.removeButton((index + 10) + (gui.currentPage * 45))
+                                    reloadItems(gui, actor)
+                                    gui.refreshInventory(actor.player)
+                                    return@withListener
+                                }
+                                event.whoClicked.sendMessage(
+                                    MessageUtil.getMessage("MyOrders.OrderClaimed"),
+                                )
+                            }
 
-                        else -> return@withListener
+                            else -> return@withListener
+                        }
                     }
-                }
                 val baseSlot = (index + 10) + (gui.currentPage * 45)
 
                 var slot = baseSlot
@@ -303,8 +333,6 @@ class MyOrders {
                 }
 
                 gui.setButton(slot, button)
-
-
             }
             gui.refreshInventory(actor.player)
         }
@@ -312,8 +340,11 @@ class MyOrders {
         /**
          * Returns whether the given item matches the order
          */
-        private fun isMatchingItem(item: ItemStack, order: Order): Boolean {
-            ecoPlugin.let{
+        private fun isMatchingItem(
+            item: ItemStack,
+            order: Order,
+        ): Boolean {
+            ecoPlugin.let {
                 if (Items.isCustomItem(item)) {
                     return Items.getCustomItem(order.item)!!.matches(item)
                 }
@@ -321,23 +352,29 @@ class MyOrders {
             return order.item.isSimilar(item)
         }
 
-        private fun giveOrderItems(order: Order ,actor: BukkitCommandActor){
+        private fun giveOrderItems(
+            order: Order,
+            actor: BukkitCommandActor,
+        ) {
             var itemsLeft = order.itemCompleted - order.itemsObtained
-            while (itemsLeft > 0){
-                if (actor.player.inventory.storageContents.count{
-                    it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize)
-                } == 0){
+            while (itemsLeft > 0) {
+                if (actor.player.inventory.storageContents.count {
+                        it == null || (it.isSimilar(order.item) && it.amount < it.maxStackSize)
+                    } == 0
+                ) {
                     break
                 }
-                val itemAmount = if (itemsLeft < order.item.maxStackSize){
-                    itemsLeft
-                } else {
-                    order.item.maxStackSize
-                }
+                val itemAmount =
+                    if (itemsLeft < order.item.maxStackSize) {
+                        itemsLeft
+                    } else {
+                        order.item.maxStackSize
+                    }
                 itemsLeft -= itemAmount
-                val item = order.item.clone().apply {
-                    amount = itemAmount
-                }
+                val item =
+                    order.item.clone().apply {
+                        amount = itemAmount
+                    }
                 val unaddeditems = actor.player.inventory.addItem(item)
                 itemsLeft += unaddeditems.values.sumOf { it.amount }
                 if (itemsLeft == 0) break
@@ -346,7 +383,7 @@ class MyOrders {
             orderDao.update(order)
             if (order.itemsObtained == order.itemCompleted) {
                 actor.reply(
-                    MessageUtil.toComponent("<green>Order Obtained!")
+                    MessageUtil.toComponent("<green>Order Obtained!"),
                 )
                 actor.player.closeInventory()
                 orderDao.delete(order)

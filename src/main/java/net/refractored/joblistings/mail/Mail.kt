@@ -1,7 +1,6 @@
 package net.refractored.joblistings.mail
 
 import com.earth2me.essentials.Console
-import com.j256.ormlite.field.DataType
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
@@ -22,19 +21,14 @@ import java.util.*
 data class Mail(
     @DatabaseField(id = true)
     val id: UUID,
-
     @DatabaseField
     var user: UUID,
-
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCreated: LocalDateTime,
-
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeExpires: LocalDateTime,
-
     @DatabaseField(persisterClass = ComponentSerializers::class)
     var message: Component,
-
 ) {
     /**
      * This constructor should only be used for ORMLite
@@ -48,35 +42,39 @@ data class Mail(
     )
 
     companion object {
-
-        fun createMail(user: UUID, message: Component) {
+        fun createMail(
+            user: UUID,
+            message: Component,
+        ) {
             if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
             // If essentials is enabled, and config option is enabled, use essentials mail
             essentials?.let {
                 if (!JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) {
                     val essPlayer = it.userMap.getUser(user)
-                    val expireTime = if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
-                        0L
-                    } else {
-                        (System.currentTimeMillis() + (24 * 3600 * JobListings.instance.config.getLong("Orders.MinOrdersTime")))
-                    }
+                    val expireTime =
+                        if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
+                            0L
+                        } else {
+                            (System.currentTimeMillis() + (24 * 3600 * JobListings.instance.config.getLong("Orders.MinOrdersTime")))
+                        }
                     it.mail.sendMail(
                         essPlayer,
                         Console.getInstance(),
                         // Why doesn't this take components? Kill me.
                         LegacyComponentSerializer.legacy(SECTION_CHAR).serialize(message),
-                        expireTime
+                        expireTime,
                     )
                     return
                 }
             }
             // Otherwise use my mailing system
             val mail = Mail()
-            val expireTime: Long = if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
-                30L
-            } else {
-                JobListings.instance.config.getLong("Mail.ExpireTime")
-            }
+            val expireTime: Long =
+                if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
+                    30L
+                } else {
+                    JobListings.instance.config.getLong("Mail.ExpireTime")
+                }
             mail.user = user
             mail.message = message
             mail.timeCreated = LocalDateTime.now()
@@ -87,7 +85,7 @@ data class Mail(
         fun purgeMail() {
             if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
             if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) return
-            essentials.let{
+            essentials.let {
                 if (JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) return
             }
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
@@ -110,6 +108,5 @@ data class Mail(
                 mailDao.delete(mail)
             }
         }
-
     }
 }

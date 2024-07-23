@@ -2,7 +2,6 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.item.ItemBuilder
-import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database.Companion.orderDao
@@ -17,7 +16,6 @@ import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
-import java.time.LocalDateTime
 import java.util.*
 
 class CreateOrderMaterial {
@@ -30,23 +28,22 @@ class CreateOrderMaterial {
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
-    ){
+    ) {
         if (actor.isConsole) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
-                MessageUtil.getMessage("General.IsNotPlayer")
+                MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
 
         if (amount < 1) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneItem")
-
+                MessageUtil.getMessage("CreateOrder.LessThanOneItem"),
             )
         }
 
         if (hours < 1) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneHour")
+                MessageUtil.getMessage("CreateOrder.LessThanOneHour"),
             )
         }
 
@@ -55,9 +52,13 @@ class CreateOrderMaterial {
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMaxHoursConfig",
                     listOf(
-                        MessageReplacement(JobListings.instance.config.getLong("Orders.MaxOrdersTime").toString())
-                    )
-                )
+                        MessageReplacement(
+                            JobListings.instance.config
+                                .getLong("Orders.MaxOrdersTime")
+                                .toString(),
+                        ),
+                    ),
+                ),
             )
         }
 
@@ -66,28 +67,35 @@ class CreateOrderMaterial {
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMinHoursConfig",
                     listOf(
-                        MessageReplacement(JobListings.instance.config.getLong("Orders.MinOrdersTime").toString())
-                    )
-                )
+                        MessageReplacement(
+                            JobListings.instance.config
+                                .getLong("Orders.MinOrdersTime")
+                                .toString(),
+                        ),
+                    ),
+                ),
             )
         }
 
         if (cost < 1) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneCost")
+                MessageUtil.getMessage("CreateOrder.LessThanOneCost"),
             )
         }
 
         if (eco.getBalance(actor.player) < cost) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.NotEnoughMoney")
+                MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
             )
         }
 
-
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder.orderBy("timeCreated", false)
-        queryBuilder.where().eq("status", OrderStatus.PENDING).and().eq("user", actor.uniqueId)
+        queryBuilder
+            .where()
+            .eq("status", OrderStatus.PENDING)
+            .and()
+            .eq("user", actor.uniqueId)
         val orders = orderDao.query(queryBuilder.prepare())
 
         if (orders.count() >= JobListings.instance.config.getInt("Orders.MaxOrders")) {
@@ -95,15 +103,19 @@ class CreateOrderMaterial {
                 MessageUtil.getMessage(
                     "CreateOrder.MaxOrdersReached",
                     listOf(
-                        MessageReplacement(JobListings.instance.config.getLong("Orders.MaxOrders").toString())
-                    )
-                )
+                        MessageReplacement(
+                            JobListings.instance.config
+                                .getLong("Orders.MaxOrders")
+                                .toString(),
+                        ),
+                    ),
+                ),
             )
         }
 
         if (material == Material.AIR) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.MaterialSetToAir")
+                MessageUtil.getMessage("CreateOrder.MaterialSetToAir"),
             )
         }
 
@@ -117,9 +129,9 @@ class CreateOrderMaterial {
                     MessageUtil.getMessage(
                         "CreateOrder.StackSizeExceeded",
                         listOf(
-                            MessageReplacement(item.maxStackSize.toString())
-                        )
-                    )
+                            MessageReplacement(item.maxStackSize.toString()),
+                        ),
+                    ),
                 )
             }
             maxItems != 0 && amount >= maxItems -> {
@@ -127,9 +139,9 @@ class CreateOrderMaterial {
                     MessageUtil.getMessage(
                         "CreateOrder.MaxOrdersExceeded",
                         listOf(
-                            MessageReplacement(maxItems.toString())
-                        )
-                    )
+                            MessageReplacement(maxItems.toString()),
+                        ),
+                    ),
                 )
             }
         }
@@ -138,13 +150,15 @@ class CreateOrderMaterial {
 
         eco.withdrawPlayer(actor.player, cost)
 
-        val orderInfo = Order.createOrder(
-            actor.uniqueId,
-            cost,
-            item,
-            amount,
-            hours
-        ).getItemInfo()
+        val orderInfo =
+            Order
+                .createOrder(
+                    actor.uniqueId,
+                    cost,
+                    item,
+                    amount,
+                    hours,
+                ).getItemInfo()
 
         actor.player.sendMessage(
             MessageUtil.getMessage(
@@ -152,9 +166,9 @@ class CreateOrderMaterial {
                 listOf(
                     MessageReplacement(orderInfo),
                     MessageReplacement(cost.toString()),
-                    MessageReplacement(hours.toString())
-                )
-            )
+                    MessageReplacement(hours.toString()),
+                ),
+            ),
         )
     }
 }

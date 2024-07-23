@@ -18,7 +18,6 @@ import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
-import java.time.LocalDateTime
 import java.util.*
 
 class CreateOrderHand {
@@ -30,23 +29,22 @@ class CreateOrderHand {
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
-    ){
+    ) {
         if (actor.isConsole) {
             throw CommandErrorException(
-                MessageUtil.getMessage("General.IsNotPlayer")
+                MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
 
         if (amount < 1) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneItem")
-
+                MessageUtil.getMessage("CreateOrder.LessThanOneItem"),
             )
         }
 
         if (hours < 1) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneHour")
+                MessageUtil.getMessage("CreateOrder.LessThanOneHour"),
             )
         }
 
@@ -55,9 +53,13 @@ class CreateOrderHand {
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMaxHoursConfig",
                     listOf(
-                        MessageReplacement(JobListings.instance.config.getLong("Orders.MaxOrdersTime").toString())
-                    )
-                )
+                        MessageReplacement(
+                            JobListings.instance.config
+                                .getLong("Orders.MaxOrdersTime")
+                                .toString(),
+                        ),
+                    ),
+                ),
             )
         }
 
@@ -66,28 +68,35 @@ class CreateOrderHand {
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMinHoursConfig",
                     listOf(
-                        MessageReplacement(JobListings.instance.config.getLong("Orders.MinOrdersTime").toString())
-                    )
-                )
+                        MessageReplacement(
+                            JobListings.instance.config
+                                .getLong("Orders.MinOrdersTime")
+                                .toString(),
+                        ),
+                    ),
+                ),
             )
         }
 
         if (cost < 1) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneCost")
+                MessageUtil.getMessage("CreateOrder.LessThanOneCost"),
             )
         }
 
         if (eco.getBalance(actor.player) < cost) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.NotEnoughMoney")
+                MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
             )
         }
 
-
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder.orderBy("timeCreated", false)
-        queryBuilder.where().eq("status", OrderStatus.PENDING).and().eq("user", actor.uniqueId)
+        queryBuilder
+            .where()
+            .eq("status", OrderStatus.PENDING)
+            .and()
+            .eq("user", actor.uniqueId)
         val orders = orderDao.query(queryBuilder.prepare())
 
         if (orders.count() >= JobListings.instance.config.getInt("Orders.MaxOrders")) {
@@ -95,19 +104,25 @@ class CreateOrderHand {
                 MessageUtil.getMessage(
                     "CreateOrder.MaxOrdersReached",
                     listOf(
-                        MessageReplacement(JobListings.instance.config.getLong("Orders.MaxOrders").toString())
-                    )
-                )
+                        MessageReplacement(
+                            JobListings.instance.config
+                                .getLong("Orders.MaxOrders")
+                                .toString(),
+                        ),
+                    ),
+                ),
             )
         }
 
-        val item = actor.player.inventory.itemInMainHand.clone()
+        val item =
+            actor.player.inventory.itemInMainHand
+                .clone()
 
         if (item.type == Material.AIR) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
-                    "CreateOrder.NotHoldingItem"
-                )
+                    "CreateOrder.NotHoldingItem",
+                ),
             )
         }
 
@@ -125,9 +140,9 @@ class CreateOrderHand {
                     MessageUtil.getMessage(
                         "CreateOrder.StackSizeExceeded",
                         listOf(
-                            MessageReplacement(item.maxStackSize.toString())
-                        )
-                    )
+                            MessageReplacement(item.maxStackSize.toString()),
+                        ),
+                    ),
                 )
             }
             maxItems != 0 && amount >= maxItems -> {
@@ -135,13 +150,12 @@ class CreateOrderHand {
                     MessageUtil.getMessage(
                         "CreateOrder.MaxOrdersExceeded",
                         listOf(
-                            MessageReplacement(maxItems.toString())
-                        )
-                    )
+                            MessageReplacement(maxItems.toString()),
+                        ),
+                    ),
                 )
             }
         }
-
 
         item.amount = 1
 
@@ -152,13 +166,15 @@ class CreateOrderHand {
             cost,
             item,
             amount,
-            hours
+            hours,
         )
 
-        val orderInfo = Component.text()
-            .append(item.displayName())
-            .append(MessageUtil.toComponent(" x${amount}<reset>"))
-            .build()
+        val orderInfo =
+            Component
+                .text()
+                .append(item.displayName())
+                .append(MessageUtil.toComponent(" x$amount<reset>"))
+                .build()
 
         actor.player.sendMessage(
             MessageUtil.getMessage(
@@ -166,10 +182,9 @@ class CreateOrderHand {
                 listOf(
                     MessageReplacement(orderInfo),
                     MessageReplacement(cost.toString()),
-                    MessageReplacement(hours.toString())
-                )
-            )
+                    MessageReplacement(hours.toString()),
+                ),
+            ),
         )
     }
-
 }

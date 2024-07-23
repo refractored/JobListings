@@ -1,33 +1,31 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
-import com.willfp.eco.core.items.Items
-import net.refractored.joblistings.JobListings.Companion.eco
-import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
-import org.bukkit.Bukkit
-import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
-import java.time.LocalDateTime
 import java.util.*
 
 class CompleteOrders {
     @CommandPermission("joblistings.completeorders")
     @Description("Scans your inventory for items to complete an order")
-        @Command("joblistings complete")
+    @Command("joblistings complete")
     fun completeOrders(actor: BukkitCommandActor) {
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-        queryBuilder.where().eq("assignee", actor.uniqueId).and().eq("status", OrderStatus.CLAIMED)
+        queryBuilder
+            .where()
+            .eq("assignee", actor.uniqueId)
+            .and()
+            .eq("status", OrderStatus.CLAIMED)
         val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
         if (orders.isEmpty()) {
             throw CommandErrorException(MessageUtil.getMessage("OrderComplete.NoOrdersToComplete"))
@@ -37,7 +35,7 @@ class CompleteOrders {
         var ordersCompleted = 0
         // TODO: REWRITE THIS ATROCITY
         forEachOrder@ for (order in orders) {
-            forEachItem@ for (item in actor.player.inventory.storageContents){
+            forEachItem@ for (item in actor.player.inventory.storageContents) {
                 if (item == null) continue@forEachItem
                 if (!order.itemMatches(item)) continue@forEachItem
                 if (order.item is Damageable && item.itemMeta is Damageable) {
@@ -46,9 +44,9 @@ class CompleteOrders {
                             MessageUtil.getMessage(
                                 "OrderComplete.DamagedItem",
                                 listOf(
-                                    MessageReplacement(order.getItemInfo())
-                                )
-                            )
+                                    MessageReplacement(order.getItemInfo()),
+                                ),
+                            ),
                         )
                         continue@forEachItem
                     }
@@ -70,18 +68,18 @@ class CompleteOrders {
                 continue@forEachItem
             }
         }
-        if (ordersUpdated  == 0 && ordersCompleted == 0) {
+        if (ordersUpdated == 0 && ordersCompleted == 0) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
                     "OrderComplete.NoItemsFound",
-                )
+                ),
             )
         }
         if (ordersCompleted == orderCount) {
             actor.reply(
                 MessageUtil.getMessage(
                     "OrderComplete.AllOrdersCompleted",
-                )
+                ),
             )
             return
         }
@@ -92,30 +90,35 @@ class CompleteOrders {
                     MessageReplacement(ordersCompleted.toString()),
                     MessageReplacement(ordersUpdated.toString()),
                     MessageReplacement(orderCount.toString()),
-                    )
-            )
+                ),
+            ),
         )
     }
 
-    private fun messageProgress(actor: BukkitCommandActor, order: Order){
-        val assigneeMessage = MessageUtil.getMessage(
-            "OrderComplete.ProgressMessageAssignee",
-            listOf(
-                MessageReplacement(order.getItemInfo()),
-                MessageReplacement(order.itemCompleted.toString()),
-                MessageReplacement(order.itemAmount.toString()),
+    private fun messageProgress(
+        actor: BukkitCommandActor,
+        order: Order,
+    ) {
+        val assigneeMessage =
+            MessageUtil.getMessage(
+                "OrderComplete.ProgressMessageAssignee",
+                listOf(
+                    MessageReplacement(order.getItemInfo()),
+                    MessageReplacement(order.itemCompleted.toString()),
+                    MessageReplacement(order.itemAmount.toString()),
+                ),
             )
-        )
         actor.reply(assigneeMessage)
-        val ownerMessage = MessageUtil.getMessage(
-            "OrderComplete.ProgressMessageOwner",
-            listOf(
-                MessageReplacement(order.getItemInfo()),
-                MessageReplacement(actor.player.displayName()),
-                MessageReplacement(order.itemCompleted.toString()),
-                MessageReplacement(order.itemAmount.toString()),
+        val ownerMessage =
+            MessageUtil.getMessage(
+                "OrderComplete.ProgressMessageOwner",
+                listOf(
+                    MessageReplacement(order.getItemInfo()),
+                    MessageReplacement(actor.player.displayName()),
+                    MessageReplacement(order.itemCompleted.toString()),
+                    MessageReplacement(order.itemAmount.toString()),
+                ),
             )
-        )
         order.messageOwner(ownerMessage)
     }
 }

@@ -6,7 +6,6 @@ import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 
-
 class GetOrders {
     @CommandPermission("joblistings.view.orders")
     @Description("View all pending orders")

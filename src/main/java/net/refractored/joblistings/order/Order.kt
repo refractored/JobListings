@@ -22,7 +22,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import revxrsal.commands.bukkit.player
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 /**
  * Represents a order that has been placed on the job board
@@ -31,44 +31,37 @@ import java.util.*
 data class Order(
     @DatabaseField(id = true)
     val id: UUID,
-
     /**
      * The reward of the order if completed
      */
     @DatabaseField
     var cost: Double,
-
     /**
      * The player's uuid who created the order
      */
     @DatabaseField
     var user: UUID,
-
     /**
      * The player's uuid who accepted the order
      */
     @DatabaseField
     var assignee: UUID?,
-
     /**
      * The time the order was created
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCreated: LocalDateTime,
-
     /**
      * The time the order expires
      * This is only used if the order was never claimed
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeExpires: LocalDateTime,
-
     /**
      * The time the order was claimed
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeClaimed: LocalDateTime?,
-
     /**
      * The time the order is due
      * This is only used if the order was claimed
@@ -76,26 +69,22 @@ data class Order(
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeDeadline: LocalDateTime?,
-
     /**
      * The time the order was completed
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeCompleted: LocalDateTime?,
-
     /**
      * The time the order gets permanently removed
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timePickup: LocalDateTime?,
-
     /**
      * The status of the order
      * @see OrderStatus
      */
     @DatabaseField
     var status: OrderStatus,
-
     /**
      * The item
      *
@@ -104,33 +93,28 @@ data class Order(
      */
     @DatabaseField(persisterClass = ItemstackSerializers::class)
     var item: ItemStack,
-
     /**
      * The amount of items required to complete the order
      */
     @DatabaseField
     var itemAmount: Int,
-
     /**
      * The amount of items the assignee has turned in
      */
     @DatabaseField
     var itemCompleted: Int,
-
     /**
      * The amount of items has been returned to the assignee
      * ONLY if the order was not completed in time, or cancelled.
      */
     @DatabaseField
     var itemsReturned: Int,
-
     /**
      * The amount of items has been obtained by the user
      * ONLY if the order was completed in time.
      */
     @DatabaseField
     var itemsObtained: Int,
-
 ) {
     /**
      * This constructor should only be used for ORMLite
@@ -158,30 +142,27 @@ data class Order(
      * Get the display name of the item
      * @return The display name of the item
      */
-    fun getItemInfo(): Component {
-        return MessageUtil.getMessage(
+    fun getItemInfo(): Component =
+        MessageUtil.getMessage(
             "Orders.OrderInfo",
             listOf(
                 MessageReplacement(item.displayName()),
                 MessageReplacement(itemAmount.toString()),
                 MessageReplacement(cost.toString()), // Optional
-            )
+            ),
         )
-    }
 
     /**
      * Get the OfflinePlayer of the owner of the order
      * @return The owner of the order
      */
-    fun getOwner() : OfflinePlayer {
-        return Bukkit.getOfflinePlayer(user)
-    }
+    fun getOwner(): OfflinePlayer = Bukkit.getOfflinePlayer(user)
 
     /**
      * Get the OfflinePlayer of the assignee of the order
      * @return The assignee of the order, or null if there is no assignee
      */
-    fun getAssignee() : OfflinePlayer? {
+    fun getAssignee(): OfflinePlayer? {
         val assigneeUUID = assignee ?: return null
         return Bukkit.getOfflinePlayer(assigneeUUID)
     }
@@ -213,7 +194,10 @@ data class Order(
      * @throws IllegalArgumentException if the assignee is the same as the user
      * @throws IllegalArgumentException if the order is not pending
      */
-    fun acceptOrder(assigneePlayer: Player, notify: Boolean = true) {
+    fun acceptOrder(
+        assigneePlayer: Player,
+        notify: Boolean = true,
+    ) {
         if (assignee != null) {
             throw IllegalArgumentException("Order already has an assignee")
         }
@@ -241,7 +225,7 @@ data class Order(
         messageAssignee(
             MessageUtil.getMessage(
                 "AllOrders.OrderAccepted",
-            )
+            ),
         )
     }
 
@@ -262,7 +246,10 @@ data class Order(
      * @param pay Whether to pay the assignee, default is true
      * @param notify Whether to notify the user and assignee, default is true
      */
-    fun completeOrder(pay: Boolean = true, notify: Boolean = true) {
+    fun completeOrder(
+        pay: Boolean = true,
+        notify: Boolean = true,
+    ) {
         val assigneePlayer = getAssignee() ?: throw IllegalStateException("Order does not have an assignee")
         itemCompleted = itemAmount
         status = OrderStatus.COMPLETED
@@ -272,25 +259,27 @@ data class Order(
         if (pay) {
             eco.depositPlayer(
                 assigneePlayer,
-                cost
+                cost,
             )
         }
         if (!notify) return
-        val assigneeMessage = MessageUtil.getMessage(
-            "OrderComplete.CompletedMessageAssignee",
-            listOf(
-                MessageReplacement(getItemInfo()),
-                MessageReplacement(cost.toString()),
+        val assigneeMessage =
+            MessageUtil.getMessage(
+                "OrderComplete.CompletedMessageAssignee",
+                listOf(
+                    MessageReplacement(getItemInfo()),
+                    MessageReplacement(cost.toString()),
+                ),
             )
-        )
         messageAssignee(assigneeMessage)
-        val ownerMessage = MessageUtil.getMessage(
-            "OrderComplete.CompletedMessageOwner",
-            listOf(
-                MessageReplacement(getItemInfo()),
-                MessageReplacement(getAssignee()?.name ?: "Unknown"),
+        val ownerMessage =
+            MessageUtil.getMessage(
+                "OrderComplete.CompletedMessageOwner",
+                listOf(
+                    MessageReplacement(getItemInfo()),
+                    MessageReplacement(getAssignee()?.name ?: "Unknown"),
+                ),
             )
-        )
         messageOwner(ownerMessage)
     }
 
@@ -305,15 +294,19 @@ data class Order(
         eco.depositPlayer(getOwner(), cost)
         orderDao.delete(this)
         if (notify) {
-            val message = Component.text()
-                .append(MessageUtil.toComponent(
-                    "<red>Your order, <gray>"
-                ))
-                .append(getItemInfo())
-                .append(MessageUtil.toComponent(
-                    "<red>has expired and you were refunded!"
-                ))
-                .build()
+            val message =
+                Component
+                    .text()
+                    .append(
+                        MessageUtil.toComponent(
+                            "<red>Your order, <gray>",
+                        ),
+                    ).append(getItemInfo())
+                    .append(
+                        MessageUtil.toComponent(
+                            "<red>has expired and you were refunded!",
+                        ),
+                    ).build()
             messageOwner(message)
         }
     }
@@ -336,26 +329,34 @@ data class Order(
         }
         if (!notify) return
         // TODO: MESSAGE-IFY
-        val ownerMessage = Component.text()
-            .append(MessageUtil.toComponent(
-                "<red>One of your orders, <gray>"
-            ))
-            .append(getItemInfo())
-            .append(MessageUtil.toComponent(
-                "<red>could not be completed in time and you were refunded!"
-            ))
-            .build()
+        val ownerMessage =
+            Component
+                .text()
+                .append(
+                    MessageUtil.toComponent(
+                        "<red>One of your orders, <gray>",
+                    ),
+                ).append(getItemInfo())
+                .append(
+                    MessageUtil.toComponent(
+                        "<red>could not be completed in time and you were refunded!",
+                    ),
+                ).build()
         messageOwner(ownerMessage)
         if (assignee == null) return // This should never be null, but just in case
-        val assigneeMessage = Component.text()
-            .append(MessageUtil.toComponent(
-                "<red>You were unable to complete your order, <gray>"
-            ))
-            .append(getItemInfo())
-            .append(MessageUtil.toComponent(
-                "<red>in time!"
-            ))
-            .build()
+        val assigneeMessage =
+            Component
+                .text()
+                .append(
+                    MessageUtil.toComponent(
+                        "<red>You were unable to complete your order, <gray>",
+                    ),
+                ).append(getItemInfo())
+                .append(
+                    MessageUtil.toComponent(
+                        "<red>in time!",
+                    ),
+                ).build()
         messageAssignee(assigneeMessage)
     }
 
@@ -364,8 +365,8 @@ data class Order(
      * @param itemArg The itemstack to compare
      * @return Whether the itemstack matches the order itemstack
      */
-     fun itemMatches(itemArg: ItemStack): Boolean {
-        ecoPlugin.let{
+    fun itemMatches(itemArg: ItemStack): Boolean {
+        ecoPlugin.let {
             Items.getCustomItem(item)?.let { customItem ->
                 return customItem.matches(itemArg)
             }
@@ -373,9 +374,7 @@ data class Order(
         return item.isSimilar(itemArg)
     }
 
-    fun isOrderExpired(): Boolean {
-        return LocalDateTime.now().isAfter(timeExpires)
-    }
+    fun isOrderExpired(): Boolean = LocalDateTime.now().isAfter(timeExpires)
 
     fun isOrderDeadlinePassed(): Boolean {
         val deadline = timeDeadline ?: return false
@@ -388,7 +387,6 @@ data class Order(
     }
 
     companion object {
-
         /**
          * Create a new order and insert it into the database
          * @param user The user who created the order
@@ -404,7 +402,7 @@ data class Order(
             item: ItemStack,
             amount: Int,
             hours: Long,
-        ) : Order {
+        ): Order {
             val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
             when {
                 maxItems == -1 && amount > item.maxStackSize -> {
@@ -421,24 +419,25 @@ data class Order(
                 throw IllegalArgumentException("Order time exceeds maximum")
             }
             item.amount = 1
-            val order = Order(
-                UUID.randomUUID(),
-                cost,
-                user,
-                null,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(hours),
-                null,
-                null,
-                null,
-                null,
-                OrderStatus.PENDING,
-                item,
-                amount,
-                0,
-                0,
-                0,
-            )
+            val order =
+                Order(
+                    UUID.randomUUID(),
+                    cost,
+                    user,
+                    null,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusHours(hours),
+                    null,
+                    null,
+                    null,
+                    null,
+                    OrderStatus.PENDING,
+                    item,
+                    amount,
+                    0,
+                    0,
+                    0,
+                )
             orderDao.create(order)
             return order
         }
@@ -449,7 +448,10 @@ data class Order(
          * @param offset Starting point for the current page
          * @return List of newest orders for the current page
          */
-        fun getPendingOrders(limit: Int, offset: Int): List<Order> {
+        fun getPendingOrders(
+            limit: Int,
+            offset: Int,
+        ): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.where().eq("status", OrderStatus.PENDING)
             queryBuilder.limit(limit.toLong())
@@ -464,7 +466,11 @@ data class Order(
          * @param playerUUID Player UUID to get orders for
          * @return List of newest orders for the current page
          */
-        fun getPlayerCreatedOrders(limit: Int, offset: Int, playerUUID: UUID): List<Order> {
+        fun getPlayerCreatedOrders(
+            limit: Int,
+            offset: Int,
+            playerUUID: UUID,
+        ): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.where().eq("user", playerUUID)
             queryBuilder.limit(limit.toLong())
@@ -479,16 +485,22 @@ data class Order(
          * @param playerUUID Player UUID to get orders for
          * @return List of newest orders for the current page
          */
-        fun getPlayerAcceptedOrders(limit: Int, offset: Int, playerUUID: UUID): List<Order> {
+        fun getPlayerAcceptedOrders(
+            limit: Int,
+            offset: Int,
+            playerUUID: UUID,
+        ): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder
-                .where().eq("assignee", playerUUID)
-                .and().eq("status", OrderStatus.CLAIMED)
-                .or().eq("status", OrderStatus.INCOMPLETE)
+                .where()
+                .eq("assignee", playerUUID)
+                .and()
+                .eq("status", OrderStatus.CLAIMED)
+                .or()
+                .eq("status", OrderStatus.INCOMPLETE)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
-
         }
 
         /**
@@ -530,7 +542,5 @@ data class Order(
                 orderDao.delete(order)
             }
         }
-
-
     }
 }

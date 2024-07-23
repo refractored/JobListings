@@ -11,14 +11,16 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-
 class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARRAY, arrayOf<Class<*>>(ItemStack::class.java)) {
+    override fun parseDefaultString(
+        fieldType: FieldType?,
+        defaultStr: String?,
+    ): Any? = null
 
-    override fun parseDefaultString(fieldType: FieldType?, defaultStr: String?): Any? {
-        return null
-    }
-
-    override fun javaToSqlArg(fieldType: FieldType?, javaObject: Any?): ByteArray? {
+    override fun javaToSqlArg(
+        fieldType: FieldType?,
+        javaObject: Any?,
+    ): ByteArray? {
         if (javaObject == null) {
             return null
         }
@@ -34,11 +36,17 @@ class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARR
         }
     }
 
-    override fun resultToSqlArg(fieldType: FieldType?, results: DatabaseResults?, columnPos: Int): Any {
-        return results!!.getBytes(columnPos)
-    }
+    override fun resultToSqlArg(
+        fieldType: FieldType?,
+        results: DatabaseResults?,
+        columnPos: Int,
+    ): Any = results!!.getBytes(columnPos)
 
-    override fun sqlArgToJava(fieldType: FieldType?, sqlArg: Any?, columnPos: Int): Any? {
+    override fun sqlArgToJava(
+        fieldType: FieldType?,
+        sqlArg: Any?,
+        columnPos: Int,
+    ): Any? {
         if (sqlArg == null) {
             return null
         }
@@ -55,13 +63,10 @@ class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARR
         }
     }
 
-
     companion object {
         private val singleTon = ItemstackSerializers()
 
         @JvmStatic
-        fun getSingleton(): ItemstackSerializers {
-            return singleTon
-        }
+        fun getSingleton(): ItemstackSerializers = singleTon
     }
 }
