@@ -8,7 +8,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.SECTION_CHAR
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.JobListings.Companion.essentials
 import net.refractored.joblistings.database.Database.Companion.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
@@ -48,7 +47,7 @@ data class Mail(
         ) {
             if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
             // If essentials is enabled, and config option is enabled, use essentials mail
-            essentials?.let {
+            JobListings.instance.essentials?.let {
                 if (!JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) {
                     val essPlayer = it.userMap.getUser(user)
                     val expireTime =
@@ -85,7 +84,7 @@ data class Mail(
         fun purgeMail() {
             if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
             if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) return
-            essentials.let {
+            JobListings.instance.essentials.let {
                 if (JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) return
             }
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()

@@ -3,7 +3,6 @@ package net.refractored.joblistings.commands
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
@@ -83,7 +82,7 @@ class CreateOrderMaterial {
             )
         }
 
-        if (eco.getBalance(actor.player) < cost) {
+        if (JobListings.instance.eco.getBalance(actor.player) < cost) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
             )
@@ -148,7 +147,7 @@ class CreateOrderMaterial {
 
         item.amount = 1
 
-        eco.withdrawPlayer(actor.player, cost)
+        JobListings.instance.eco.withdrawPlayer(actor.player, cost)
 
         val orderInfo =
             Order

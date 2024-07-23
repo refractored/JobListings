@@ -21,6 +21,30 @@ import java.io.File
  */
 class JobListings : JavaPlugin() {
     /**
+     * The plugin's GUI manager
+     */
+    lateinit var spiGUI: SpiGUI
+        private set
+
+    /**
+     * Economy Provider
+     */
+    lateinit var eco: Economy
+        private set
+
+    /**
+     * Essentials
+     */
+    var essentials: Essentials? = null
+        private set
+
+    /**
+     * Returns true if eco is loaded
+     */
+    var ecoPlugin: Boolean = false
+        private set
+
+    /**
      * The command handler
      */
     private lateinit var handler: BukkitCommandHandler
@@ -130,33 +154,9 @@ class JobListings : JavaPlugin() {
 
     companion object {
         /**
-         * Economy Provider
-         */
-        lateinit var eco: Economy
-            private set
-
-        /**
-         * Essentials
-         */
-        var essentials: Essentials? = null
-            private set
-
-        /**
-         * Returns true if eco is loaded
-         */
-        var ecoPlugin: Boolean = false
-            private set
-
-        /**
          * The plugin's instance
          */
         lateinit var instance: JobListings
-            private set
-
-        /**
-         * The plugin's GUI manager
-         */
-        lateinit var spiGUI: SpiGUI
             private set
     }
 }

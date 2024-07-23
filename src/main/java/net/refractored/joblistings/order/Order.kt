@@ -7,8 +7,6 @@ import com.samjakob.spigui.item.ItemBuilder
 import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.JobListings.Companion.eco
-import net.refractored.joblistings.JobListings.Companion.ecoPlugin
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -237,7 +235,7 @@ data class Order(
         if (status != OrderStatus.PENDING) {
             throw IllegalStateException("Order cannot be removed if it is not pending")
         }
-        eco.depositPlayer(getOwner(), cost)
+        JobListings.instance.eco.depositPlayer(getOwner(), cost)
         orderDao.delete(this)
     }
 
@@ -257,7 +255,7 @@ data class Order(
         timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.PickupDeadline"))
         orderDao.update(this)
         if (pay) {
-            eco.depositPlayer(
+            JobListings.instance.eco.depositPlayer(
                 assigneePlayer,
                 cost,
             )
@@ -291,7 +289,7 @@ data class Order(
         if (status == OrderStatus.INCOMPLETE) {
             throw IllegalStateException("Order cannot be marked expired if its status is INCOMPLETE")
         }
-        eco.depositPlayer(getOwner(), cost)
+        JobListings.instance.eco.depositPlayer(getOwner(), cost)
         orderDao.delete(this)
         if (notify) {
             val message =
@@ -320,7 +318,7 @@ data class Order(
             throw IllegalStateException("Order is already marked incomplete")
         }
         status = OrderStatus.INCOMPLETE
-        eco.depositPlayer(getOwner(), cost)
+        JobListings.instance.eco.depositPlayer(getOwner(), cost)
         if (itemCompleted == 0) {
             // No point of keeping the order if no items were turned in
             orderDao.delete(this)
@@ -366,7 +364,7 @@ data class Order(
      * @return Whether the itemstack matches the order itemstack
      */
     fun itemMatches(itemArg: ItemStack): Boolean {
-        ecoPlugin.let {
+        JobListings.instance.ecoPlugin.let {
             Items.getCustomItem(item)?.let { customItem ->
                 return customItem.matches(itemArg)
             }

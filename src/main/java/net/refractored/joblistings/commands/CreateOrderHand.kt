@@ -3,7 +3,6 @@ package net.refractored.joblistings.commands
 import com.j256.ormlite.stmt.QueryBuilder
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.JobListings.Companion.eco
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -24,7 +23,7 @@ class CreateOrderHand {
     @CommandPermission("joblistings.create.hand")
     @Description("Create an order from the item in your hand")
     @Command("joblistings create hand")
-    fun CreateOrder(
+    fun createOrderHand(
         actor: BukkitCommandActor,
         cost: Double,
         @Optional amount: Int = 1,
@@ -84,7 +83,7 @@ class CreateOrderHand {
             )
         }
 
-        if (eco.getBalance(actor.player) < cost) {
+        if (JobListings.instance.eco.getBalance(actor.player) < cost) {
             throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
             )
@@ -159,7 +158,7 @@ class CreateOrderHand {
 
         item.amount = 1
 
-        eco.withdrawPlayer(actor.player, cost)
+        JobListings.instance.eco.withdrawPlayer(actor.player, cost)
 
         Order.createOrder(
             actor.uniqueId,

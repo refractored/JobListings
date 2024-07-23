@@ -7,9 +7,7 @@ import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
-import net.refractored.joblistings.JobListings.Companion.eco
-import net.refractored.joblistings.JobListings.Companion.ecoPlugin
-import net.refractored.joblistings.JobListings.Companion.spiGUI
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
@@ -29,7 +27,7 @@ class MyOrders {
     companion object {
         fun openMyOrders(actor: BukkitCommandActor) {
             val gui =
-                spiGUI.create(
+                JobListings.instance.spiGUI.create(
                     LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
                         MessageUtil.getMessage(
                             "MyOrders.Title",
@@ -267,7 +265,7 @@ class MyOrders {
                                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                                 )
                                 gui.removeButton((index + 10) + (gui.currentPage * 45))
-                                eco.depositPlayer(actor.player, order.cost)
+                                JobListings.instance.eco.depositPlayer(actor.player, order.cost)
                                 orderDao.delete(order)
                                 reloadItems(gui, actor)
                                 gui.refreshInventory(actor.player)
@@ -277,7 +275,7 @@ class MyOrders {
                                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                                 )
                                 gui.removeButton((index + 10) + (gui.currentPage * 45))
-                                eco.depositPlayer(actor.player, (order.cost / 2))
+                                JobListings.instance.eco.depositPlayer(actor.player, (order.cost / 2))
                                 order.incompleteOrder()
                                 val assigneeMessage =
                                     MessageUtil.getMessage(
@@ -344,7 +342,7 @@ class MyOrders {
             item: ItemStack,
             order: Order,
         ): Boolean {
-            ecoPlugin.let {
+            JobListings.instance.ecoPlugin.let {
                 if (Items.isCustomItem(item)) {
                     return Items.getCustomItem(order.item)!!.matches(item)
                 }

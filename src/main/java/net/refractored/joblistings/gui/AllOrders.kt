@@ -7,8 +7,6 @@ import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.JobListings.Companion.essentials
-import net.refractored.joblistings.JobListings.Companion.spiGUI
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
@@ -28,7 +26,7 @@ class AllOrders {
     companion object {
         fun openAllOrders(actor: BukkitCommandActor) {
             val gui =
-                spiGUI.create(
+                JobListings.instance.spiGUI.create(
                     // Me when no component support :((((
                     LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
                         MessageUtil.getMessage(
@@ -163,7 +161,7 @@ class AllOrders {
                         ),
                     )
 
-                val OrderItemLore =
+                val orderItemLore =
                     MessageUtil.getMessageList(
                         "AllOrders.OrderItemLore",
                         listOf(
@@ -177,10 +175,10 @@ class AllOrders {
 
                 if (itemMetaCopy.hasLore()) {
                     val itemLore = itemMetaCopy.lore()!!
-                    itemLore.addAll(OrderItemLore)
+                    itemLore.addAll(orderItemLore)
                     itemMetaCopy.lore(itemLore)
                 } else {
-                    itemMetaCopy.lore(OrderItemLore)
+                    itemMetaCopy.lore(orderItemLore)
                 }
 
                 item.itemMeta = itemMetaCopy
@@ -210,7 +208,7 @@ class AllOrders {
                             )
                             return@withListener
                         }
-                        essentials?.let {
+                        JobListings.instance.essentials?.let {
                             if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
                                 val player =
                                     it.userMap.load(
