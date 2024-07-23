@@ -11,7 +11,7 @@ class ReloadCommand {
     @CommandPermission("joblistings.admin.reload")
     @Description("Reloads plugin configuration")
     @Command("joblistings reload")
-    fun viewOrder(actor: BukkitCommandActor) {
+    fun reload(actor: BukkitCommandActor) {
         JobListings.instance.reload()
         actor.reply(MessageUtil.getMessage("Reload.Reloaded"))
     }
