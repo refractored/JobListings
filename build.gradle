@@ -1,7 +1,7 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "io.github.goooler.shadow" version "8.1.8"
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.9.23'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
 }
 
 group = 'net.refractored'
@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
 
     compileOnly("com.willfp:eco:6.70.1")
 
@@ -38,8 +38,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     // Lamp (Commands)
-    implementation "com.github.Revxrsal.Lamp:common:3.1.9"
-    implementation "com.github.Revxrsal.Lamp:bukkit:3.1.9"
+    implementation "com.github.Revxrsal.Lamp:common:3.2.1"
+    implementation "com.github.Revxrsal.Lamp:bukkit:3.2.1"
 
     // Adventure (Components)
     compileOnly "net.kyori:adventure-platform-bukkit:4.1.2"
@@ -57,7 +57,7 @@ dependencies {
 
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
@@ -83,12 +83,12 @@ processResources {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "21"
     kotlinOptions.javaParameters = true
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "21"
 }
 
 compileJava {
