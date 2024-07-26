@@ -53,10 +53,8 @@ class Database {
             LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
 
             if (JobListings.instance.config.getString("Database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME") {
-                JobListings.instance.logger.severe("Database not setup in config. Disabling plugin.")
-                JobListings.instance.server.pluginManager
-                    .disablePlugin(JobListings.instance)
-                return
+                JobListings.instance.logger.severe("Database not setup in config.")
+                throw Exception("Database not setup in config.")
             }
 
             connectionSource =
