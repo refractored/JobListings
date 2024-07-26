@@ -18,12 +18,11 @@ import org.bukkit.Material
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import revxrsal.commands.bukkit.player
 import java.time.LocalDateTime
 import java.util.UUID
 
 /**
- * Represents a order that has been placed on the job board
+ * Represents an order that has been placed on the job board
  */
 @DatabaseTable(tableName = "joblistings_orders")
 data class Order(

@@ -46,7 +46,7 @@ class CreateOrderMaterial {
             )
         }
 
-        if (hours > JobListings.instance.config.getLong("CreateOrder.MaxOrdersTime")) {
+        if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
             throw net.refractored.joblistings.exceptions.CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMaxHoursConfig",
