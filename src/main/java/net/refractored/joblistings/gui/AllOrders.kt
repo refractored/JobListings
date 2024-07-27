@@ -211,12 +211,12 @@ class AllOrders {
                         JobListings.instance.essentials?.let {
                             if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
                                 val player =
-                                    it.userMap.load(
-                                        actor.player,
+                                    it.users.load(
+                                        actor.player.uniqueId,
                                     )
                                 val owner =
-                                    it.userMap.load(
-                                        Bukkit.getOfflinePlayer(order.user),
+                                    it.users.load(
+                                        Bukkit.getOfflinePlayer(order.user).uniqueId,
                                     )
                                 if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
                                     event.whoClicked.closeInventory()

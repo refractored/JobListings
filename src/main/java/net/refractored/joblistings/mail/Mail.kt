@@ -49,7 +49,7 @@ data class Mail(
             // If essentials is enabled, and config option is enabled, use essentials mail
             JobListings.instance.essentials?.let {
                 if (!JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) {
-                    val essPlayer = it.userMap.getUser(user)
+                    val essPlayer = it.users.getUser(user)
                     val expireTime =
                         if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
                             0L
