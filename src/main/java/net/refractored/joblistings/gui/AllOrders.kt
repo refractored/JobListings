@@ -118,7 +118,7 @@ class AllOrders {
         val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
         val expireDurationText =
             MessageUtil.getMessage(
-                "AllOrders.ExpireDuration",
+                "General.DateFormat",
                 listOf(
                     MessageReplacement(expireDuration.toDays().toString()),
                     MessageReplacement(expireDuration.toHoursPart().toString()),
@@ -128,7 +128,7 @@ class AllOrders {
         val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
         val createdDurationText =
             MessageUtil.getMessage(
-                "AllOrders.CreatedDuration",
+                "General.DatePastTense",
                 listOf(
                     MessageReplacement(createdDuration.toDays().toString()),
                     MessageReplacement(createdDuration.toHoursPart().toString()),
