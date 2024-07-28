@@ -1,0 +1,53 @@
+#
+# JobListings
+# by refractored
+#
+AllOrders:
+  # %0 = Current Page
+  # %1 = Max Pages
+  Title: "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page %0/%1)"
+  Rows: 6
+  # Orderslots is the slots the plugin will attempt to load an order.
+  # If there aren't enough orders to fill up each slot, it will use the FallbackItem to fill in the rest.
+  # To customize the lore, use messages.yml
+  OrderSlots:
+    - 1
+    - 2
+    - 3
+    - 4
+  # The item to show if an order could not be loaded.
+  FallbackItem:
+    Name: ""
+    Material: "AIR"
+    Amount: 1
+    ModelData: 0
+    Lore:
+      - ""
+  NextPage:
+    Name: ""
+    Material: ""
+    Amount: 1
+    ModelData: 0
+    Lore:
+      - ""
+    Slots:
+      - 1
+  PreviousPage:
+    Name: ""
+    Material: ""
+    Amount: 1
+    ModelData: 0
+    Lore:
+      - ""
+    Slots:
+      - 1
+  Items:
+    GlassPane:
+      Name: ""
+      Material: "BLUE_STAINED_GLASS_PANE"
+      Amount: 1
+      ModelData: 0
+      Lore:
+        - ""
+      Slots:
+        - 1

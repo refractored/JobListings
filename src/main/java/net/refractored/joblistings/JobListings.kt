@@ -55,6 +55,12 @@ class JobListings : JavaPlugin() {
     lateinit var messages: FileConfiguration
         private set
 
+    /**
+     * The gui configuration
+     */
+    lateinit var gui: FileConfiguration
+        private set
+
     private lateinit var cleanDatabase: BukkitTask
 
     override fun onEnable() {
@@ -65,12 +71,19 @@ class JobListings : JavaPlugin() {
 
         // Save default configs
         saveDefaultConfig()
+
         if (!File(dataFolder, "messages.yml").exists()) {
             saveResource("messages.yml", false)
         }
 
+        if (!File(dataFolder, "gui.yml").exists()) {
+            saveResource("gui.yml", false)
+        }
+
         // Load messages config
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
+        // Load gui config
+        gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
 
         // Initialize the database
         Database.init()
