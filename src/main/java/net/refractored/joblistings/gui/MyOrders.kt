@@ -28,8 +28,8 @@ class MyOrders {
         JobListings.instance.spiGUI.create(
             // Me when no component support :((((
             LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                MessageUtil.getMessage(
-                    "AllOrders.Title",
+                MessageUtil.replaceMessage(
+                    config.getString("Title")!!,
                     listOf(
                         // I only did this for consistency in the messages.yml
                         MessageReplacement("{currentPage}"),
@@ -37,7 +37,7 @@ class MyOrders {
                     ),
                 ),
             ),
-            JobListings.instance.gui.getInt("AllOrders.Rows", 6),
+            config.getInt("Rows", 6),
         )
 
     init {
@@ -478,8 +478,8 @@ class MyOrders {
          * @return The gui.
          */
         fun getGUI(): SGMenu {
-            val allOrders = AllOrders()
-            return allOrders.gui
+            val myOrders = MyOrders()
+            return myOrders.gui
         }
     }
 }

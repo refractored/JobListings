@@ -38,6 +38,29 @@ class MessageUtil {
             }
         }
 
+        fun replaceMessage(
+            miniMessage: String,
+            replacements: List<MessageReplacement>,
+        ): Component {
+            var replacedMessage = miniMessage
+
+            for ((index, replacement) in replacements.withIndex()) {
+                if (replacement.string != null) {
+                    replacedMessage = replacedMessage.replace("%$index", replacement.string)
+                } else if (replacement.component != null) {
+                    replacedMessage =
+                        replacedMessage.replace(
+                            "%$index",
+                            MiniMessage
+                                .miniMessage()
+                                .serialize(replacement.component),
+                        )
+                }
+            }
+
+            return toComponent(replacedMessage)
+        }
+
         fun getMessage(
             key: String,
             replacements: List<MessageReplacement>,

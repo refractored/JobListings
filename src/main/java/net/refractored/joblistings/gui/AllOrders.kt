@@ -3,6 +3,7 @@ package net.refractored.joblistings.gui
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
@@ -27,8 +28,8 @@ class AllOrders {
         JobListings.instance.spiGUI.create(
             // Me when no component support :((((
             LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                MessageUtil.getMessage(
-                    "AllOrders.Title",
+                MessageUtil.replaceMessage(
+                    config.getString("Title")!!,
                     listOf(
                         // I only did this for consistency in the messages.yml
                         MessageReplacement("{currentPage}"),
@@ -82,6 +83,40 @@ class AllOrders {
             val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: getFallbackButton()
             gui.setButton(slot + getOffset(page), button)
         }
+    }
+
+    /**
+     * Generate Item from data
+     * @return The generated Itemstack
+     */
+    private fun generateItem(
+        material: Material,
+        amount: Int,
+        modelData: Int,
+        name: String,
+        lore: List<Component>,
+    ): ItemStack {
+        val item =
+            ItemStack.of(
+                material,
+            )
+        if (item.type == Material.AIR) return item
+        item.amount = amount
+        val itemMeta = item.itemMeta
+        itemMeta.setCustomModelData(
+            modelData,
+        )
+        itemMeta.displayName(
+            MessageUtil
+                .toComponent(
+                    name,
+                ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+        )
+        item.itemMeta = itemMeta
+        item.lore(
+            lore,
+        )
+        return item
     }
 
     private fun getFallbackButton(): SGButton {
@@ -251,38 +286,20 @@ class AllOrders {
                 config.getConfigurationSection("PreviousPage")!!,
             )
         navKeys.forEach {
-            val item =
-                ItemStack.of(
-                    Material.valueOf(
-                        it.getString("Material") ?: "BEDROCK",
+            val button =
+                SGButton(
+                    generateItem(
+                        Material.valueOf(
+                            it.getString("Material", "BEDROCK")!!,
+                        ),
+                        it.getInt("Amount"),
+                        it.getInt("ModelData"),
+                        it.getString("Name") ?: "null",
+                        it.getStringList("Amount").map { line ->
+                            MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                        },
                     ),
                 )
-            if (item.type != Material.AIR) {
-                item.amount = it.getInt("Amount")
-                val itemMeta = item.itemMeta
-                itemMeta.setCustomModelData(
-                    it.getInt("ModelData"),
-                )
-                itemMeta.itemName(
-                    MessageUtil.toComponent(it.getString("Name") ?: "null").decorationIfAbsent(
-                        TextDecoration.ITALIC,
-                        TextDecoration.State.FALSE,
-                    ),
-                )
-                itemMeta.displayName(
-                    MessageUtil
-                        .toComponent(
-                            it.getString("Name") ?: "null",
-                        ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                )
-                item.itemMeta = itemMeta
-                item.lore(
-                    it.getStringList("Amount").map { line ->
-                        MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                    },
-                )
-            }
-            val button = SGButton(item)
             when (it.name) {
                 "NextPage" -> {
                     button.setListener { event -> gui.nextPage(event.whoClicked) }
@@ -311,42 +328,25 @@ class AllOrders {
         val section = config.getConfigurationSection("Items")!!
         val keys = section.getKeys(false)
         for (key in keys) {
-            val item =
-                ItemStack.of(
-                    Material.valueOf(
-                        section.getString("$key.Material") ?: "BEDROCK",
-                    ),
-                )
-            item.amount = section.getInt("$key.Amount")
-            val itemMeta = item.itemMeta
-            itemMeta.itemName()
-            itemMeta.setCustomModelData(
-                section.getInt("$key.ModelData"),
-            )
-            itemMeta.itemName(
-                MessageUtil
-                    .toComponent(
-                        section.getString("Name") ?: "null",
-                    ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-            )
-            itemMeta.displayName(
-                MessageUtil
-                    .toComponent(
-                        section.getString("$key.Name") ?: "null",
-                    ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-            )
-            item.itemMeta = itemMeta
-            item.lore(
-                section.getStringList("$key.Amount").map {
-                    MessageUtil.toComponent(it).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                },
-            )
+            val subsection = section.getConfigurationSection(key)!!
             for (i in 0..<pageCount) {
                 val offset = getOffset(i)
                 section.getIntegerList("$key.Slots").forEach {
                     gui.setButton(
                         it + offset,
-                        SGButton(item),
+                        SGButton(
+                            generateItem(
+                                Material.valueOf(
+                                    subsection.getString("Material", "BEDROCK")!!,
+                                ),
+                                subsection.getInt("Amount"),
+                                subsection.getInt("ModelData"),
+                                subsection.getString("Name") ?: "null",
+                                subsection.getStringList("Amount").map { line ->
+                                    MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                                },
+                            ),
+                        ),
                     )
                     gui.stickSlot(it + offset)
                 }
