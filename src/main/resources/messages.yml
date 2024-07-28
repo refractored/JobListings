@@ -124,10 +124,6 @@ Help:
     <gray>/joblistings<white>: Displays this menu
 # The All Orders menu, this does not apply to ALL orders.
 AllOrders:
-  # The item used for the frame of the GUI.
-  BorderItem: "GREEN_STAINED_GLASS_PANE"
-  NextPage: "<gray>Next Page"
-  PreviousPage: "<gray>Previous Page"
   # %0 = Order Reward
   # %1 = Order Creator
   # %2 = Order Created
