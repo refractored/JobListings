@@ -3,7 +3,7 @@ package net.refractored.joblistings.gui
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
-import com.willfp.eco.core.gui.player
+import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
@@ -14,6 +14,7 @@ import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 import java.time.Duration
@@ -43,7 +44,6 @@ class AllOrders {
             inventory.clearAllButStickiedSlots()
             loadOrders(inventory.currentPage)
         }
-        JobListings.instance.logger.info("${JobListings.instance.gui.getConfigurationSection("AllOrders")!!}")
         loadNavButtons()
         loadCosmeticItems()
         loadOrders(0)
@@ -95,25 +95,27 @@ class AllOrders {
         if (item.type == Material.AIR) return SGButton(item)
         item.amount = fallbackConfig.getInt("Amount")
         val itemMeta = item.itemMeta
-        itemMeta.itemName()
         itemMeta.setCustomModelData(
             fallbackConfig.getInt("ModelData"),
         )
+        itemMeta.displayName(
+            MessageUtil
+                .toComponent(
+                    fallbackConfig.getString("Name") ?: "null",
+                ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+        )
         item.itemMeta = itemMeta
         item.lore(
-            fallbackConfig.getStringList("Amount").map { line -> MessageUtil.toComponent(line) },
+            fallbackConfig.getStringList("Amount").map { line ->
+                MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            },
         )
         return SGButton(item)
     }
 
     private fun getOrderButton(order: Order): SGButton {
         val item = order.item.clone()
-        item.amount =
-            if (order.itemAmount <= item.maxStackSize) {
-                order.itemAmount
-            } else {
-                item.maxStackSize
-            }
+        item.amount = minOf(order.itemAmount, item.maxStackSize)
         val itemMetaCopy = item.itemMeta
         val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
         val expireDurationText =
@@ -161,73 +163,85 @@ class AllOrders {
         val button = SGButton(item)
 
         button.setListener { event: InventoryClickEvent ->
-            if (order.user == event.player.uniqueId) {
-                event.whoClicked.closeInventory()
-                event.player.sendMessage(
-                    MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
-                )
-                return@setListener
-            }
-            if (order.status != OrderStatus.PENDING) {
-                event.whoClicked.closeInventory()
-                event.player.sendMessage(
-                    MessageUtil.getMessage("General.OrderAlreadyClaimed"),
-                )
-                return@setListener
-            }
-            if (order.isOrderExpired()) {
-                event.whoClicked.closeInventory()
-                event.player.sendMessage(
-                    MessageUtil.getMessage("General.OrderExpired"),
-                )
-                return@setListener
-            }
-            JobListings.instance.essentials?.let {
-                if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
-                    val player =
-                        it.users.load(
-                            event.player.uniqueId,
-                        )
-                    val owner =
-                        it.users.load(
-                            Bukkit.getOfflinePlayer(order.user).uniqueId,
-                        )
-                    if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
-                        event.whoClicked.closeInventory()
-                        event.player.sendMessage(
-                            MessageUtil.getMessage("General.Ignored"),
-                        )
-                        return@setListener
-                    }
-                }
-            }
-            val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-            queryBuilder
-                .where()
-                .eq("assignee", event.player.uniqueId)
-                .and()
-                .eq("status", OrderStatus.CLAIMED)
-            val orders = orderDao.query(queryBuilder.prepare())
-            if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")) {
-                event.whoClicked.closeInventory()
-                event.player.sendMessage(
-                    MessageUtil.getMessage(
-                        "AllOrders.OrderItemLore",
-                        listOf(
-                            MessageReplacement(
-                                JobListings.instance.config
-                                    .getInt("Orders.MaxOrdersAccepted")
-                                    .toString(),
-                            ),
-                        ),
-                    ),
-                )
-            }
-
-            order.acceptOrder(event.player)
-            event.whoClicked.closeInventory()
+            clickOrder(event, order)
         }
         return button
+    }
+
+    /**
+     * Handles the click event for an order.
+     * @param event The click event.
+     * @param order The order.
+     */
+    private fun clickOrder(
+        event: InventoryClickEvent,
+        order: Order,
+    ) {
+        if (order.user == event.whoClicked.uniqueId) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
+            )
+            return
+        }
+        if (order.status != OrderStatus.PENDING) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage("General.OrderAlreadyClaimed"),
+            )
+            return
+        }
+        if (order.isOrderExpired()) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage("General.OrderExpired"),
+            )
+            return
+        }
+        JobListings.instance.essentials?.let {
+            if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
+                val player =
+                    it.users.load(
+                        event.whoClicked.uniqueId,
+                    )
+                val owner =
+                    it.users.load(
+                        Bukkit.getOfflinePlayer(order.user).uniqueId,
+                    )
+                if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
+                    event.whoClicked.closeInventory()
+                    event.whoClicked.sendMessage(
+                        MessageUtil.getMessage("General.Ignored"),
+                    )
+                    return
+                }
+            }
+        }
+        val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+        queryBuilder
+            .where()
+            .eq("assignee", event.whoClicked.uniqueId)
+            .and()
+            .eq("status", OrderStatus.CLAIMED)
+        val orders = orderDao.query(queryBuilder.prepare())
+        if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage(
+                    "AllOrders.OrderItemLore",
+                    listOf(
+                        MessageReplacement(
+                            JobListings.instance.config
+                                .getInt("Orders.MaxOrdersAccepted")
+                                .toString(),
+                        ),
+                    ),
+                ),
+            )
+        }
+
+        order.acceptOrder(event.whoClicked as Player)
+        event.whoClicked.closeInventory()
     }
 
     private fun loadNavButtons() {
@@ -249,20 +263,32 @@ class AllOrders {
                 itemMeta.setCustomModelData(
                     it.getInt("ModelData"),
                 )
-                itemMeta.itemName(MessageUtil.toComponent(it.getString("Name") ?: "null"))
-                itemMeta.displayName(MessageUtil.toComponent(it.getString("Name") ?: "null"))
+                itemMeta.itemName(
+                    MessageUtil.toComponent(it.getString("Name") ?: "null").decorationIfAbsent(
+                        TextDecoration.ITALIC,
+                        TextDecoration.State.FALSE,
+                    ),
+                )
+                itemMeta.displayName(
+                    MessageUtil
+                        .toComponent(
+                            it.getString("Name") ?: "null",
+                        ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+                )
                 item.itemMeta = itemMeta
                 item.lore(
-                    it.getStringList("Amount").map { line -> MessageUtil.toComponent(line) },
+                    it.getStringList("Amount").map { line ->
+                        MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    },
                 )
             }
             val button = SGButton(item)
             when (it.name) {
                 "NextPage" -> {
-                    button.setListener { event -> gui.nextPage(event.player) }
+                    button.setListener { event -> gui.nextPage(event.whoClicked) }
                 }
                 "PreviousPage" -> {
-                    button.setListener { event -> gui.previousPage(event.player) }
+                    button.setListener { event -> gui.previousPage(event.whoClicked) }
                 }
             }
             for (i in 0..<pageCount) {
@@ -279,7 +305,7 @@ class AllOrders {
     }
 
     /**
-     * Loads all of the "cosmetic" items in the Items scetion of the config.
+     * Loads all the "cosmetic" items in the Items section of the config.
      */
     private fun loadCosmeticItems() {
         val section = config.getConfigurationSection("Items")!!
@@ -297,10 +323,24 @@ class AllOrders {
             itemMeta.setCustomModelData(
                 section.getInt("$key.ModelData"),
             )
-            itemMeta.itemName(MessageUtil.toComponent(section.getString("Name") ?: "null"))
-            itemMeta.displayName(MessageUtil.toComponent(section.getString("$key.Name") ?: "null"))
+            itemMeta.itemName(
+                MessageUtil
+                    .toComponent(
+                        section.getString("Name") ?: "null",
+                    ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+            )
+            itemMeta.displayName(
+                MessageUtil
+                    .toComponent(
+                        section.getString("$key.Name") ?: "null",
+                    ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+            )
             item.itemMeta = itemMeta
-            item.lore(section.getStringList("$key.Amount").map { MessageUtil.toComponent(it) })
+            item.lore(
+                section.getStringList("$key.Amount").map {
+                    MessageUtil.toComponent(it).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                },
+            )
             for (i in 0..<pageCount) {
                 val offset = getOffset(i)
                 section.getIntegerList("$key.Slots").forEach {

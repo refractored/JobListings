@@ -5,12 +5,13 @@ import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
+import revxrsal.commands.bukkit.player
 
 class ViewOrder {
     @CommandPermission("joblistings.view.owned")
     @Description("View and manage orders you own")
     @Command("joblistings owned")
     fun viewOrder(actor: BukkitCommandActor) {
-        MyOrders.openMyOrders(actor)
+        actor.player.openInventory(MyOrders.getGUI().inventory)
     }
 }
