@@ -43,21 +43,26 @@ class AllOrders {
             inventory.clearAllButStickiedSlots()
             loadOrders(inventory.currentPage)
         }
+        JobListings.instance.logger.info("${JobListings.instance.gui.getConfigurationSection("AllOrders")!!}")
         loadNavButtons()
         loadCosmeticItems()
         loadOrders(0)
     }
 
-    private val config = JobListings.instance.gui.getConfigurationSection("AllOrders")!!
+    private val config
+        get() = JobListings.instance.gui.getConfigurationSection("AllOrders")!!
 
-    private val rows = config.getInt("Rows", 6)
+    private val rows
+        get() = config.getInt("Rows", 6)
 
-    private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
+    private val orderSlots: List<Int>
+        get() = config.getIntegerList("OrderSlots")
 
-    private val pageCount =
-        ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().let {
-            if (it > 0) it else 1
-        }
+    private val pageCount
+        get() =
+            ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().let {
+                if (it > 0) it else 1
+            }
 
     /**
      * Gets the offset for the page number, based on the rows set in config.
@@ -73,8 +78,8 @@ class AllOrders {
     private fun loadOrders(page: Int) {
         gui.clearAllButStickiedSlots()
         val orders = Order.getPendingOrders(orderSlots.count(), page * orderSlots.count())
-        for (slot in orderSlots) {
-            val button: SGButton = orders.getOrNull(slot)?.let { getOrderButton(it) } ?: getFallbackButton()
+        for ((index, slot) in orderSlots.withIndex()) {
+            val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: getFallbackButton()
             gui.setButton(slot + getOffset(page), button)
         }
     }
@@ -87,6 +92,7 @@ class AllOrders {
                     fallbackConfig.getString("Material") ?: "BEDROCK",
                 ),
             )
+        if (item.type == Material.AIR) return SGButton(item)
         item.amount = fallbackConfig.getInt("Amount")
         val itemMeta = item.itemMeta
         itemMeta.itemName()
@@ -237,22 +243,34 @@ class AllOrders {
                         it.getString("Material") ?: "BEDROCK",
                     ),
                 )
-            item.amount = it.getInt("Amount")
-            val itemMeta = item.itemMeta
-            itemMeta.itemName()
-            itemMeta.setCustomModelData(
-                it.getInt("ModelData"),
-            )
-            item.itemMeta = itemMeta
-            item.lore(
-                it.getStringList("Amount").map { line -> MessageUtil.toComponent(line) },
-            )
+            if (item.type != Material.AIR) {
+                item.amount = it.getInt("Amount")
+                val itemMeta = item.itemMeta
+                itemMeta.setCustomModelData(
+                    it.getInt("ModelData"),
+                )
+                itemMeta.itemName(MessageUtil.toComponent(it.getString("Name") ?: "null"))
+                itemMeta.displayName(MessageUtil.toComponent(it.getString("Name") ?: "null"))
+                item.itemMeta = itemMeta
+                item.lore(
+                    it.getStringList("Amount").map { line -> MessageUtil.toComponent(line) },
+                )
+            }
+            val button = SGButton(item)
+            when (it.name) {
+                "NextPage" -> {
+                    button.setListener { event -> gui.nextPage(event.player) }
+                }
+                "PreviousPage" -> {
+                    button.setListener { event -> gui.previousPage(event.player) }
+                }
+            }
             for (i in 0..<pageCount) {
                 val offset = getOffset(i)
                 it.getIntegerList("Slots").forEach { slot ->
                     gui.setButton(
                         slot + offset,
-                        SGButton(item),
+                        button,
                     )
                     gui.stickSlot(slot + offset)
                 }
@@ -263,7 +281,7 @@ class AllOrders {
     /**
      * Loads all of the "cosmetic" items in the Items scetion of the config.
      */
-    fun loadCosmeticItems() {
+    private fun loadCosmeticItems() {
         val section = config.getConfigurationSection("Items")!!
         val keys = section.getKeys(false)
         for (key in keys) {
@@ -279,6 +297,8 @@ class AllOrders {
             itemMeta.setCustomModelData(
                 section.getInt("$key.ModelData"),
             )
+            itemMeta.itemName(MessageUtil.toComponent(section.getString("Name") ?: "null"))
+            itemMeta.displayName(MessageUtil.toComponent(section.getString("$key.Name") ?: "null"))
             item.itemMeta = itemMeta
             item.lore(section.getStringList("$key.Amount").map { MessageUtil.toComponent(it) })
             for (i in 0..<pageCount) {

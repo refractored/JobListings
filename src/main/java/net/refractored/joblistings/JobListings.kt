@@ -163,6 +163,7 @@ class JobListings : JavaPlugin() {
     fun reload() {
         reloadConfig()
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
+        gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
     }
 
     companion object {
