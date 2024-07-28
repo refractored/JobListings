@@ -55,10 +55,8 @@ class AllOrders {
     private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
 
     private val pageCount =
-        if (ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt() > 0) {
-            ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt()
-        } else {
-            1
+        ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().let {
+            if (it > 0) it else 1
         }
 
     /**
@@ -72,7 +70,7 @@ class AllOrders {
      * Clears all non-stickied slots, and loads the orders for the requested page.
      * @param page The page to load orders for.
      */
-    fun loadOrders(page: Int) {
+    private fun loadOrders(page: Int) {
         gui.clearAllButStickiedSlots()
         val orders = Order.getPendingOrders(orderSlots.count(), page * orderSlots.count())
         for (slot in orderSlots) {
@@ -154,76 +152,75 @@ class AllOrders {
 
         item.itemMeta = itemMetaCopy
 
-        val button =
-            SGButton(
-                item,
-            ).withListener { event: InventoryClickEvent ->
-                if (order.user == event.player.uniqueId) {
-                    event.whoClicked.closeInventory()
-                    event.player.sendMessage(
-                        MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
-                    )
-                    return@withListener
-                }
-                if (order.status != OrderStatus.PENDING) {
-                    event.whoClicked.closeInventory()
-                    event.player.sendMessage(
-                        MessageUtil.getMessage("General.OrderAlreadyClaimed"),
-                    )
-                    return@withListener
-                }
-                if (order.isOrderExpired()) {
-                    event.whoClicked.closeInventory()
-                    event.player.sendMessage(
-                        MessageUtil.getMessage("General.OrderExpired"),
-                    )
-                    return@withListener
-                }
-                JobListings.instance.essentials?.let {
-                    if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
-                        val player =
-                            it.users.load(
-                                event.player.uniqueId,
-                            )
-                        val owner =
-                            it.users.load(
-                                Bukkit.getOfflinePlayer(order.user).uniqueId,
-                            )
-                        if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
-                            event.whoClicked.closeInventory()
-                            event.player.sendMessage(
-                                MessageUtil.getMessage("General.Ignored"),
-                            )
-                            return@withListener
-                        }
+        val button = SGButton(item)
+
+        button.setListener { event: InventoryClickEvent ->
+            if (order.user == event.player.uniqueId) {
+                event.whoClicked.closeInventory()
+                event.player.sendMessage(
+                    MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
+                )
+                return@setListener
+            }
+            if (order.status != OrderStatus.PENDING) {
+                event.whoClicked.closeInventory()
+                event.player.sendMessage(
+                    MessageUtil.getMessage("General.OrderAlreadyClaimed"),
+                )
+                return@setListener
+            }
+            if (order.isOrderExpired()) {
+                event.whoClicked.closeInventory()
+                event.player.sendMessage(
+                    MessageUtil.getMessage("General.OrderExpired"),
+                )
+                return@setListener
+            }
+            JobListings.instance.essentials?.let {
+                if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
+                    val player =
+                        it.users.load(
+                            event.player.uniqueId,
+                        )
+                    val owner =
+                        it.users.load(
+                            Bukkit.getOfflinePlayer(order.user).uniqueId,
+                        )
+                    if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
+                        event.whoClicked.closeInventory()
+                        event.player.sendMessage(
+                            MessageUtil.getMessage("General.Ignored"),
+                        )
+                        return@setListener
                     }
                 }
-                val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-                queryBuilder
-                    .where()
-                    .eq("assignee", event.player.uniqueId)
-                    .and()
-                    .eq("status", OrderStatus.CLAIMED)
-                val orders = orderDao.query(queryBuilder.prepare())
-                if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")) {
-                    event.whoClicked.closeInventory()
-                    event.player.sendMessage(
-                        MessageUtil.getMessage(
-                            "AllOrders.OrderItemLore",
-                            listOf(
-                                MessageReplacement(
-                                    JobListings.instance.config
-                                        .getInt("Orders.MaxOrdersAccepted")
-                                        .toString(),
-                                ),
+            }
+            val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+            queryBuilder
+                .where()
+                .eq("assignee", event.player.uniqueId)
+                .and()
+                .eq("status", OrderStatus.CLAIMED)
+            val orders = orderDao.query(queryBuilder.prepare())
+            if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")) {
+                event.whoClicked.closeInventory()
+                event.player.sendMessage(
+                    MessageUtil.getMessage(
+                        "AllOrders.OrderItemLore",
+                        listOf(
+                            MessageReplacement(
+                                JobListings.instance.config
+                                    .getInt("Orders.MaxOrdersAccepted")
+                                    .toString(),
                             ),
                         ),
-                    )
-                }
-
-                order.acceptOrder(event.player)
-                event.whoClicked.closeInventory()
+                    ),
+                )
             }
+
+            order.acceptOrder(event.player)
+            event.whoClicked.closeInventory()
+        }
         return button
     }
 

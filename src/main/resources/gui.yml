@@ -17,7 +17,7 @@ AllOrders:
     - 4
   # The item to show if an order could not be loaded.
   FallbackItem:
-    Name: ""
+    Name: " "
     Material: "AIR"
     Amount: 1
     ModelData: 0
