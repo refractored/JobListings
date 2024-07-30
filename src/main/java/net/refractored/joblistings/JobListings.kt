@@ -9,6 +9,7 @@ import net.refractored.joblistings.exceptions.CommandErrorHandler
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
+import org.bstats.bukkit.Metrics
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
@@ -68,6 +69,9 @@ class JobListings : JavaPlugin() {
         instance = this
 
         spiGUI = SpiGUI(this)
+
+        val pluginId = 22844
+        val metrics: Metrics = Metrics(this, pluginId)
 
         // Save default configs
         saveDefaultConfig()

@@ -34,7 +34,7 @@ dependencies {
     compileOnly 'net.essentialsx:EssentialsX:2.20.1'
 
     // Kotlin
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:2.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.0"
 
     // Lamp (Commands)
     implementation "com.github.Revxrsal.Lamp:common:3.2.1"
@@ -43,6 +43,8 @@ dependencies {
     // Adventure (Components)
     compileOnly "net.kyori:adventure-platform-bukkit:4.1.2"
     implementation "net.kyori:adventure-text-minimessage:4.16.0"
+
+    implementation("org.bstats:bstats-bukkit:3.0.2")
 
     // ORMLite (ORM)
     compileOnly "com.j256.ormlite:ormlite-core:5.6"
@@ -97,7 +99,9 @@ compileJava {
 
 shadowJar {
     archiveFileName = "JobListings.jar"
-//    relocate('kotlin', 'net.refractored.libs.kotlin')
+    relocate('kotlin', 'net.refractored.libs.kotlin')
+    relocate("org.bstats", "net.refractored.libs.bstats")
+
 }
 
 build.dependsOn shadowJar
