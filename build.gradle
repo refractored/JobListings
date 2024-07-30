@@ -34,7 +34,7 @@ dependencies {
     compileOnly 'net.essentialsx:EssentialsX:2.20.1'
 
     // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.0"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:2.0.0"
 
     // Lamp (Commands)
     implementation "com.github.Revxrsal.Lamp:common:3.2.1"
@@ -99,7 +99,7 @@ compileJava {
 
 shadowJar {
     archiveFileName = "JobListings.jar"
-    relocate('kotlin', 'net.refractored.libs.kotlin')
+//    relocate('kotlin', 'net.refractored.libs.kotlin')
     relocate("org.bstats", "net.refractored.libs.bstats")
 
 }
