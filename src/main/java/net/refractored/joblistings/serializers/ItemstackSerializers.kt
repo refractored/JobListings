@@ -5,11 +5,6 @@ import com.j256.ormlite.field.SqlType
 import com.j256.ormlite.field.types.BaseDataType
 import com.j256.ormlite.support.DatabaseResults
 import org.bukkit.inventory.ItemStack
-import org.bukkit.util.io.BukkitObjectInputStream
-import org.bukkit.util.io.BukkitObjectOutputStream
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARRAY, arrayOf<Class<*>>(ItemStack::class.java)) {
     override fun parseDefaultString(
@@ -24,16 +19,7 @@ class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARR
         if (javaObject == null) {
             return null
         }
-        return try {
-            ByteArrayOutputStream().use { byteOut ->
-                BukkitObjectOutputStream(byteOut).use { bukkitOut ->
-                    bukkitOut.writeObject(javaObject)
-                }
-                byteOut.toByteArray()
-            }
-        } catch (e: IOException) {
-            throw RuntimeException("Failed to serialize ItemStack", e)
-        }
+        return (javaObject as ItemStack).serializeAsBytes()
     }
 
     override fun resultToSqlArg(
@@ -50,17 +36,7 @@ class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARR
         if (sqlArg == null) {
             return null
         }
-        return try {
-            ByteArrayInputStream(sqlArg as ByteArray).use { byteIn ->
-                BukkitObjectInputStream(byteIn).use { bukkitIn ->
-                    bukkitIn.readObject() as ItemStack
-                }
-            }
-        } catch (e: IOException) {
-            throw RuntimeException("Failed to deserialize ItemStack", e)
-        } catch (e: ClassNotFoundException) {
-            throw RuntimeException("Failed to find class during ItemStack deserialization", e)
-        }
+        return ItemStack.deserializeBytes(sqlArg as ByteArray)
     }
 
     companion object {
