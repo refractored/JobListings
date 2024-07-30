@@ -151,13 +151,6 @@ AllOrders:
   OrderAcceptedNotification: "<green>One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
 # As the name suggests, this gui is only for the orders you own. Includes orders that are pending.
 MyOrders:
-  # The item used for the frame of the GUI.
-  BorderItem: "BLUE_STAINED_GLASS_PANE"
-  # %0 = Current Page
-  # %1 = Max Pages
-  Title: "<bold><gradient:#2A77EE:#045CE5>My Orders</gradient></bold> <#3e403f>(Page %0/%1)"
-  NextPage: "<gray>Next Page"
-  PreviousPage: "<gray>Previous Page"
   # The order info is displayed in the lore of the item.
   # Due to the way lore is handled, to create a new line, just add a new line.
   # DONT use \n or <newline> as it will not work. This applies here cause of the way the lore is handled.
@@ -220,13 +213,6 @@ MyOrders:
 
 # Orders the player claimed and needs to complete for a reward.
 ClaimedOrders:
-  # The item used for the frame of the GUI.
-  BorderItem: "PURPLE_STAINED_GLASS_PANE"
-  # %0 = Current Page
-  # %1 = Max Pages
-  Title: "<bold><gradient:#C734E6:#AB2BE2>Claimed Orders</gradient></bold> <#3e403f>(Page %0/%1)"
-  NextPage: "<gray>Next Page"
-  PreviousPage: "<gray>Previous Page"
   # %0 = Order Reward
   # %1 = Order Creator
   # %2 = Order Created

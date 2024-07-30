@@ -3,6 +3,8 @@ version: '2.0'
 main: net.refractored.joblistings.JobListings
 api-version: '1.21'
 authors: [refractored]
+description: "Players can create orders for items in minecraft."
+database: true
 depend: [Vault]
 softdepend:
   - Essentials
