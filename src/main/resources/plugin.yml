@@ -1,7 +1,7 @@
 name: JobListings
 version: '2.0'
 main: net.refractored.joblistings.JobListings
-api-version: '1.21'
+api-version: '1.19'
 authors: [refractored]
 description: "Players can create orders for items in minecraft."
 database: true
