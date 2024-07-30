@@ -102,7 +102,7 @@ class ClaimedOrders(
         lore: List<Component>,
     ): ItemStack {
         val item =
-            ItemStack.of(
+            ItemStack(
                 material,
             )
         if (item.type == Material.AIR) return item
@@ -127,7 +127,7 @@ class ClaimedOrders(
     private fun getFallbackButton(): SGButton {
         val fallbackConfig = config.getConfigurationSection("FallbackItem")!!
         val item =
-            ItemStack.of(
+            ItemStack(
                 Material.valueOf(
                     fallbackConfig.getString("Material") ?: "BEDROCK",
                 ),

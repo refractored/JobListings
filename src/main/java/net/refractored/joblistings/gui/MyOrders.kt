@@ -88,7 +88,7 @@ class MyOrders {
     private fun getFallbackButton(): SGButton {
         val fallbackConfig = config.getConfigurationSection("FallbackItem")!!
         val item =
-            ItemStack.of(
+            ItemStack(
                 Material.valueOf(
                     fallbackConfig.getString("Material") ?: "BEDROCK",
                 ),
@@ -320,7 +320,7 @@ class MyOrders {
             )
         navKeys.forEach {
             val item =
-                ItemStack.of(
+                ItemStack(
                     Material.valueOf(
                         it.getString("Material") ?: "BEDROCK",
                     ),
@@ -330,12 +330,6 @@ class MyOrders {
                 val itemMeta = item.itemMeta
                 itemMeta.setCustomModelData(
                     it.getInt("ModelData"),
-                )
-                itemMeta.itemName(
-                    MessageUtil.toComponent(it.getString("Name") ?: "null").decorationIfAbsent(
-                        TextDecoration.ITALIC,
-                        TextDecoration.State.FALSE,
-                    ),
                 )
                 itemMeta.displayName(
                     MessageUtil
@@ -380,22 +374,15 @@ class MyOrders {
         val keys = section.getKeys(false)
         for (key in keys) {
             val item =
-                ItemStack.of(
+                ItemStack(
                     Material.valueOf(
                         section.getString("$key.Material") ?: "BEDROCK",
                     ),
                 )
             item.amount = section.getInt("$key.Amount")
             val itemMeta = item.itemMeta
-            itemMeta.itemName()
             itemMeta.setCustomModelData(
                 section.getInt("$key.ModelData"),
-            )
-            itemMeta.itemName(
-                MessageUtil
-                    .toComponent(
-                        section.getString("Name") ?: "null",
-                    ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
             )
             itemMeta.displayName(
                 MessageUtil
