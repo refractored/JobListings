@@ -10,4 +10,4 @@ https://discord.gg/HUyJ4XPK
 https://hangar.papermc.io/refractored/joblistings
 
 Credits:
-Baconing (Itemstack Serializer)
+Baconing (Itemstack Serializer for 1.X & reviewing code )
