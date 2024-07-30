@@ -10,6 +10,7 @@
 General:
   IsNotPlayer: "<red>You must be a player to use this command."
   NoPermission: "<red>You do not have permission to use this command."
+  PlayerOnly: "<red>This command can only be executed by a player."
   # %0 = Missing Argument
   MissingArguments: "<red>You must specify a value for the argument: %0"
   UnexpectedError: "<red>An error occurred while executing this command."

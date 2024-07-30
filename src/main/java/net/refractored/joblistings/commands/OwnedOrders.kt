@@ -1,7 +1,7 @@
 package net.refractored.joblistings.commands
 
 import net.refractored.joblistings.exceptions.CommandErrorException
-import net.refractored.joblistings.gui.ClaimedOrders
+import net.refractored.joblistings.gui.MyOrders
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.Command
@@ -11,24 +11,24 @@ import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
 
-class ClaimedOrders {
-    @CommandPermission("joblistings.view.claimed")
-    @Description("View the orders you claimed")
-    @Command("joblistings claimed")
-    fun getOrders(
+class OwnedOrders {
+    @CommandPermission("joblistings.view.owned")
+    @Description("View and manage orders you own")
+    @Command("joblistings owned")
+    fun viewOrder(
         actor: BukkitCommandActor,
         @Optional player: Player? = null,
     ) {
         if (player == null) {
-            actor.player.openInventory(ClaimedOrders.getGUI(actor.player).inventory)
+            actor.player.openInventory(MyOrders.getGUI().inventory)
             return
         }
-        if (!actor.player.hasPermission("joblistings.view.claimed.other")) {
+        if (!actor.player.hasPermission("joblistings.view.owned.others")) {
             throw CommandErrorException(MessageUtil.getMessage("General.NoPermission"))
         }
         if (actor.isConsole) {
             throw CommandErrorException(MessageUtil.getMessage("General.PlayerOnly"))
         }
-        player.openInventory(ClaimedOrders.getGUI(player).inventory)
+        player.openInventory(MyOrders.getGUI().inventory)
     }
 }

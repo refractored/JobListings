@@ -125,7 +125,7 @@ class JobListings : JavaPlugin() {
         // Register commands
         handler.register(CreateOrderHand())
         handler.register(CreateOrderMaterial())
-        handler.register(ViewOrder())
+        handler.register(OwnedOrders())
         handler.register(GetOrders())
         handler.register(ClaimedOrders())
         handler.register(CompleteOrders())

@@ -13,3 +13,34 @@ libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:2.0.0
   - com.j256.ormlite:ormlite-core:5.6
   - com.j256.ormlite:ormlite-jdbc:5.6
+permissions:
+  joblistings.view.owned:
+    description: "View all the player made."
+    default: true
+  joblistings.view.owned.other:
+    description: "Open the owned orders GUI for other players."
+    default: op
+  joblistings.view.claimed:
+    description: "View all the orders the player has claimed."
+    default: true
+  joblistings.view.claimed.other:
+    description: "Open the claimed orders GUI for other players."
+    default: op
+  joblistings.view.orders:
+    description: "View all pending orders."
+    default: true
+  joblistings.view.orders.other:
+    description: "Open the orders GUI for other players."
+    default: op
+  joblistings.completeorders:
+    description: "Lets the player complete orders."
+    default: true
+  joblistings.create.hand:
+    description: "Lets the player create orders with the item in their hand."
+    default: true
+  joblistings.create.material:
+    description: "Lets the player create orders with a material."
+    default: true
+  joblistings.admin.reload:
+    description: "Lets the player reload the plugin."
+    default: op
