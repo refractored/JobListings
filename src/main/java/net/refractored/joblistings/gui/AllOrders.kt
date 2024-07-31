@@ -10,6 +10,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPE
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.Order.Companion.getMaxOrdersAccepted
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
@@ -259,16 +260,15 @@ class AllOrders {
             .and()
             .eq("status", OrderStatus.CLAIMED)
         val orders = orderDao.query(queryBuilder.prepare())
-        if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")) {
+        val maxOrdersAccepted = getMaxOrdersAccepted(event.whoClicked as Player)
+        if (orders.count() > maxOrdersAccepted) {
             event.whoClicked.closeInventory()
             event.whoClicked.sendMessage(
                 MessageUtil.getMessage(
                     "AllOrders.OrderItemLore",
                     listOf(
                         MessageReplacement(
-                            JobListings.instance.config
-                                .getInt("Orders.MaxOrdersAccepted")
-                                .toString(),
+                            "$maxOrdersAccepted",
                         ),
                     ),
                 ),

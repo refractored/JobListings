@@ -11,7 +11,11 @@ Database:
   password: "PASSWORD"
 
 Orders:
-  # Max orders per rank coming soon
+  # These two values are used if a player does not have a permission set for the max.
+  # Replace X with number
+  # Permissions:
+  # joblistings.create.max.X
+  # joblistings.accepted.max.X
   MaxOrders: 3
   MaxOrdersAccepted: 3
   # Maximum/Minimum time in hours orders can be posted for

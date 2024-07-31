@@ -6,6 +6,7 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.Order.Companion.getMaxOrders
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
@@ -97,18 +98,13 @@ class CreateOrderHand {
             .and()
             .eq("user", actor.uniqueId)
         val orders = orderDao.query(queryBuilder.prepare())
+        val maxOrders = getMaxOrders(actor.player)
 
-        if (orders.count() >= JobListings.instance.config.getInt("Orders.MaxOrders")) {
+        if (orders.count() >= maxOrders) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MaxOrdersReached",
-                    listOf(
-                        MessageReplacement(
-                            JobListings.instance.config
-                                .getLong("Orders.MaxOrders")
-                                .toString(),
-                        ),
-                    ),
+                    listOf(MessageReplacement("$maxOrders")),
                 ),
             )
         }

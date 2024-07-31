@@ -4,7 +4,9 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.Order.Companion.getMaxOrders
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
@@ -77,13 +79,13 @@ class CreateOrderMaterial {
         }
 
         if (cost < 1) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.LessThanOneCost"),
             )
         }
 
         if (JobListings.instance.eco.getBalance(actor.player) < cost) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
             )
         }
@@ -96,24 +98,19 @@ class CreateOrderMaterial {
             .and()
             .eq("user", actor.uniqueId)
         val orders = orderDao.query(queryBuilder.prepare())
+        val maxOrders = getMaxOrders(actor.player)
 
-        if (orders.count() >= JobListings.instance.config.getInt("Orders.MaxOrders")) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+        if (orders.count() >= maxOrders) {
+            throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MaxOrdersReached",
-                    listOf(
-                        MessageReplacement(
-                            JobListings.instance.config
-                                .getLong("Orders.MaxOrders")
-                                .toString(),
-                        ),
-                    ),
+                    listOf(MessageReplacement("$maxOrders")),
                 ),
             )
         }
 
         if (material == Material.AIR) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.MaterialSetToAir"),
             )
         }

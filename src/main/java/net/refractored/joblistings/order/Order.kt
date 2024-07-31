@@ -457,6 +457,42 @@ data class Order(
         }
 
         /**
+         * Gets the max orders a player can create, if a player has a permission node it will be grabbed instead.
+         * If they don't have one, the config option will be used instead.
+         * If the config isn't set, it will default to 1.
+         * @return The max order amount.
+         */
+        fun getMaxOrders(player: Player): Int {
+            val maxOrderAmount =
+                player.effectivePermissions
+                    .filter {
+                        it.permission.startsWith("joblistings.create.max.")
+                    }.mapNotNull { it.permission.substringAfter("joblistings.create.max.").toIntOrNull() }
+                    .maxOrNull()
+                    ?: JobListings.instance.config.getInt("Orders.MaxOrders", 1)
+
+            return maxOrderAmount.coerceAtLeast(0)
+        }
+
+        /**
+         * Gets the max claimed orders a player can claim, if a player has a permission node it will be grabbed instead.
+         * If they don't have one, the config option will be used instead.
+         * If the config isn't set, it will default to 1.
+         * @return The max order amount.
+         */
+        fun getMaxOrdersAccepted(player: Player): Int {
+            val maxOrdersAccepted =
+                player.effectivePermissions
+                    .filter {
+                        it.permission.startsWith("joblistings.accepted.max.")
+                    }.mapNotNull { it.permission.substringAfter("joblistings.accepted.max.").toIntOrNull() }
+                    .maxOrNull()
+                    ?: JobListings.instance.config.getInt("Orders.MaxOrdersAccepted", 1)
+
+            return maxOrdersAccepted.coerceAtLeast(0)
+        }
+
+        /**
          * Get a specific page of a player's created orders from the database
          * @param limit Number of orders per page
          * @param offset Starting point for the current page
