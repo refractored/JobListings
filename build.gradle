@@ -127,7 +127,7 @@ def getCurrentGitBranch() {
 }
 
 shadowJar {
-    archiveFileName = "JobListings.jar"
+    archiveFileName = "JobListings-${version}.jar"
 //    relocate('kotlin', 'net.refractored.libs.kotlin')
     relocate("org.bstats", "net.refractored.libs.bstats")
 

@@ -27,5 +27,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: JobListings.jar
-          path: ./build/libs/JobListings.jar
+          name: JobListings
+          path: ./build/libs/JobListings-*-*.jar
