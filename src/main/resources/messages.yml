@@ -54,7 +54,7 @@ OrderStatus:
 Orders:
     # %0 = Order itemstack name
     # %1 = Order amount
-    # %2 = Order reward
+    # %2 = Order cost/reward amount (money)
     # This is considered the Order Info and is used in various messages.
   OrderInfo: "<gray>%0 <white>x <gray>%1"
 
@@ -239,6 +239,7 @@ ClaimedOrders:
     <#C734E6>Amount: <white>%4
     <#C734E6>Amount Completed: <white>%4
     
+    <red>(Click to cancel order)
 
   # %0 = Order Reward
   # %1 = Order Creator

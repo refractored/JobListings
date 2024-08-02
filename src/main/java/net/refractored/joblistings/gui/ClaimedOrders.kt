@@ -17,10 +17,8 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
-import revxrsal.commands.bukkit.player
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
 import kotlin.math.ceil
 
 class ClaimedOrders(
@@ -239,6 +237,7 @@ class ClaimedOrders(
             OrderStatus.CLAIMED -> {
                 gui.removeButton(event.slot + getOffset(gui.currentPage))
                 order.status = OrderStatus.INCOMPLETE
+                order.incompleteOrder()
                 TODO()
             }
             OrderStatus.INCOMPLETE -> {

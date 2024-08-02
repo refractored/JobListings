@@ -17,7 +17,7 @@ import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.bukkit.player
-import java.util.UUID
+import java.util.*
 
 class CreateOrderMaterial {
     @CommandPermission("joblistings.create.material")

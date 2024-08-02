@@ -20,7 +20,7 @@ class OwnedOrders {
         @Optional player: Player? = null,
     ) {
         if (player == null) {
-            actor.player.openInventory(MyOrders.getGUI().inventory)
+            actor.player.openInventory(MyOrders.getGUI(actor.player).inventory)
             return
         }
         if (!actor.player.hasPermission("joblistings.view.owned.others")) {
@@ -29,6 +29,6 @@ class OwnedOrders {
         if (actor.isConsole) {
             throw CommandErrorException(MessageUtil.getMessage("General.PlayerOnly"))
         }
-        player.openInventory(MyOrders.getGUI().inventory)
+        player.openInventory(MyOrders.getGUI(player).inventory)
     }
 }

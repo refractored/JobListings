@@ -1,5 +1,5 @@
 name: JobListings
-version: '2.0'
+version: '${version}'
 main: net.refractored.joblistings.JobListings
 api-version: '1.19'
 authors: [refractored]

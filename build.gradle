@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id "io.github.goooler.shadow" version "8.1.8"
     id 'java'
@@ -5,7 +7,7 @@ plugins {
 }
 
 group = 'net.refractored'
-version = '1.1.1'
+version = '2.0'
 
 repositories {
     mavenCentral()
@@ -23,6 +25,21 @@ repositories {
     maven { url = "https://oss.sonatype.org/content/groups/public/" }
     maven { url = 'https://repo.auxilor.io/repository/maven-public/' }
     maven { url "https://repo.auxilor.io/repository/maven-public/"}
+}
+
+String getGitHash() {
+    // git hash
+    def command = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+    def result = command.waitFor()
+    if (result != 0) {
+        throw new IOException("Command 'getGitHash()' exited with " + result)
+    }
+
+    String gitCommitHash = command.inputStream.text.trim()
+
+    println("getGitHash() : " + gitCommitHash)
+
+    return gitCommitHash
 }
 
 dependencies {
@@ -75,10 +92,13 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 processResources {
+    if (getCurrentGitBranch() != "main") {
+        version = version + "-" + getCurrentGitBranch() + "-" + getGitHash()
+    }
     def props = [version: version]
     inputs.properties props
     filteringCharset 'UTF-8'
-    filesMatching('paper-plugin.yml') {
+    filesMatching('plugin.yml') {
         expand props
     }
 }
@@ -96,9 +116,31 @@ compileJava {
     options.compilerArgs += ["-parameters"]
 }
 
+def getCurrentGitBranch() {
+    def gitBranch = "Unknown branch"
+    try {
+        def workingDir = new File("${project.projectDir}")
+        def result = 'git rev-parse --abbrev-ref HEAD'.execute(null, workingDir)
+        result.waitFor()
+        if (result.exitValue() == 0) {
+            gitBranch = result.text.trim()
+        }
+    } catch (e) {
+    }
+    return gitBranch
+}
 
 shadowJar {
-    archiveFileName = "JobListings.jar"
+    archiveFileName = "JobListings-${version}.jar"
+//    relocate('kotlin', 'net.refractored.libs.kotlin')
+    relocate("org.bstats", "net.refractored.libs.bstats")
+
+
+}
+
+
+Void shadowJarDEV() {
+    archiveFileName = "JobListings-DEV-${getGitHash()}.jar"
 //    relocate('kotlin', 'net.refractored.libs.kotlin')
     relocate("org.bstats", "net.refractored.libs.bstats")
 

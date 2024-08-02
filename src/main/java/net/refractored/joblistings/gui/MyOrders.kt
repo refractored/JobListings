@@ -18,7 +18,6 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
-import revxrsal.commands.bukkit.player
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.math.ceil
@@ -263,8 +262,7 @@ class MyOrders(
                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                 )
                 gui.removeButton(event.slot + getOffset(gui.currentPage))
-                JobListings.instance.eco.depositPlayer(Bukkit.getOfflinePlayer(event.whoClicked.uniqueId), order.cost)
-                orderDao.delete(order)
+                order.removeOrder()
                 loadOrders(gui.currentPage, event.whoClicked as Player)
                 gui.refreshInventory(event.whoClicked)
             }
@@ -273,8 +271,7 @@ class MyOrders(
                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                 )
                 gui.removeButton(event.slot + getOffset(gui.currentPage))
-                JobListings.instance.eco.depositPlayer(Bukkit.getOfflinePlayer(event.whoClicked.uniqueId), (order.cost / 2))
-                order.incompleteOrder()
+                order.cancelOrder()
                 val assigneeMessage =
                     MessageUtil.getMessage(
                         "MyOrders.AssigneeMessage",
@@ -298,8 +295,7 @@ class MyOrders(
                     )
                     return
                 }
-                giveOrderItems(order, (event.whoClicked as Player))
-                if (order.itemCompleted == order.itemsObtained) {
+                if (giveOrderItems(order, (event.whoClicked as Player))) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
                         MessageUtil.getMessage("MyOrders.OrderAlreadyClaimed"),
@@ -430,7 +426,7 @@ class MyOrders(
     private fun giveOrderItems(
         order: Order,
         player: Player,
-    ) {
+    ): Boolean {
         var itemsLeft = order.itemCompleted - order.itemsObtained
         while (itemsLeft > 0) {
             if (player.inventory.storageContents.count {
@@ -462,7 +458,9 @@ class MyOrders(
             )
             player.closeInventory()
             orderDao.delete(order)
+            return true
         }
+        return false
     }
 
     companion object {

@@ -19,7 +19,7 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  * Represents an order that has been placed on the job board
@@ -232,7 +232,7 @@ data class Order(
      */
     fun removeOrder() {
         if (status != OrderStatus.PENDING) {
-            throw IllegalStateException("Order cannot be removed if it is not pending")
+            throw IllegalStateException("Order is not pending.")
         }
         JobListings.instance.eco.depositPlayer(getOwner(), cost)
         orderDao.delete(this)
@@ -309,6 +309,48 @@ data class Order(
     }
 
     /**
+     * Mark the order as canceled and notifies the assignee.
+     * @param notify Whether to notify the user and assignee, default is true
+     */
+    fun cancelOrder(
+        notify: Boolean = true,
+        fullRefund: Boolean = false,
+    ) {
+        if (status == OrderStatus.INCOMPLETE) {
+            throw IllegalStateException("Order is already marked incomplete")
+        }
+        status = OrderStatus.CANCELLED
+        if (fullRefund) {
+            JobListings.instance.eco.depositPlayer(getOwner(), cost)
+        } else {
+            JobListings.instance.eco.depositPlayer(getOwner(), (cost / 2))
+        }
+        if (itemCompleted == 0) {
+            // No point of keeping the order if no items were turned in
+            orderDao.delete(this)
+        } else {
+            orderDao.update(this)
+        }
+        if (!notify) return
+        // TODO: MESSAGE-IFY
+        if (assignee == null) return // This should never be null, but just in case
+        val assigneeMessage =
+            Component
+                .text()
+                .append(
+                    MessageUtil.toComponent(
+                        "<red>Your order, , <gray>",
+                    ),
+                ).append(getItemInfo())
+                .append(
+                    MessageUtil.toComponent(
+                        "<red>was canceled by its owner!",
+                    ),
+                ).build()
+        messageAssignee(assigneeMessage)
+    }
+
+    /**
      * Mark the order as incomplete and refund the user
      * @param notify Whether to notify the user and assignee, default is true
      */
@@ -322,6 +364,7 @@ data class Order(
             // No point of keeping the order if no items were turned in
             orderDao.delete(this)
         } else {
+            timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.PickupDeadline"))
             orderDao.update(this)
         }
         if (!notify) return
@@ -336,7 +379,7 @@ data class Order(
                 ).append(getItemInfo())
                 .append(
                     MessageUtil.toComponent(
-                        "<red>could not be completed in time and you were refunded!",
+                        "<red>wasn't able to be completed so you were refunded!",
                     ),
                 ).build()
         messageOwner(ownerMessage)
@@ -351,7 +394,7 @@ data class Order(
                 ).append(getItemInfo())
                 .append(
                     MessageUtil.toComponent(
-                        "<red>in time!",
+                        "<red>!",
                     ),
                 ).build()
         messageAssignee(assigneeMessage)
