@@ -28,5 +28,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: jar-artifact
+          name: JobListings-${GITHUB_REF#refs/heads/}-$(git rev-parse --short "$GITHUB_SHA").jar
           path: ./build/libs/*.jar
