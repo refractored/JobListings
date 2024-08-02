@@ -185,7 +185,7 @@ class ClaimedOrders(
         val infoLore =
             if (order.status != OrderStatus.INCOMPLETE) {
                 MessageUtil.getMessageList(
-                    "AllOrders.OrderItemLore",
+                    "ClaimedOrders.OrderItemLore",
                     listOf(
                         MessageReplacement(order.cost.toString()),
                         MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
@@ -197,7 +197,7 @@ class ClaimedOrders(
                 )
             } else {
                 MessageUtil.getMessageList(
-                    "AllOrders.OrderItemLoreIncomplete",
+                    "ClaimedOrders.OrderItemLoreIncomplete",
                     listOf(
                         MessageReplacement(order.cost.toString()),
                         MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
@@ -236,6 +236,11 @@ class ClaimedOrders(
         order: Order,
     ) {
         when (order.status) {
+            OrderStatus.CLAIMED -> {
+                gui.removeButton(event.slot + getOffset(gui.currentPage))
+                order.status = OrderStatus.INCOMPLETE
+                TODO()
+            }
             OrderStatus.INCOMPLETE -> {
                 val inventorySpaces =
                     event.whoClicked.inventory.storageContents.count {
@@ -394,7 +399,7 @@ class ClaimedOrders(
 
     companion object {
         /**
-         * Creates an instance of the AllOrders class, and returns a working gui.
+         * Creates an instance of the ClaimedOrders class, and returns a working gui.
          * @return The gui.
          */
         fun getGUI(player: Player): SGMenu {

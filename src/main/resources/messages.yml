@@ -45,6 +45,12 @@ General:
   # %2 = Minutes
   DatePastTense: "<white>%0 Days, %1 Hours, %2 Minutes ago"
   InventoryFull: "<red>Your inventory is full."
+OrderStatus:
+  PENDING: "<white>Pending"
+  CLAIMED: "<white>Claimed"
+  COMPLETED: "<white>Completed"
+  INCOMPLETE: "<white>Incomplete"
+  CANCELLED: "<white>Cancelled"
 Orders:
     # %0 = Order itemstack name
     # %1 = Order amount

@@ -23,7 +23,9 @@ import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.math.ceil
 
-class MyOrders {
+class MyOrders(
+    player: Player,
+) {
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
             // Me when no component support :((((
@@ -43,11 +45,11 @@ class MyOrders {
     init {
         gui.setOnPageChange { inventory ->
             inventory.clearAllButStickiedSlots()
-            loadOrders(inventory.currentPage)
+            loadOrders(inventory.currentPage, player)
         }
         loadNavButtons()
         loadCosmeticItems()
-        loadOrders(0)
+        loadOrders(0, player)
     }
 
     private val config
@@ -76,9 +78,12 @@ class MyOrders {
      * Clears all non-stickied slots, and loads the orders for the requested page.
      * @param page The page to load orders for.
      */
-    private fun loadOrders(page: Int) {
+    private fun loadOrders(
+        page: Int,
+        player: Player,
+    ) {
         gui.clearAllButStickiedSlots()
-        val orders = Order.getPendingOrders(orderSlots.count(), page * orderSlots.count())
+        val orders = Order.getPlayerCreatedOrders(orderSlots.count(), page * orderSlots.count(), player.uniqueId)
         for ((index, slot) in orderSlots.withIndex()) {
             val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: getFallbackButton()
             gui.setButton(slot + getOffset(page), button)
@@ -159,7 +164,7 @@ class MyOrders {
                         listOf(
                             MessageReplacement(order.cost.toString()),
                             MessageReplacement(createdDurationText),
-                            MessageReplacement(order.status.toString()),
+                            MessageReplacement(order.status.getComponent()),
                             MessageReplacement(order.itemAmount.toString()),
                             MessageReplacement(expireDurationText),
                         ),
@@ -184,7 +189,7 @@ class MyOrders {
                         listOf(
                             MessageReplacement(order.cost.toString()),
                             MessageReplacement(createdDurationText),
-                            MessageReplacement(order.status.toString()),
+                            MessageReplacement(order.status.getComponent()),
                             MessageReplacement(order.itemAmount.toString()),
                             MessageReplacement(deadlineDurationText),
                             MessageReplacement(order.assignee?.let { Bukkit.getOfflinePlayer(it).name } ?: "Unknown"),
@@ -210,7 +215,7 @@ class MyOrders {
                         listOf(
                             MessageReplacement(order.cost.toString()),
                             MessageReplacement(createdDurationText),
-                            MessageReplacement(order.status.toString()),
+                            MessageReplacement(order.status.getComponent()),
                             MessageReplacement(order.itemAmount.toString()),
                             MessageReplacement(completedDurationText),
                             MessageReplacement(order.assignee?.let { Bukkit.getOfflinePlayer(it).name } ?: "Unknown"),
@@ -257,16 +262,17 @@ class MyOrders {
                 event.whoClicked.sendMessage(
                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                 )
-                gui.removeButton(event.slot)
+                gui.removeButton(event.slot + getOffset(gui.currentPage))
                 JobListings.instance.eco.depositPlayer(Bukkit.getOfflinePlayer(event.whoClicked.uniqueId), order.cost)
                 orderDao.delete(order)
+                loadOrders(gui.currentPage, event.whoClicked as Player)
                 gui.refreshInventory(event.whoClicked)
             }
             OrderStatus.CLAIMED -> {
                 event.whoClicked.sendMessage(
                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                 )
-                gui.removeButton(event.slot)
+                gui.removeButton(event.slot + getOffset(gui.currentPage))
                 JobListings.instance.eco.depositPlayer(Bukkit.getOfflinePlayer(event.whoClicked.uniqueId), (order.cost / 2))
                 order.incompleteOrder()
                 val assigneeMessage =
@@ -277,7 +283,7 @@ class MyOrders {
                         ),
                     )
                 order.messageAssignee(assigneeMessage)
-                loadOrders(gui.currentPage)
+                loadOrders(gui.currentPage, event.whoClicked as Player)
                 gui.refreshInventory(event.whoClicked)
             }
             OrderStatus.COMPLETED -> {
@@ -299,7 +305,7 @@ class MyOrders {
                         MessageUtil.getMessage("MyOrders.OrderAlreadyClaimed"),
                     )
                     gui.removeButton(event.slot + getOffset(gui.currentPage))
-                    loadOrders(gui.currentPage)
+                    loadOrders(gui.currentPage, event.whoClicked as Player)
                     gui.refreshInventory(event.whoClicked)
                     return
                 }
@@ -464,8 +470,8 @@ class MyOrders {
          * Creates an instance of the MyOrders class, and returns a working gui.
          * @return The gui.
          */
-        fun getGUI(): SGMenu {
-            val myOrders = MyOrders()
+        fun getGUI(player: Player): SGMenu {
+            val myOrders = MyOrders(player)
             return myOrders.gui
         }
     }
