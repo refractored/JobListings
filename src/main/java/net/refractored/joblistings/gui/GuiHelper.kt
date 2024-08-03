@@ -14,7 +14,7 @@ object GuiHelper {
      * Generate Item from data
      * @return The generated Itemstack
      */
-    fun generateItem(
+    private fun generateItem(
         material: Material,
         amount: Int,
         modelData: Int,
@@ -43,6 +43,19 @@ object GuiHelper {
         )
         return item
     }
+
+    private fun generateItem(subsection: ConfigurationSection): ItemStack =
+        generateItem(
+            Material.valueOf(
+                subsection.getString("Material", "BEDROCK")!!,
+            ),
+            subsection.getInt("Amount"),
+            subsection.getInt("ModelData"),
+            subsection.getString("Name") ?: "null",
+            subsection.getStringList("Amount").map { line ->
+                MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+            },
+        )
 
     /**
      * Get the Fallback Button
@@ -95,17 +108,7 @@ object GuiHelper {
         navKeys.forEach {
             val button =
                 SGButton(
-                    generateItem(
-                        Material.valueOf(
-                            it.getString("Material", "BEDROCK")!!,
-                        ),
-                        it.getInt("Amount"),
-                        it.getInt("ModelData"),
-                        it.getString("Name") ?: "null",
-                        it.getStringList("Amount").map { line ->
-                            MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        },
-                    ),
+                    generateItem(it),
                 )
             when (it.name) {
                 "NextPage" -> {
@@ -146,17 +149,7 @@ object GuiHelper {
                     gui.setButton(
                         it + offset,
                         SGButton(
-                            GuiHelper.generateItem(
-                                Material.valueOf(
-                                    subsection.getString("Material", "BEDROCK")!!,
-                                ),
-                                subsection.getInt("Amount"),
-                                subsection.getInt("ModelData"),
-                                subsection.getString("Name") ?: "null",
-                                subsection.getStringList("Amount").map { line ->
-                                    MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                },
-                            ),
+                            generateItem(subsection),
                         ),
                     )
                     gui.stickSlot(it + offset)

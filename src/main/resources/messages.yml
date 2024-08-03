@@ -128,7 +128,7 @@ Help:
     <gray>/joblistings complete<white>: Scans your inventory for items to complete an order
     <gray>/joblistings create hand<white>: Create an order from the item in your hand
     <gray>/joblistings create material<white>: Create an order from the specified material
-    <gray>/joblistings<white>: Displays this menu
+    <gray>/joblistings help<white>: Displays this menu
 # The All Orders menu, this does not apply to ALL orders.
 AllOrders:
   # %0 = Order Reward

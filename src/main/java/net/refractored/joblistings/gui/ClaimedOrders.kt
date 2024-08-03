@@ -182,7 +182,7 @@ class ClaimedOrders(
                 gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                 order.status = OrderStatus.INCOMPLETE
                 order.incompleteOrder()
-                TODO()
+                TODO("Messages.yml is missing a message for this case.")
             }
             OrderStatus.INCOMPLETE -> {
                 val inventorySpaces =

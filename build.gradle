@@ -17,25 +17,39 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
-    maven { url "https://repo.essentialsx.net/releases/"}
+    maven { url = "https://repo.essentialsx.net/releases/"}
     maven { url = 'https://jitpack.io' }
     maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
     maven { url = "https://oss.sonatype.org/content/groups/public/" }
     maven { url = 'https://repo.auxilor.io/repository/maven-public/' }
-    maven { url "https://repo.auxilor.io/repository/maven-public/"}
 }
 
-static String getGitHash() {
-    // git hash
-    def command = Runtime.getRuntime().exec("git rev-parse --short HEAD")
-    def result = command.waitFor()
-    if (result != 0) {
-        throw new IOException("Command 'getGitHash()' exited with " + result)
+String getGitHash() {
+    def gitCommitHash = "unknown"
+    try {
+        def workingDir = new File("${project.projectDir}")
+        def result = 'git rev-parse --short HEAD'.execute(null, workingDir)
+        result.waitFor()
+        if (result.exitValue() == 0) {
+            gitCommitHash = result.text.trim()
+        }
+    } catch (e) {
     }
-
-    String gitCommitHash = command.inputStream.text.trim()
-
     return gitCommitHash
+}
+
+String getCurrentGitBranch() {
+    def gitBranch = "unknown"
+    try {
+        def workingDir = new File("${project.projectDir}")
+        def result = 'git rev-parse --abbrev-ref HEAD'.execute(null, workingDir)
+        result.waitFor()
+        if (result.exitValue() == 0) {
+            gitBranch = result.text.trim()
+        }
+    } catch (e) {
+    }
+    return gitBranch
 }
 
 dependencies {
@@ -110,20 +124,6 @@ compileTestKotlin {
 
 compileJava {
     options.compilerArgs += ["-parameters"]
-}
-
-def getCurrentGitBranch() {
-    def gitBranch = "Unknown branch"
-    try {
-        def workingDir = new File("${project.projectDir}")
-        def result = 'git rev-parse --abbrev-ref HEAD'.execute(null, workingDir)
-        result.waitFor()
-        if (result.exitValue() == 0) {
-            gitBranch = result.text.trim()
-        }
-    } catch (e) {
-    }
-    return gitBranch
 }
 
 shadowJar {

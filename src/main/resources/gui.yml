@@ -39,6 +39,7 @@ AllOrders:
     Material: "AIR"
     Amount: 1
     ModelData: 0
+    # For a new line in lore, add a new quote underneath the last one.
     Lore:
       - ""
   NextPage:
