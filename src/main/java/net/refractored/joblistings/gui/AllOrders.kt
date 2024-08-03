@@ -29,7 +29,7 @@ class AllOrders {
 
     private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
 
-    private var pageCount: Int = ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().let { if (it > 0) it else 1 }
+    private var pageCount: Int = ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().coerceAtLeast(1)
 
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(

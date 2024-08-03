@@ -39,15 +39,7 @@ class MyOrders(
                 .eq("user", player.uniqueId)
                 .countOf()
                 .toDouble() / orderSlots.count(),
-        ).toInt().let {
-            if (it >
-                0
-            ) {
-                it
-            } else {
-                1
-            }
-        }
+        ).toInt().coerceAtLeast(1)
 
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
