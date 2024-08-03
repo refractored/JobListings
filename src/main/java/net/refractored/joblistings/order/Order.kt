@@ -574,6 +574,8 @@ data class Order(
                 .eq("status", OrderStatus.CLAIMED)
                 .or()
                 .eq("status", OrderStatus.INCOMPLETE)
+                .or()
+                .eq("status", OrderStatus.CANCELLED)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }

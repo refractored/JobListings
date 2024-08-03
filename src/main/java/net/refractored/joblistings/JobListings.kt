@@ -10,7 +10,6 @@ import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import org.bstats.bukkit.Metrics
-import org.bstats.charts.MultiLineChart
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
@@ -74,13 +73,6 @@ class JobListings : JavaPlugin() {
         val pluginId = 22844
         val metrics: Metrics = Metrics(this, pluginId)
 
-        metrics.addCustomChart(
-            MultiLineChart("versionHistory") {
-                val result = HashMap<String, Int>()
-                result[pluginMeta.version] = 1
-                result
-            },
-        )
         // Save default configs
         saveDefaultConfig()
 
