@@ -406,7 +406,7 @@ data class Order(
      * @return Whether the itemstack matches the order itemstack
      */
     fun itemMatches(itemArg: ItemStack): Boolean {
-        JobListings.instance.ecoPlugin.let {
+        if (JobListings.instance.ecoPlugin) {
             Items.getCustomItem(item)?.let { customItem ->
                 return customItem.matches(itemArg)
             }

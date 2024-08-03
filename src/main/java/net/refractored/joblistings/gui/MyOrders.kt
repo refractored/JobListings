@@ -2,7 +2,6 @@ package net.refractored.joblistings.gui
 
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
-import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
@@ -409,18 +408,6 @@ class MyOrders(
                 }
             }
         }
-    }
-
-    private fun isMatchingItem(
-        item: ItemStack,
-        order: Order,
-    ): Boolean {
-        JobListings.instance.ecoPlugin.let {
-            if (Items.isCustomItem(item)) {
-                return Items.getCustomItem(order.item)!!.matches(item)
-            }
-        }
-        return order.item.isSimilar(item)
     }
 
     private fun giveOrderItems(
