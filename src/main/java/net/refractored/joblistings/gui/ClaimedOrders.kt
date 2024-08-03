@@ -2,28 +2,57 @@ package net.refractored.joblistings.gui
 
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.gui.GuiHelper.getFallbackButton
+import net.refractored.joblistings.gui.GuiHelper.getOffset
+import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
+import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.ItemStack
 import java.time.Duration
 import java.time.LocalDateTime
+import java.util.*
 import kotlin.math.ceil
 
 class ClaimedOrders(
     player: Player,
 ) {
+    private val config = JobListings.instance.gui.getConfigurationSection("ClaimedOrders")!!
+
+    private val rows = config.getInt("Rows", 6)
+
+    private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
+
+    private val pageCount: Int =
+        ceil(
+            orderDao
+                .queryBuilder()
+                .where()
+                .eq("assignee", player.uniqueId)
+                .and()
+                .eq("status", OrderStatus.CLAIMED)
+                .or()
+                .eq("status", OrderStatus.INCOMPLETE)
+                .countOf()
+                .toDouble() / orderSlots.count(),
+        ).toInt().let {
+            if (it >
+                0
+            ) {
+                it
+            } else {
+                1
+            }
+        }
+
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
             // Me when no component support :((((
@@ -45,32 +74,10 @@ class ClaimedOrders(
             inventory.clearAllButStickiedSlots()
             loadOrders(inventory.currentPage, player)
         }
-        loadNavButtons()
-        loadCosmeticItems()
+        loadNavButtons(config, gui, pageCount)
+        loadCosmeticItems(config, gui, pageCount)
         loadOrders(0, player)
     }
-
-    private val config
-        get() = JobListings.instance.gui.getConfigurationSection("ClaimedOrders")!!
-
-    private val rows
-        get() = config.getInt("Rows", 6)
-
-    private val orderSlots: List<Int>
-        get() = config.getIntegerList("OrderSlots")
-
-    private val pageCount
-        get() =
-            ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().let {
-                if (it > 0) it else 1
-            }
-
-    /**
-     * Gets the offset for the page number, based on the rows set in config.
-     * @param page The page.
-     * @return The number of slots required for the page.
-     */
-    private fun getOffset(page: Int): Int = page * (rows * 9)
 
     /**
      * Clears all non-stickied slots, and loads the orders for the requested page.
@@ -83,72 +90,9 @@ class ClaimedOrders(
         gui.clearAllButStickiedSlots()
         val orders = Order.getPlayerAcceptedOrders(orderSlots.count(), page * orderSlots.count(), player.uniqueId)
         for ((index, slot) in orderSlots.withIndex()) {
-            val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: getFallbackButton()
-            gui.setButton(slot + getOffset(page), button)
+            val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: getFallbackButton(config)
+            gui.setButton(slot + getOffset(page, rows), button)
         }
-    }
-
-    /**
-     * Generate Item from data
-     * @return The generated Itemstack
-     */
-    private fun generateItem(
-        material: Material,
-        amount: Int,
-        modelData: Int,
-        name: String,
-        lore: List<Component>,
-    ): ItemStack {
-        val item =
-            ItemStack(
-                material,
-            )
-        if (item.type == Material.AIR) return item
-        item.amount = amount
-        val itemMeta = item.itemMeta
-        itemMeta.setCustomModelData(
-            modelData,
-        )
-        itemMeta.displayName(
-            MessageUtil
-                .toComponent(
-                    name,
-                ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-        )
-        item.itemMeta = itemMeta
-        item.lore(
-            lore,
-        )
-        return item
-    }
-
-    private fun getFallbackButton(): SGButton {
-        val fallbackConfig = config.getConfigurationSection("FallbackItem")!!
-        val item =
-            ItemStack(
-                Material.valueOf(
-                    fallbackConfig.getString("Material") ?: "BEDROCK",
-                ),
-            )
-        if (item.type == Material.AIR) return SGButton(item)
-        item.amount = fallbackConfig.getInt("Amount")
-        val itemMeta = item.itemMeta
-        itemMeta.setCustomModelData(
-            fallbackConfig.getInt("ModelData"),
-        )
-        itemMeta.displayName(
-            MessageUtil
-                .toComponent(
-                    fallbackConfig.getString("Name") ?: "null",
-                ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-        )
-        item.itemMeta = itemMeta
-        item.lore(
-            fallbackConfig.getStringList("Amount").map { line ->
-                MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-            },
-        )
-        return SGButton(item)
     }
 
     private fun getOrderButton(order: Order): SGButton {
@@ -235,7 +179,7 @@ class ClaimedOrders(
     ) {
         when (order.status) {
             OrderStatus.CLAIMED -> {
-                gui.removeButton(event.slot + getOffset(gui.currentPage))
+                gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                 order.status = OrderStatus.INCOMPLETE
                 order.incompleteOrder()
                 TODO()
@@ -264,7 +208,7 @@ class ClaimedOrders(
                     event.whoClicked.sendMessage(
                         MessageUtil.getMessage("ClaimedOrders.OrderFullyRefunded"),
                     )
-                    gui.removeButton(event.slot + getOffset(gui.currentPage))
+                    gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                     orderDao.delete(order)
                     gui.refreshInventory(event.whoClicked)
                 } else {
@@ -319,81 +263,6 @@ class ClaimedOrders(
         order.itemsReturned = order.itemCompleted - itemsLeft
         orderDao.update(order)
         return (order.itemsReturned == order.itemCompleted)
-    }
-
-    private fun loadNavButtons() {
-        val navKeys =
-            listOf(
-                config.getConfigurationSection("NextPage")!!,
-                config.getConfigurationSection("PreviousPage")!!,
-            )
-        navKeys.forEach {
-            val button =
-                SGButton(
-                    generateItem(
-                        Material.valueOf(
-                            it.getString("Material", "BEDROCK")!!,
-                        ),
-                        it.getInt("Amount"),
-                        it.getInt("ModelData"),
-                        it.getString("Name") ?: "null",
-                        it.getStringList("Amount").map { line ->
-                            MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        },
-                    ),
-                )
-            when (it.name) {
-                "NextPage" -> {
-                    button.setListener { event -> gui.nextPage(event.whoClicked) }
-                }
-                "PreviousPage" -> {
-                    button.setListener { event -> gui.previousPage(event.whoClicked) }
-                }
-            }
-            for (i in 0..<pageCount) {
-                val offset = getOffset(i)
-                it.getIntegerList("Slots").forEach { slot ->
-                    gui.setButton(
-                        slot + offset,
-                        button,
-                    )
-                    gui.stickSlot(slot + offset)
-                }
-            }
-        }
-    }
-
-    /**
-     * Loads all the "cosmetic" items in the Items section of the config.
-     */
-    private fun loadCosmeticItems() {
-        val section = config.getConfigurationSection("Items")!!
-        val keys = section.getKeys(false)
-        for (key in keys) {
-            val subsection = section.getConfigurationSection(key)!!
-            for (i in 0..<pageCount) {
-                val offset = getOffset(i)
-                section.getIntegerList("$key.Slots").forEach {
-                    gui.setButton(
-                        it + offset,
-                        SGButton(
-                            generateItem(
-                                Material.valueOf(
-                                    subsection.getString("Material", "BEDROCK")!!,
-                                ),
-                                subsection.getInt("Amount"),
-                                subsection.getInt("ModelData"),
-                                subsection.getString("Name") ?: "null",
-                                subsection.getStringList("Amount").map { line ->
-                                    MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                                },
-                            ),
-                        ),
-                    )
-                    gui.stickSlot(it + offset)
-                }
-            }
-        }
     }
 
     companion object {

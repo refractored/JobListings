@@ -2,22 +2,22 @@ package net.refractored.joblistings.gui
 
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
-import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.gui.GuiHelper.getFallbackButton
+import net.refractored.joblistings.gui.GuiHelper.getOffset
+import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
+import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.ItemStack
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.math.ceil
@@ -25,6 +25,30 @@ import kotlin.math.ceil
 class MyOrders(
     player: Player,
 ) {
+    private val config = JobListings.instance.gui.getConfigurationSection("MyOrders")!!
+
+    private val rows = config.getInt("Rows", 6)
+
+    private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
+
+    private val pageCount: Int =
+        ceil(
+            orderDao
+                .queryBuilder()
+                .where()
+                .eq("user", player.uniqueId)
+                .countOf()
+                .toDouble() / orderSlots.count(),
+        ).toInt().let {
+            if (it >
+                0
+            ) {
+                it
+            } else {
+                1
+            }
+        }
+
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
             // Me when no component support :((((
@@ -46,32 +70,10 @@ class MyOrders(
             inventory.clearAllButStickiedSlots()
             loadOrders(inventory.currentPage, player)
         }
-        loadNavButtons()
-        loadCosmeticItems()
+        loadNavButtons(config, gui, pageCount)
+        loadCosmeticItems(config, gui, pageCount)
         loadOrders(0, player)
     }
-
-    private val config
-        get() = JobListings.instance.gui.getConfigurationSection("MyOrders")!!
-
-    private val rows
-        get() = config.getInt("Rows", 6)
-
-    private val orderSlots: List<Int>
-        get() = config.getIntegerList("OrderSlots")
-
-    private val pageCount
-        get() =
-            ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().let {
-                if (it > 0) it else 1
-            }
-
-    /**
-     * Gets the offset for the page number, based on the rows set in config.
-     * @param page The page.
-     * @return The number of slots required for the page.
-     */
-    private fun getOffset(page: Int): Int = page * (rows * 9)
 
     /**
      * Clears all non-stickied slots, and loads the orders for the requested page.
@@ -84,38 +86,9 @@ class MyOrders(
         gui.clearAllButStickiedSlots()
         val orders = Order.getPlayerCreatedOrders(orderSlots.count(), page * orderSlots.count(), player.uniqueId)
         for ((index, slot) in orderSlots.withIndex()) {
-            val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: getFallbackButton()
-            gui.setButton(slot + getOffset(page), button)
+            val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: getFallbackButton(config)
+            gui.setButton(slot + getOffset(page, rows), button)
         }
-    }
-
-    private fun getFallbackButton(): SGButton {
-        val fallbackConfig = config.getConfigurationSection("FallbackItem")!!
-        val item =
-            ItemStack(
-                Material.valueOf(
-                    fallbackConfig.getString("Material") ?: "BEDROCK",
-                ),
-            )
-        if (item.type == Material.AIR) return SGButton(item)
-        item.amount = fallbackConfig.getInt("Amount")
-        val itemMeta = item.itemMeta
-        itemMeta.setCustomModelData(
-            fallbackConfig.getInt("ModelData"),
-        )
-        itemMeta.displayName(
-            MessageUtil
-                .toComponent(
-                    fallbackConfig.getString("Name") ?: "null",
-                ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-        )
-        item.itemMeta = itemMeta
-        item.lore(
-            fallbackConfig.getStringList("Amount").map { line ->
-                MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-            },
-        )
-        return SGButton(item)
     }
 
     private fun getOrderButton(order: Order): SGButton {
@@ -261,7 +234,7 @@ class MyOrders(
                 event.whoClicked.sendMessage(
                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                 )
-                gui.removeButton(event.slot + getOffset(gui.currentPage))
+                gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                 order.removeOrder()
                 loadOrders(gui.currentPage, event.whoClicked as Player)
                 gui.refreshInventory(event.whoClicked)
@@ -270,7 +243,7 @@ class MyOrders(
                 event.whoClicked.sendMessage(
                     MessageUtil.getMessage("MyOrders.OrderCancelled"),
                 )
-                gui.removeButton(event.slot + getOffset(gui.currentPage))
+                gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                 order.cancelOrder()
                 val assigneeMessage =
                     MessageUtil.getMessage(
@@ -300,7 +273,7 @@ class MyOrders(
                     event.whoClicked.sendMessage(
                         MessageUtil.getMessage("MyOrders.OrderAlreadyClaimed"),
                     )
-                    gui.removeButton(event.slot + getOffset(gui.currentPage))
+                    gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                     loadOrders(gui.currentPage, event.whoClicked as Player)
                     gui.refreshInventory(event.whoClicked)
                     return
@@ -312,115 +285,6 @@ class MyOrders(
 
             else -> return
         }
-    }
-
-    private fun loadNavButtons() {
-        val navKeys =
-            listOf(
-                config.getConfigurationSection("NextPage")!!,
-                config.getConfigurationSection("PreviousPage")!!,
-            )
-        navKeys.forEach {
-            val item =
-                ItemStack(
-                    Material.valueOf(
-                        it.getString("Material") ?: "BEDROCK",
-                    ),
-                )
-            if (item.type != Material.AIR) {
-                item.amount = it.getInt("Amount")
-                val itemMeta = item.itemMeta
-                itemMeta.setCustomModelData(
-                    it.getInt("ModelData"),
-                )
-                itemMeta.displayName(
-                    MessageUtil
-                        .toComponent(
-                            it.getString("Name") ?: "null",
-                        ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                )
-                item.itemMeta = itemMeta
-                item.lore(
-                    it.getStringList("Amount").map { line ->
-                        MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                    },
-                )
-            }
-            val button = SGButton(item)
-            when (it.name) {
-                "NextPage" -> {
-                    button.setListener { event -> gui.nextPage(event.whoClicked) }
-                }
-                "PreviousPage" -> {
-                    button.setListener { event -> gui.previousPage(event.whoClicked) }
-                }
-            }
-            for (i in 0..<pageCount) {
-                val offset = getOffset(i)
-                it.getIntegerList("Slots").forEach { slot ->
-                    gui.setButton(
-                        slot + offset,
-                        button,
-                    )
-                    gui.stickSlot(slot + offset)
-                }
-            }
-        }
-    }
-
-    /**
-     * Loads all the "cosmetic" items in the Items section of the config.
-     */
-    private fun loadCosmeticItems() {
-        val section = config.getConfigurationSection("Items")!!
-        val keys = section.getKeys(false)
-        for (key in keys) {
-            val item =
-                ItemStack(
-                    Material.valueOf(
-                        section.getString("$key.Material") ?: "BEDROCK",
-                    ),
-                )
-            item.amount = section.getInt("$key.Amount")
-            val itemMeta = item.itemMeta
-            itemMeta.setCustomModelData(
-                section.getInt("$key.ModelData"),
-            )
-            itemMeta.displayName(
-                MessageUtil
-                    .toComponent(
-                        section.getString("$key.Name") ?: "null",
-                    ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-            )
-            item.itemMeta = itemMeta
-            item.lore(
-                section.getStringList("$key.Amount").map {
-                    MessageUtil.toComponent(it).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                },
-            )
-            for (i in 0..<pageCount) {
-                val offset = getOffset(i)
-                section.getIntegerList("$key.Slots").forEach {
-                    gui.setButton(
-                        it + offset,
-                        SGButton(item),
-                    )
-                    gui.stickSlot(it + offset)
-                }
-            }
-        }
-    }
-
-    private fun isMatchingItem(
-        item: ItemStack,
-        order: Order,
-    ): Boolean {
-        JobListings.instance.ecoPlugin.let {
-            if (Items.isCustomItem(item)) {
-                return Items.getCustomItem(order.item)!!.matches(item)
-            }
-        }
-        return order.item.isSimilar(item)
     }
 
     private fun giveOrderItems(
