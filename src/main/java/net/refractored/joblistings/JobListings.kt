@@ -131,9 +131,17 @@ class JobListings : JavaPlugin() {
         // Register the command exception handler
         handler.setExceptionHandler(CommandErrorHandler())
 
+        if (!instance.config.getBoolean("Orders.CreateHand", true) && !instance.config.getBoolean("Orders.CreateMaterial", true)) {
+            logger.warning("You have disabled both order creation methods!")
+            logger.warning("Please double check your config!")
+        }
         // Register commands
-        handler.register(CreateOrderHand())
-        handler.register(CreateOrderMaterial())
+        if (instance.config.getBoolean("Orders.CreateHand", true)) {
+            handler.register(CreateOrderHand())
+        }
+        if (instance.config.getBoolean("Orders.CreateMaterial", true)) {
+            handler.register(CreateOrderMaterial())
+        }
         handler.register(OwnedOrders())
         handler.register(GetOrders())
         handler.register(ClaimedOrders())

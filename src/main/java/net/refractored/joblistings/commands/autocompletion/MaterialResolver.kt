@@ -12,21 +12,21 @@ class MaterialResolver : SuggestionProvider {
         args: MutableList<String>,
         sender: CommandActor,
         command: ExecutableCommand,
-    ): MutableCollection<String> =
-        Material.entries
-            .asSequence()
-            .map { it.name }
-            .map { it.lowercase() }
-            .filter { !blacklistedMaterial(it) }
-            .filter {
-                it.startsWith((args.joinToString(" ")), true)
-            }.toMutableSet()
+    ): MutableCollection<String> {
+        val stringArgs = args.joinToString(" ")
+        return Material.entries
+            .map { it.name.lowercase() }
+            .filter { !getBlacklistedMaterials().containsIgnoreCase(it) }
+            .filter { it.startsWith(stringArgs, true) }
+            .toMutableSet()
+    }
 
-    private fun blacklistedMaterial(arg: String): Boolean {
-        val blacklistedMaterials = JobListings.instance.config.getStringList("Orders.BlacklistedMaterials")
-        blacklistedMaterials.addAll(
-            JobListings.instance.config.getStringList("Orders.BlacklistedCreateMaterials"),
-        )
-        return blacklistedMaterials.containsIgnoreCase(arg)
+    private fun getBlacklistedMaterials(): Set<String> {
+        val config = JobListings.instance.config
+        val blacklistedMaterials = config.getStringList("Orders.BlacklistedMaterials")
+        val additionalBlacklistedMaterials = config.getStringList("Orders.BlacklistedCreateMaterials")
+        return (blacklistedMaterials + additionalBlacklistedMaterials)
+            .map { it.lowercase() }
+            .toSet()
     }
 }
