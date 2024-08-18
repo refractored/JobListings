@@ -2,6 +2,7 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.item.ItemBuilder
+import com.willfp.eco.util.containsIgnoreCase
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
@@ -115,6 +116,12 @@ class CreateOrderMaterial {
             )
         }
 
+        if (blacklistedMaterial(material.name)) {
+            throw CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.BlacklistedMaterial"),
+            )
+        }
+
         val item = ItemBuilder(material).build()
 
         val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
@@ -166,5 +173,13 @@ class CreateOrderMaterial {
                 ),
             ),
         )
+    }
+
+    private fun blacklistedMaterial(arg: String): Boolean {
+        val blacklistedMaterials = JobListings.instance.config.getStringList("BlacklistedMaterials")
+        blacklistedMaterials.addAll(
+            JobListings.instance.config.getStringList("BlacklistedCreateMaterials"),
+        )
+        return blacklistedMaterials.containsIgnoreCase(arg)
     }
 }

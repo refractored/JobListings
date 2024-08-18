@@ -121,6 +121,24 @@ class CreateOrderHand {
             )
         }
 
+        val blacklistedMaterials =
+            JobListings.instance.config.getStringList("Orders.BlacklistedMaterials").mapNotNull { material ->
+                try {
+                    Material.valueOf(material)
+                } catch (e: IllegalArgumentException) {
+                    null
+                }
+            }
+
+        if (blacklistedMaterials.contains(item.type)) {
+            throw CommandErrorException(
+                MessageUtil.getMessage(
+                    "CreateOrder.BlacklistedMaterial",
+                    listOf(MessageReplacement("${item.type}")),
+                ),
+            )
+        }
+
         if (item.itemMeta is Damageable) {
             val damageableMeta = item.itemMeta as Damageable
             damageableMeta.damage = 0

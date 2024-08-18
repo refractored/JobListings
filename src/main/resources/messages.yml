@@ -98,6 +98,8 @@ CreateOrder:
   LessThanOneHour: "<red>Hours must be at least 1."
   LessThanOneCost: "<red>Cost must be at least 1."
   NotEnoughMoney: "<red>You do not have enough money to cover your order."
+  # %0 = Material Name
+  BlacklistedMaterial: "<red>You cannot create an order with %0."
   # %0 = MaxOrdersTime from config.yml
   MoreThanMaxHoursConfig: "<red>Hours must be less than or equal to %0"
   # %0 = MinOrdersTime from config.yml
