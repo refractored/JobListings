@@ -176,9 +176,9 @@ class CreateOrderMaterial {
     }
 
     private fun blacklistedMaterial(arg: String): Boolean {
-        val blacklistedMaterials = JobListings.instance.config.getStringList("BlacklistedMaterials")
+        val blacklistedMaterials = JobListings.instance.config.getStringList("Orders.BlacklistedMaterials")
         blacklistedMaterials.addAll(
-            JobListings.instance.config.getStringList("BlacklistedCreateMaterials"),
+            JobListings.instance.config.getStringList("Orders.BlacklistedCreateMaterials"),
         )
         return blacklistedMaterials.containsIgnoreCase(arg)
     }
