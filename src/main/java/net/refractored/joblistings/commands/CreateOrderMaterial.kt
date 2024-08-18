@@ -31,25 +31,25 @@ class CreateOrderMaterial {
         @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
     ) {
         if (actor.isConsole) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
 
         if (amount < 1) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.LessThanOneItem"),
             )
         }
 
         if (hours < 1) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.LessThanOneHour"),
             )
         }
 
         if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMaxHoursConfig",
                     listOf(
@@ -131,7 +131,7 @@ class CreateOrderMaterial {
                 )
             }
             maxItems != 0 && amount >= maxItems -> {
-                throw net.refractored.joblistings.exceptions.CommandErrorException(
+                throw CommandErrorException(
                     MessageUtil.getMessage(
                         "CreateOrder.MaxOrdersExceeded",
                         listOf(
