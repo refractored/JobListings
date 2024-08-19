@@ -136,7 +136,7 @@ class JobListings : JavaPlugin() {
 
         // Register autocompletions
         val materialResolver = MaterialResolver()
-
+        handler.registerValueResolver(OrderStack::class.java, materialResolver)
         handler.autoCompleter.registerParameterSuggestions(OrderStack::class.java, materialResolver)
         handler.registerBrigadier()
 
