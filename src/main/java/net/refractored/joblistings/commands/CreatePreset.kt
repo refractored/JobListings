@@ -1,6 +1,6 @@
 package net.refractored.joblistings.commands
 
-import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
@@ -40,6 +40,8 @@ class CreatePreset {
             )
         }
 
-        JobListings.instance.presets.set(presetName, item)
+        item.amount = 1
+
+        Presets.createPreset(presetName, item)
     }
 }

@@ -5,6 +5,7 @@ import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.commands.autocompletion.MaterialResolver
+import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.exceptions.CommandErrorHandler
 import net.refractored.joblistings.listeners.PlayerJoinListener
@@ -109,7 +110,6 @@ class JobListings : JavaPlugin() {
         server.servicesManager.getRegistration(Economy::class.java)?.let {
             eco = it.provider
         } ?: run {
-            // This probably would never get ran as the plugin.yml requires vault.
             logger.warning("A economy plugin not found! Disabling plugin.")
             server.pluginManager.disablePlugin(this)
             return
@@ -198,6 +198,7 @@ class JobListings : JavaPlugin() {
         reloadConfig()
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
         gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
+        Presets.refreshPresets()
     }
 
     companion object {

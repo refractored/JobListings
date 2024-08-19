@@ -1,8 +1,8 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
-import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.commands.autocompletion.OrderStack
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -25,7 +25,7 @@ class CreateOrderMaterial {
     @Command("joblistings create material")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
-        material: Material,
+        orderStack: OrderStack,
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
@@ -109,19 +109,24 @@ class CreateOrderMaterial {
             )
         }
 
-        if (material == Material.AIR) {
+        val item =
+            orderStack.item ?: throw CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.MaterialNotFound"),
+            )
+
+        item.amount = 1
+
+        if (item.type == Material.AIR) {
             throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.MaterialSetToAir"),
             )
         }
 
-        if (blacklistedMaterial(material.name)) {
+        if (blacklistedMaterial(item.type.name)) {
             throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.BlacklistedMaterial"),
             )
         }
-
-        val item = ItemBuilder(material).build()
 
         val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
 

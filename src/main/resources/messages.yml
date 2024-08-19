@@ -94,6 +94,7 @@ OrderComplete:
   NoItemsFound: "<red>None of your order's requirements were met."
   AllOrdersCompleted: "<green>All orders have been completed."
 CreateOrder:
+  MaterialNotFound: "<red>A material was not found."
   LessThanOneItem: "<red>Item amount must be at least 1."
   LessThanOneHour: "<red>Hours must be at least 1."
   LessThanOneCost: "<red>Cost must be at least 1."

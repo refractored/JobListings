@@ -1,51 +1,76 @@
 package net.refractored.joblistings.config
 
 import net.refractored.joblistings.JobListings
+import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
-class Presets(
-    /**
-     * The name of the Gamemode
-     */
-    val name: String,
-    /**
-     * The itemstack data
-     */
-    val item: ItemStack,
-) {
-    companion object {
-        @JvmStatic
-        val gamemodes = mutableMapOf<String, Presets>()
+object Presets {
+    @JvmStatic
+    private val preset = mutableMapOf<String, ItemStack>()
 
-        /**
-         * Create a new queue and add it to the map of queues
-         * @return The gamemode that was created
-         * @param name The name of the queue
-         * @param matchData The data that will be applied to any match created from this queue
-         */
-        @JvmStatic
-        fun createPreset(
-            name: String,
-            item: ItemStack,
-        ): Presets {
-            val preset = Presets(name, item)
-            gamemodes[name] = preset
-            return preset
+    /**
+     * Gets a preset from the loaded presets
+     * @param name The name of the preset
+     * @return The itemstack for the preset, or null if it does not exist
+     */
+    @JvmStatic
+    fun getPreset(name: String): ItemStack? = preset[name]
+
+    /**
+     * Gets a preset from the loaded presets
+     * @return The mutable preset list
+     */
+    @JvmStatic
+    fun getPresets() = preset
+
+    /**
+     * Create a new preset and adds it to the config & map
+     * @param name The name of the preset
+     * @param item The itemstack for the preset
+     */
+    @JvmStatic
+    fun createPreset(
+        name: String,
+        item: ItemStack,
+    ) {
+        if (preset.containsKey(name)) {
+            throw IllegalArgumentException("Preset already exists.")
         }
+        JobListings.instance.presets.set(name, item)
+        JobListings.instance.presets.save(JobListings.instance.dataFolder.resolve("presets.yml"))
+        preset[name] = item
+    }
 
-        /**
-         * Replaces and deletes all gamemodes with the ones in the config.
-         * This does the same with queues.
-         * If "create-queue" is true, a queue will be created for that gamemode.
-         */
-        fun refreshPresets() {
-            gamemodes.clear()
-            val config = JobListings.instance.presets
-            val section = config.getConfigurationSection("")
-            val keys = section!!.getKeys(false)
-            for (key in keys) {
-                createPreset(key, config.getItemStack(key)!!)
+    /**
+     * Removes a preset from the config & map
+     * @return The itemstack that was created
+     * @param name The name of the preset
+     */
+    @JvmStatic
+    fun removePreset(name: String) {
+        if (!preset.containsKey(name)) {
+            throw IllegalArgumentException("Preset does not exist.")
+        }
+        JobListings.instance.presets.set(name, null)
+        preset.remove(name)
+    }
+
+    /**
+     * Deletes all presets in the map and populates it with the presets in the config.
+     */
+    @JvmStatic
+    fun refreshPresets() {
+        preset.clear()
+        val config = JobListings.instance.presets
+        val section = config.getConfigurationSection("")
+        val keys = section!!.getKeys(false)
+        if (keys.isEmpty()) return
+        for (key in keys) {
+            if (Material.entries.any { it.name.equals(key, true) }) {
+                JobListings.instance.logger.severe("Presets cannot be the same name as a existing minecraft material! ($key)")
+                continue
             }
+            createPreset(key, config.getItemStack(key)!!)
         }
     }
 }
