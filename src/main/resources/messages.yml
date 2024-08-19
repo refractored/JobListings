@@ -266,3 +266,7 @@ ClaimedOrders:
   # %0 = Order items left to refund.
   OrderPartiallyRefunded: "<green>Order partially refunded! %0 items left to claim."
   OrderAlreadyRefunded: "<red>You have already refunded this order!"
+CreatePreset:
+  MaterialAlreadyExists: "<red>A preset with this material already exists."
+  NotHoldingItem: "<red>You must be holding the item to create a preset."
+  PresetCreated: "<green>Created preset!"

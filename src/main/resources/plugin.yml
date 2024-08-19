@@ -44,3 +44,9 @@ permissions:
   joblistings.admin.reload:
     description: "Lets the player reload the plugin."
     default: op
+  joblistings.admin.create.preset:
+    description: "Lets the player create a preset."
+    default: op
+  joblistings.admin.delete.preset:
+    description: "Lets the player delete a preset."
+    default: op

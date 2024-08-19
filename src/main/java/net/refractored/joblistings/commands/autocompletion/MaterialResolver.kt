@@ -1,6 +1,5 @@
 package net.refractored.joblistings.commands.autocompletion
 
-import com.willfp.eco.util.containsIgnoreCase
 import net.refractored.joblistings.JobListings
 import org.bukkit.Material
 import revxrsal.commands.autocomplete.SuggestionProvider
@@ -16,7 +15,7 @@ class MaterialResolver : SuggestionProvider {
         val stringArgs = args.joinToString(" ")
         return Material.entries
             .map { it.name.lowercase() }
-            .filter { !getBlacklistedMaterials().containsIgnoreCase(it) }
+            .filter { !getBlacklistedMaterials().contains(it.lowercase()) }
             .filter { it.startsWith(stringArgs, true) }
             .toMutableSet()
     }

@@ -64,6 +64,12 @@ class JobListings : JavaPlugin() {
     lateinit var gui: FileConfiguration
         private set
 
+    /**
+     * The preset configuration
+     */
+    lateinit var presets: FileConfiguration
+        private set
+
     private lateinit var cleanDatabase: BukkitTask
 
     override fun onEnable() {
@@ -86,10 +92,16 @@ class JobListings : JavaPlugin() {
             saveResource("gui.yml", false)
         }
 
+        if (!File(dataFolder, "presets.yml").exists()) {
+            saveResource("presets.yml", false)
+        }
+
         // Load messages config
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
         // Load gui config
         gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
+        // Load preset config
+        presets = YamlConfiguration.loadConfiguration(dataFolder.resolve("presets.yml"))
 
         // Initialize the database
         Database.init()
@@ -148,6 +160,7 @@ class JobListings : JavaPlugin() {
         handler.register(CompleteOrders())
         handler.register(HelpCommand())
         handler.register(ReloadCommand())
+        handler.register(CreatePreset())
 
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)

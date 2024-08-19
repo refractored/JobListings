@@ -2,7 +2,6 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.item.ItemBuilder
-import com.willfp.eco.util.containsIgnoreCase
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
@@ -180,6 +179,6 @@ class CreateOrderMaterial {
         blacklistedMaterials.addAll(
             JobListings.instance.config.getStringList("Orders.BlacklistedCreateMaterials"),
         )
-        return blacklistedMaterials.containsIgnoreCase(arg)
+        return blacklistedMaterials.any { it.equals(arg, true) }
     }
 }
