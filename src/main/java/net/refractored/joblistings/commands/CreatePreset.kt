@@ -2,6 +2,7 @@ package net.refractored.joblistings.commands
 
 import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.exceptions.CommandErrorException
+import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
 import revxrsal.commands.annotation.Command
@@ -43,5 +44,11 @@ class CreatePreset {
         item.amount = 1
 
         Presets.createPreset(presetName, item)
+        actor.reply(
+            MessageUtil.getMessage(
+                "CreatePreset.CreatedPreset",
+                listOf(MessageReplacement(presetName)),
+            ),
+        )
     }
 }

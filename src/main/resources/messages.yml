@@ -268,6 +268,8 @@ ClaimedOrders:
   OrderPartiallyRefunded: "<green>Order partially refunded! %0 items left to claim."
   OrderAlreadyRefunded: "<red>You have already refunded this order!"
 CreatePreset:
-  MaterialAlreadyExists: "<red>A preset with this material already exists."
+  # %0 = Name
+  CreatedPreset: "<green>Created preset: %0"
+  MaterialAlreadyExists: "<red>A minecraft material with this name already exists."
   NotHoldingItem: "<red>You must be holding the item to create a preset."
   PresetCreated: "<green>Created preset!"
