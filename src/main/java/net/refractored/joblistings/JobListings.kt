@@ -5,6 +5,7 @@ import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.commands.autocompletion.MaterialResolver
+import net.refractored.joblistings.commands.autocompletion.OrderStack
 import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.exceptions.CommandErrorHandler
@@ -12,7 +13,6 @@ import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import org.bstats.bukkit.Metrics
-import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
@@ -137,7 +137,7 @@ class JobListings : JavaPlugin() {
         // Register autocompletions
         val materialResolver = MaterialResolver()
 
-        handler.autoCompleter.registerParameterSuggestions(Material::class.java, materialResolver)
+        handler.autoCompleter.registerParameterSuggestions(OrderStack::class.java, materialResolver)
         handler.registerBrigadier()
 
         // Register the command exception handler
