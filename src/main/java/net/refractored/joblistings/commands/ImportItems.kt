@@ -21,10 +21,6 @@ class ImportItems {
         actor: BukkitCommandActor,
         import: String,
     ) {
-        actor.reply(
-            MessageUtil.getMessage("ImportItems.ImportingItems"),
-        )
-
         when (import) {
             "eco" -> {
                 if (!JobListings.instance.ecoPlugin) {
@@ -37,6 +33,9 @@ class ImportItems {
                         ),
                     )
                 }
+                actor.reply(
+                    MessageUtil.getMessage("ImportItems.ImportingItems"),
+                )
                 importEcoItems()
             }
             else -> throw CommandErrorException(
