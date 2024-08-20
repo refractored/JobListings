@@ -9,6 +9,7 @@ depend: [Vault]
 softdepend:
   - Essentials
   - eco
+  - EcoItems
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:2.0.0
   - com.j256.ormlite:ormlite-core:5.6
@@ -55,4 +56,7 @@ permissions:
     default: op
   joblistings.admin.get.preset:
     description: "Lets the player view a copy of the preset in chat."
+    default: op
+  joblistings.admin.import:
+    description: "Lets the player import items from a custom item plugin."
     default: op

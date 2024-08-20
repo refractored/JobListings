@@ -202,6 +202,7 @@ class JobListings : JavaPlugin() {
         handler.register(RemovePreset())
         handler.register(PresetInfo())
         handler.register(PresetGet())
+        handler.register(ImportItems())
 //        handler.registerBrigadier()
 
         // Register listeners
@@ -230,6 +231,7 @@ class JobListings : JavaPlugin() {
         if (this::cleanDatabase.isInitialized) {
             cleanDatabase.cancel()
         }
+
         logger.info("JobListings has been disabled!")
     }
 

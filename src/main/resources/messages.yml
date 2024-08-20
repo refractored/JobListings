@@ -285,3 +285,9 @@ PresetGet:
   InventoryFull: "<red>Your inventory is full."
   # %0 = Preset Name
   GotPreset: "<green>Added preset %0 to your inventory."
+ImportItems:
+  ImportingItems: "<green>Importing items."
+  DoneImportingItems: "<green>Done importing items."
+  UnsupportedPlugin: "<red>Unsupported Option."
+  # %0 = Plugin Name
+  PluginNotLoaded: "<red>Plugin not %0 loaded or installed."
