@@ -4,6 +4,9 @@ import com.earth2me.essentials.Essentials
 import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
+import net.refractored.joblistings.commands.autocompletion.MaterialResolver
+import net.refractored.joblistings.commands.autocompletion.OrderStack
+import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.exceptions.CommandErrorHandler
 import net.refractored.joblistings.listeners.PlayerJoinListener
@@ -62,6 +65,12 @@ class JobListings : JavaPlugin() {
     lateinit var gui: FileConfiguration
         private set
 
+    /**
+     * The preset configuration
+     */
+    lateinit var presets: FileConfiguration
+        private set
+
     private lateinit var cleanDatabase: BukkitTask
 
     override fun onEnable() {
@@ -84,10 +93,16 @@ class JobListings : JavaPlugin() {
             saveResource("gui.yml", false)
         }
 
+        if (!File(dataFolder, "presets.yml").exists()) {
+            saveResource("presets.yml", false)
+        }
+
         // Load messages config
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
         // Load gui config
         gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
+        // Load preset config
+        presets = YamlConfiguration.loadConfiguration(dataFolder.resolve("presets.yml"))
 
         // Initialize the database
         Database.init()
@@ -95,7 +110,6 @@ class JobListings : JavaPlugin() {
         server.servicesManager.getRegistration(Economy::class.java)?.let {
             eco = it.provider
         } ?: run {
-            // This probably would never get ran as the plugin.yml requires vault.
             logger.warning("A economy plugin not found! Disabling plugin.")
             server.pluginManager.disablePlugin(this)
             return
@@ -120,19 +134,33 @@ class JobListings : JavaPlugin() {
         // Create command handler
         handler = BukkitCommandHandler.create(this)
 
+        // Register autocompletions
+        val materialResolver = MaterialResolver()
+        handler.registerValueResolver(OrderStack::class.java, materialResolver)
+        handler.autoCompleter.registerParameterSuggestions(OrderStack::class.java, materialResolver)
+        handler.registerBrigadier()
+
         // Register the command exception handler
         handler.setExceptionHandler(CommandErrorHandler())
 
+        if (!instance.config.getBoolean("Orders.CreateHand", true) && !instance.config.getBoolean("Orders.CreateMaterial", true)) {
+            logger.warning("You have disabled both order creation methods!")
+            logger.warning("Please double check your config!")
+        }
         // Register commands
-        handler.register(CreateOrderHand())
-        handler.register(CreateOrderMaterial())
+        if (instance.config.getBoolean("Orders.CreateHand", true)) {
+            handler.register(CreateOrderHand())
+        }
+        if (instance.config.getBoolean("Orders.CreateMaterial", true)) {
+            handler.register(CreateOrderMaterial())
+        }
         handler.register(OwnedOrders())
         handler.register(GetOrders())
         handler.register(ClaimedOrders())
         handler.register(CompleteOrders())
         handler.register(HelpCommand())
         handler.register(ReloadCommand())
-        handler.registerBrigadier()
+        handler.register(CreatePreset())
 
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)
@@ -170,6 +198,7 @@ class JobListings : JavaPlugin() {
         reloadConfig()
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
         gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
+        Presets.refreshPresets()
     }
 
     companion object {

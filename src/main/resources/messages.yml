@@ -94,10 +94,13 @@ OrderComplete:
   NoItemsFound: "<red>None of your order's requirements were met."
   AllOrdersCompleted: "<green>All orders have been completed."
 CreateOrder:
+  MaterialNotFound: "<red>A material was not found."
   LessThanOneItem: "<red>Item amount must be at least 1."
   LessThanOneHour: "<red>Hours must be at least 1."
   LessThanOneCost: "<red>Cost must be at least 1."
   NotEnoughMoney: "<red>You do not have enough money to cover your order."
+  # %0 = Material Name
+  BlacklistedMaterial: "<red>You cannot create an order with %0."
   # %0 = MaxOrdersTime from config.yml
   MoreThanMaxHoursConfig: "<red>Hours must be less than or equal to %0"
   # %0 = MinOrdersTime from config.yml
@@ -264,3 +267,9 @@ ClaimedOrders:
   # %0 = Order items left to refund.
   OrderPartiallyRefunded: "<green>Order partially refunded! %0 items left to claim."
   OrderAlreadyRefunded: "<red>You have already refunded this order!"
+CreatePreset:
+  # %0 = Name
+  CreatedPreset: "<green>Created preset: %0"
+  MaterialAlreadyExists: "<red>A minecraft material with this name already exists."
+  NotHoldingItem: "<red>You must be holding the item to create a preset."
+  PresetCreated: "<green>Created preset!"

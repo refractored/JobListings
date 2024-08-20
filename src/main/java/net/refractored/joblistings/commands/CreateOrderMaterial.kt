@@ -1,8 +1,8 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
-import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.commands.autocompletion.OrderStack
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -25,31 +25,31 @@ class CreateOrderMaterial {
     @Command("joblistings create material")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
-        material: Material,
+        orderStack: OrderStack,
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
     ) {
         if (actor.isConsole) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
 
         if (amount < 1) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.LessThanOneItem"),
             )
         }
 
         if (hours < 1) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.LessThanOneHour"),
             )
         }
 
         if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMaxHoursConfig",
                     listOf(
@@ -109,13 +109,24 @@ class CreateOrderMaterial {
             )
         }
 
-        if (material == Material.AIR) {
+        val item =
+            orderStack.item ?: throw CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.MaterialNotFound"),
+            )
+
+        item.amount = 1
+
+        if (item.type == Material.AIR) {
             throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.MaterialSetToAir"),
             )
         }
 
-        val item = ItemBuilder(material).build()
+        if (blacklistedMaterial(item.type.name)) {
+            throw CommandErrorException(
+                MessageUtil.getMessage("CreateOrder.BlacklistedMaterial"),
+            )
+        }
 
         val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
 
@@ -131,7 +142,7 @@ class CreateOrderMaterial {
                 )
             }
             maxItems != 0 && amount >= maxItems -> {
-                throw net.refractored.joblistings.exceptions.CommandErrorException(
+                throw CommandErrorException(
                     MessageUtil.getMessage(
                         "CreateOrder.MaxOrdersExceeded",
                         listOf(
@@ -166,5 +177,13 @@ class CreateOrderMaterial {
                 ),
             ),
         )
+    }
+
+    private fun blacklistedMaterial(arg: String): Boolean {
+        val blacklistedMaterials = JobListings.instance.config.getStringList("Orders.BlacklistedMaterials")
+        blacklistedMaterials.addAll(
+            JobListings.instance.config.getStringList("Orders.BlacklistedCreateMaterials"),
+        )
+        return blacklistedMaterials.any { it.equals(arg, true) }
     }
 }

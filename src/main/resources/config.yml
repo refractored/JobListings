@@ -29,6 +29,37 @@ Orders:
   # Setting this to 0 will disable the limit
   # Setting this to -1 will use the item's max stack size (May differ with material type)
   MaximumItems: 256
+  # If orders can be created via hand (requires restart to change)
+  CreateHand: true
+  # If orders can be created via material (requires restart to change)
+  CreateMaterial: true
+  # Blocks players from creating orders with these materials Inhand, and via material.
+  BlacklistedMaterials:
+  # These materials below are blacklisted because they aren't actual stacks of items.
+  # Without this, creating an order with these materials will cause issues.
+    - FIRE
+    - LAVA
+    - WATER
+    - END_PORTAL
+    - END_GATEWAY
+    - NETHER_PORTAL
+  # These materials below are blacklisted because they are admin blocks.
+  # If you want you can remove this.
+    - BEDROCK
+    - BARRIER
+    - AIR
+    - LIGHT
+    - END_PORTAL_FRAME
+    - STRUCTURE_BLOCK
+    - COMMAND_BLOCK
+    - STRUCTURE_VOID
+    - JIGSAW
+  # Creating an order via material will not have any data. (/joblistings create material)
+  # By default spawners are blocked, because they will be all be pig spawners if not created via hand.
+  # This can be disabled if you don't mind it.
+  # This includes everything from BlacklistedMaterials too, so don't add them here if its already there.
+  BlacklistedCreateMaterials:
+    - SPAWNER
 
 # Mail is used when an order is updated and the player is offline
 Mail:
