@@ -104,6 +104,9 @@ class JobListings : JavaPlugin() {
         // Load preset config
         presets = YamlConfiguration.loadConfiguration(dataFolder.resolve("presets.yml"))
 
+        // Load presets
+        Presets.refreshPresets()
+
         // Initialize the database
         Database.init()
 
@@ -161,6 +164,7 @@ class JobListings : JavaPlugin() {
         handler.register(HelpCommand())
         handler.register(ReloadCommand())
         handler.register(CreatePreset())
+        handler.register(RemovePreset())
 
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)

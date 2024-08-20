@@ -4,17 +4,15 @@ import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
-import org.bukkit.Material
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
-import revxrsal.commands.bukkit.player
 
-class CreatePreset {
-    @CommandPermission("joblistings.admin.create.preset")
+class RemovePreset {
+    @CommandPermission("joblistings.admin.remove.preset")
     @Description("Reloads plugin configuration")
-    @Command("joblistings create preset")
+    @Command("joblistings remove preset")
     fun createPreset(
         actor: BukkitCommandActor,
         presetName: String,
@@ -24,34 +22,15 @@ class CreatePreset {
                 MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
-        if (Material.entries.any { it.name.equals(presetName, true) }) {
+        if (Presets.getPresets()[presetName] == null) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreatePreset.MaterialAlreadyExists"),
+                MessageUtil.getMessage("RemovePreset.PresetDoesNotExist"),
             )
         }
-        if (Presets.getPresets()[presetName] != null) {
-            throw CommandErrorException(
-                MessageUtil.getMessage("CreatePreset.PresetAlreadyExists"),
-            )
-        }
-        val item =
-            actor.player.inventory.itemInMainHand
-                .clone()
-
-        if (item.type == Material.AIR) {
-            throw CommandErrorException(
-                MessageUtil.getMessage(
-                    "CreatePreset.NotHoldingItem",
-                ),
-            )
-        }
-
-        item.amount = 1
-
-        Presets.createPreset(presetName, item)
+        Presets.removePreset(presetName)
         actor.reply(
             MessageUtil.getMessage(
-                "CreatePreset.CreatedPreset",
+                "RemovePreset.RemovedPreset",
                 listOf(MessageReplacement(presetName)),
             ),
         )

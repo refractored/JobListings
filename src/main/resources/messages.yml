@@ -270,6 +270,9 @@ ClaimedOrders:
 CreatePreset:
   # %0 = Name
   CreatedPreset: "<green>Created preset: %0"
-  MaterialAlreadyExists: "<red>A minecraft material with this name already exists."
+  MaterialAlreadyExists: "<red>A vanilla minecraft material with this name already exists."
+  PresetAlreadyExists: "<red>A preset with this name already exists."
   NotHoldingItem: "<red>You must be holding the item to create a preset."
-  PresetCreated: "<green>Created preset!"
+RemovePreset:
+  RemovedPreset: "<green>Removed preset: %0"
+  PresetDoesNotExist: "<red>Preset does not exist."
