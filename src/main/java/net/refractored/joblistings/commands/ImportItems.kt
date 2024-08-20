@@ -28,7 +28,7 @@ class ImportItems {
         when (import) {
             "eco" -> {
                 if (!JobListings.instance.ecoPlugin) {
-                    actor.reply(
+                    throw CommandErrorException(
                         MessageUtil.getMessage(
                             "ImportItems.PluginNotLoaded",
                             listOf(
