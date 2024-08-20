@@ -50,3 +50,9 @@ permissions:
   joblistings.admin.remove.preset:
     description: "Lets the player delete a preset."
     default: op
+  joblistings.admin.info.preset:
+    description: "Lets the player view a copy of the preset in chat."
+    default: op
+  joblistings.admin.get.preset:
+    description: "Lets the player view a copy of the preset in chat."
+    default: op

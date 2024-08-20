@@ -4,8 +4,6 @@ import com.earth2me.essentials.Essentials
 import com.samjakob.spigui.SpiGUI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
-import net.refractored.joblistings.commands.autocompletion.MaterialResolver
-import net.refractored.joblistings.commands.autocompletion.OrderStack
 import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.exceptions.CommandErrorHandler
@@ -13,11 +11,14 @@ import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import org.bstats.bukkit.Metrics
+import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import revxrsal.commands.bukkit.BukkitCommandHandler
+import revxrsal.commands.command.CommandActor
+import revxrsal.commands.command.ExecutableCommand
 import java.io.File
 
 /**
@@ -138,13 +139,47 @@ class JobListings : JavaPlugin() {
         handler = BukkitCommandHandler.create(this)
 
         // Register autocompletions
-        val materialResolver = MaterialResolver()
-        handler.registerValueResolver(OrderStack::class.java, materialResolver)
-        handler.autoCompleter.registerParameterSuggestions(OrderStack::class.java, materialResolver)
-        handler.registerBrigadier()
+//        val materialResolver = MaterialResolver()
+//        handler.registerValueResolver(OrderStack::class.java, materialResolver)
+//        handler.autoCompleter.registerParameterSuggestions(OrderStack::class.java, materialResolver)
 
         // Register the command exception handler
         handler.setExceptionHandler(CommandErrorHandler())
+
+        handler.autoCompleter.registerSuggestion(
+            "presets",
+        ) { args: List<String?>?, sender: CommandActor?, command: ExecutableCommand? ->
+            return@registerSuggestion Presets
+                .getPresets()
+                .keys
+        }
+
+        handler.autoCompleter.registerSuggestion(
+            "materials",
+        ) { args: List<String>, sender: CommandActor?, command: ExecutableCommand? ->
+            val stringArgs = args.joinToString(" ").lowercase()
+
+            val config = instance.config
+            val blacklistedMaterials = config.getStringList("Orders.BlacklistedMaterials")
+            val additionalBlacklistedMaterials = config.getStringList("Orders.BlacklistedCreateMaterials")
+            val blacklist =
+                (blacklistedMaterials + additionalBlacklistedMaterials)
+                    .map { it.lowercase() }
+                    .toSet()
+
+            val materialSuggestions =
+                Material.entries
+                    .asSequence()
+                    .map { it.name.lowercase() }
+                    .filterNot { name -> name in blacklist.map { it.lowercase() } }
+                    .toMutableSet()
+
+            val presetSuggestions = Presets.getPresets().keys
+
+            return@registerSuggestion (materialSuggestions + presetSuggestions)
+                .filter { it.startsWith(stringArgs, ignoreCase = true) }
+                .toMutableSet()
+        }
 
         if (!instance.config.getBoolean("Orders.CreateHand", true) && !instance.config.getBoolean("Orders.CreateMaterial", true)) {
             logger.warning("You have disabled both order creation methods!")
@@ -165,6 +200,9 @@ class JobListings : JavaPlugin() {
         handler.register(ReloadCommand())
         handler.register(CreatePreset())
         handler.register(RemovePreset())
+        handler.register(PresetInfo())
+        handler.register(PresetGet())
+//        handler.registerBrigadier()
 
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)

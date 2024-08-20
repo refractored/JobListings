@@ -10,12 +10,12 @@ import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 
-class RemovePreset {
-    @CommandPermission("joblistings.admin.remove.preset")
+class PresetInfo {
+    @CommandPermission("joblistings.admin.view.preset")
     @Description("Reloads plugin configuration")
-    @Command("joblistings preset remove")
+    @Command("joblistings preset info")
     @AutoComplete("@presets")
-    fun removePreset(
+    fun presetInfo(
         actor: BukkitCommandActor,
         presetName: String,
     ) {
@@ -24,16 +24,19 @@ class RemovePreset {
                 MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
-        if (Presets.getPresets()[presetName] == null) {
+        val item = Presets.getPresets()[presetName]
+        if (item == null) {
             throw CommandErrorException(
-                MessageUtil.getMessage("RemovePreset.PresetDoesNotExist"),
+                MessageUtil.getMessage("PresetInfo.PresetDoesNotExist"),
             )
         }
-        Presets.removePreset(presetName)
         actor.reply(
             MessageUtil.getMessage(
-                "RemovePreset.RemovedPreset",
-                listOf(MessageReplacement(presetName)),
+                "PresetInfo.PresetInfo",
+                listOf(
+                    MessageReplacement(presetName),
+                    MessageReplacement(item.displayName()),
+                ),
             ),
         )
     }

@@ -2,7 +2,7 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.commands.autocompletion.OrderStack
+import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -11,6 +11,8 @@ import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
+import revxrsal.commands.annotation.AutoComplete
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Optional
@@ -23,9 +25,10 @@ class CreateOrderMaterial {
     @CommandPermission("joblistings.create.material")
     @Description("Create an order from the specified material.")
     @Command("joblistings create material")
+    @AutoComplete("@materials * * *")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
-        orderStack: OrderStack,
+        stackName: String,
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
@@ -109,10 +112,12 @@ class CreateOrderMaterial {
             )
         }
 
-        val item =
-            orderStack.item ?: throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.MaterialNotFound"),
-            )
+        val item: ItemStack =
+            Presets.getPreset(stackName)
+                ?: Material.getMaterial(stackName.uppercase())?.let { ItemStack(it) }
+                ?: throw CommandErrorException(
+                    MessageUtil.getMessage("CreateOrder.MaterialNotFound"),
+                )
 
         item.amount = 1
 
@@ -132,7 +137,7 @@ class CreateOrderMaterial {
 
         when {
             maxItems == -1 && amount > item.maxStackSize -> {
-                throw net.refractored.joblistings.exceptions.CommandErrorException(
+                throw CommandErrorException(
                     MessageUtil.getMessage(
                         "CreateOrder.StackSizeExceeded",
                         listOf(

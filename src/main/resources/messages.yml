@@ -276,3 +276,12 @@ CreatePreset:
 RemovePreset:
   RemovedPreset: "<green>Removed preset: %0"
   PresetDoesNotExist: "<red>Preset does not exist."
+PresetInfo:
+  # %0 = Preset Name
+  # %1 = Preset Item
+  PresetInfo: "<green>Preset info for %0: %1"
+  PresetDoesNotExist: "<red>Preset does not exist."
+PresetGet:
+  InventoryFull: "<red>Your inventory is full."
+  # %0 = Preset Name
+  GotPreset: "<green>Added preset %0 to your inventory."

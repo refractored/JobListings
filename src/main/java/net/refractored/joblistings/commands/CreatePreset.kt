@@ -14,7 +14,7 @@ import revxrsal.commands.bukkit.player
 class CreatePreset {
     @CommandPermission("joblistings.admin.create.preset")
     @Description("Reloads plugin configuration")
-    @Command("joblistings create preset")
+    @Command("joblistings preset create")
     fun createPreset(
         actor: BukkitCommandActor,
         presetName: String,

@@ -36,6 +36,9 @@ object Presets {
         if (preset.containsKey(name)) {
             throw IllegalArgumentException("Preset already exists.")
         }
+        if (Material.entries.any { it.name.equals(name, true) }) {
+            throw IllegalArgumentException("Presets cannot be the same name as a existing minecraft material! ($name)")
+        }
         JobListings.instance.presets.set(name, item)
         JobListings.instance.presets.save(JobListings.instance.dataFolder.resolve("presets.yml"))
         preset[name] = item

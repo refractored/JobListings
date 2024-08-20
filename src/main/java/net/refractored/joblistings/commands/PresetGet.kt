@@ -9,13 +9,14 @@ import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
+import revxrsal.commands.bukkit.player
 
-class RemovePreset {
-    @CommandPermission("joblistings.admin.remove.preset")
+class PresetGet {
+    @CommandPermission("joblistings.admin.get.preset")
     @Description("Reloads plugin configuration")
-    @Command("joblistings preset remove")
+    @Command("joblistings preset get")
     @AutoComplete("@presets")
-    fun removePreset(
+    fun presetGet(
         actor: BukkitCommandActor,
         presetName: String,
     ) {
@@ -24,16 +25,26 @@ class RemovePreset {
                 MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
-        if (Presets.getPresets()[presetName] == null) {
+        val item = Presets.getPresets()[presetName]
+        if (item == null) {
             throw CommandErrorException(
-                MessageUtil.getMessage("RemovePreset.PresetDoesNotExist"),
+                MessageUtil.getMessage("PresetInfo.PresetDoesNotExist"),
             )
         }
-        Presets.removePreset(presetName)
+        val itemNumber = (actor.player.inventory.addItem(item)).values.sumOf { it.amount }
+
+        if (itemNumber != 0) {
+            throw CommandErrorException(
+                MessageUtil.getMessage("PresetGet.InventoryFull"),
+            )
+        }
+
         actor.reply(
             MessageUtil.getMessage(
-                "RemovePreset.RemovedPreset",
-                listOf(MessageReplacement(presetName)),
+                "PresetGet.GotPreset",
+                listOf(
+                    MessageReplacement(presetName),
+                ),
             ),
         )
     }
