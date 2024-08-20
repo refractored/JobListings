@@ -287,7 +287,7 @@ PresetGet:
   GotPreset: "<green>Added preset %0 to your inventory."
 ImportItems:
   ImportingItems: "<green>Importing items."
-  DoneImportingItems: "<green>Done importing items."
+  DoneImportingItems: "<green>Done importing items.<newline><yellow><bold>Reminder:</bold>Updating or changing lore on items may require another import."
   UnsupportedPlugin: "<red>Unsupported Option."
   # %0 = Plugin Name
   PluginNotLoaded: "<red>Plugin not %0 loaded or installed."

@@ -9,6 +9,8 @@ version = '2.0'
 
 repositories {
     mavenCentral()
+    maven { url = 'https://maven.pkg.github.com/LoneDev6/API-ItemsAdder' }
+
     maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
@@ -59,6 +61,8 @@ dependencies {
 
     // EssentialsX
     compileOnly 'net.essentialsx:EssentialsX:2.20.1'
+
+    compileOnly 'dev.lone:api-itemsadder:3.6.3-beta-14'
 
     // Kotlin
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:2.0.0"

@@ -53,8 +53,8 @@ class ImportItems {
 
         for (items in customItems) {
             var name = items.key.key
-
             name = name.removePrefix("set_")
+
             JobListings.instance.logger.info("Creating preset for $name")
 
             try {
