@@ -11,6 +11,7 @@ softdepend:
   - Essentials
   - eco
   - EcoItems
+  - RedisChat
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:2.0.0
   - com.j256.ormlite:ormlite-core:5.6

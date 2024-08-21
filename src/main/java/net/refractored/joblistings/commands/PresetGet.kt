@@ -25,12 +25,12 @@ class PresetGet {
                 MessageUtil.getMessage("General.IsNotPlayer"),
             )
         }
+
         val item = Presets.getPresets()[presetName]
-        if (item == null) {
-            throw CommandErrorException(
+            ?: throw CommandErrorException(
                 MessageUtil.getMessage("PresetInfo.PresetDoesNotExist"),
             )
-        }
+
         val itemNumber = (actor.player.inventory.addItem(item)).values.sumOf { it.amount }
 
         if (itemNumber != 0) {

@@ -60,7 +60,7 @@ Orders:
     # %0 = Order info
     # %1 = Order amount
     # %2 = Order cost/reward amount (money)
-  Announcement: "<green> A new order by <gray>%0</gray> has been created for %2: %1"
+  Announcement: "<green>A new order by <gray>%0</gray> has been created for %2: %1"
 Reload:
   Reloaded: "<green>Plugin reloaded."
 OrderComplete:

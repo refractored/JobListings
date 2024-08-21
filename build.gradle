@@ -86,7 +86,7 @@ dependencies {
     // SpiGUI (GUI)
     implementation 'com.samjakob:SpiGUI:1.3.1'
 
-    implementation 'com.github.Emibergo02:RedisChat:5.3.1'
+    compileOnly 'com.github.Emibergo02:RedisChat:5.3.1'
 
 }
 
