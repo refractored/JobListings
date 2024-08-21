@@ -50,6 +50,12 @@ class JobListings : JavaPlugin() {
         private set
 
     /**
+     * Returns true if ItemsAdder is loaded
+     */
+    var itemsAdder: Boolean = false
+        private set
+
+    /**
      * The command handler
      */
     private lateinit var handler: BukkitCommandHandler
@@ -133,6 +139,11 @@ class JobListings : JavaPlugin() {
         server.pluginManager.getPlugin("eco")?.let {
             ecoPlugin = true
             logger.info("Hooked into eco")
+        }
+
+        server.pluginManager.getPlugin("ItemsAdder")?.let {
+            itemsAdder = true
+            logger.info("Hooked into ItemsAdder")
         }
 
         // Create command handler

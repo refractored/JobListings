@@ -1,7 +1,6 @@
 package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
-import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
@@ -174,20 +173,16 @@ class CreateOrderHand {
 
         JobListings.instance.eco.withdrawPlayer(actor.player, cost)
 
-        Order.createOrder(
-            actor.uniqueId,
-            cost,
-            item,
-            amount,
-            hours,
-        )
+        val order =
+            Order.createOrder(
+                actor.uniqueId,
+                cost,
+                item,
+                amount,
+                hours,
+            )
 
-        val orderInfo =
-            Component
-                .text()
-                .append(item.displayName())
-                .append(MessageUtil.toComponent(" x$amount<reset>"))
-                .build()
+        val orderInfo = order.getItemInfo()
 
         actor.player.sendMessage(
             MessageUtil.getMessage(

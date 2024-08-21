@@ -43,11 +43,11 @@ Orders:
     - END_PORTAL
     - END_GATEWAY
     - NETHER_PORTAL
+    - AIR
   # These materials below are blacklisted because they are admin blocks.
   # If you want you can remove this.
     - BEDROCK
     - BARRIER
-    - AIR
     - LIGHT
     - END_PORTAL_FRAME
     - STRUCTURE_BLOCK

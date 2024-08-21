@@ -162,15 +162,16 @@ class CreateOrderMaterial {
 
         JobListings.instance.eco.withdrawPlayer(actor.player, cost)
 
-        val orderInfo =
-            Order
-                .createOrder(
-                    actor.uniqueId,
-                    cost,
-                    item,
-                    amount,
-                    hours,
-                ).getItemInfo()
+        val order =
+            Order.createOrder(
+                actor.uniqueId,
+                cost,
+                item,
+                amount,
+                hours,
+            )
+
+        val orderInfo = order.getItemInfo()
 
         actor.player.sendMessage(
             MessageUtil.getMessage(

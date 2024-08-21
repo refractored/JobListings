@@ -13,7 +13,7 @@ import revxrsal.commands.bukkit.player
 
 class PresetGet {
     @CommandPermission("joblistings.admin.get.preset")
-    @Description("Reloads plugin configuration")
+    @Description("Gets the item for the preset.")
     @Command("joblistings preset get")
     @AutoComplete("@presets")
     fun presetGet(

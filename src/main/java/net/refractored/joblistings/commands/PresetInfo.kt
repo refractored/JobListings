@@ -12,7 +12,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class PresetInfo {
     @CommandPermission("joblistings.admin.view.preset")
-    @Description("Reloads plugin configuration")
+    @Description("Gets the info for a preset in chat.")
     @Command("joblistings preset info")
     @AutoComplete("@presets")
     fun presetInfo(

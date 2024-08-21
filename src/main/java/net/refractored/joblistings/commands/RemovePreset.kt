@@ -12,7 +12,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class RemovePreset {
     @CommandPermission("joblistings.admin.remove.preset")
-    @Description("Reloads plugin configuration")
+    @Description("Removes a preset from the config and memory.")
     @Command("joblistings preset remove")
     @AutoComplete("@presets")
     fun removePreset(

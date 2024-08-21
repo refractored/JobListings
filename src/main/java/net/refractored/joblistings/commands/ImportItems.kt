@@ -1,6 +1,7 @@
 package net.refractored.joblistings.commands
 
 import com.willfp.eco.core.items.Items
+import dev.lone.itemsadder.api.ItemsAdder
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.exceptions.CommandErrorException
@@ -14,9 +15,9 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class ImportItems {
     @CommandPermission("joblistings.admin.import")
-    @Description("Reloads plugin configuration")
+    @Description("Imports items from other plugins.")
     @Command("joblistings preset import")
-    @AutoComplete("eco")
+    @AutoComplete("eco|ItemsAdder")
     fun importItems(
         actor: BukkitCommandActor,
         import: String,
@@ -37,6 +38,22 @@ class ImportItems {
                     MessageUtil.getMessage("ImportItems.ImportingItems"),
                 )
                 importEcoItems()
+            }
+            "ItemsAdder" -> {
+                if (!JobListings.instance.itemsAdder) {
+                    throw CommandErrorException(
+                        MessageUtil.getMessage(
+                            "ImportItems.PluginNotLoaded",
+                            listOf(
+                                MessageReplacement(import),
+                            ),
+                        ),
+                    )
+                }
+                actor.reply(
+                    MessageUtil.getMessage("ImportItems.ImportingItems"),
+                )
+                importItemsAdderItems()
             }
             else -> throw CommandErrorException(
                 MessageUtil.getMessage("ImportItems.UnsupportedPlugin"),
@@ -59,6 +76,23 @@ class ImportItems {
 
             try {
                 Presets.createPreset(name, items.item)
+            } catch (e: IllegalArgumentException) {
+                JobListings.instance.logger.warning("Preset already exists for $name")
+                continue
+            }
+        }
+    }
+
+    private fun importItemsAdderItems() {
+        val customItems = ItemsAdder.getAllItems()
+
+        for (items in customItems) {
+            val name = items.id
+
+            JobListings.instance.logger.info("Creating preset for $name")
+
+            try {
+                Presets.createPreset(name, items.itemStack)
             } catch (e: IllegalArgumentException) {
                 JobListings.instance.logger.warning("Preset already exists for $name")
                 continue
