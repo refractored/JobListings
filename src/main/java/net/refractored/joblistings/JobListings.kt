@@ -2,6 +2,7 @@ package net.refractored.joblistings
 
 import com.earth2me.essentials.Essentials
 import com.samjakob.spigui.SpiGUI
+import dev.unnm3d.redischat.RedisChat
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.config.Presets
@@ -47,6 +48,12 @@ class JobListings : JavaPlugin() {
      * Returns true if eco is loaded
      */
     var ecoPlugin: Boolean = false
+        private set
+
+    /**
+     * Returns true if eco is loaded
+     */
+    var redisChat: RedisChat? = null
         private set
 
     /**
@@ -144,6 +151,11 @@ class JobListings : JavaPlugin() {
         server.pluginManager.getPlugin("ItemsAdder")?.let {
             itemsAdder = true
             logger.info("Hooked into ItemsAdder")
+        }
+
+        server.pluginManager.getPlugin("RedisChat")?.let {
+            redisChat = (it as RedisChat)
+            logger.info("Hooked into RedisChat")
         }
 
         // Create command handler

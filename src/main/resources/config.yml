@@ -33,6 +33,10 @@ Orders:
   CreateHand: true
   # If orders can be created via material (requires restart to change)
   CreateMaterial: true
+  # If orders should be announced in chat when created
+  AnnounceOnOrderCreate: false
+  # If orders should be announced via redis chat. (Requires redis chat)
+  RedisChatAnnounce: false
   # Blocks players from creating orders with these materials Inhand, and via material.
   BlacklistedMaterials:
   # These materials below are blacklisted because they aren't actual stacks of items.

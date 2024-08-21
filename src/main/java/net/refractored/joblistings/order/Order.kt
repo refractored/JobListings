@@ -5,7 +5,9 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import com.willfp.eco.core.items.Items
+import dev.unnm3d.redischat.chat.objects.ChatMessage
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
@@ -442,6 +444,7 @@ data class Order(
             item: ItemStack,
             amount: Int,
             hours: Long,
+            announce: Boolean = true,
         ): Order {
             val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
             when {
@@ -479,6 +482,27 @@ data class Order(
                     0,
                 )
             orderDao.create(order)
+
+            if (announce && JobListings.instance.config.getBoolean("Orders.AnnounceOnOrderCreate", false)) {
+                val message =
+                    MessageUtil.getMessage(
+                        "Orders.Announcement",
+                        listOf(
+                            MessageReplacement(order.getOwner().name ?: "Unknown"),
+                            MessageReplacement(order.getItemInfo()),
+                            MessageReplacement(order.cost.toString()),
+                        ),
+                    )
+                if (JobListings.instance.redisChat != null && JobListings.instance.config.getBoolean("Orders.RedisChatAnnounce", false)) {
+                    JobListings.instance.redisChat!!
+                        .dataManager
+                        .sendChatMessage(
+                            ChatMessage(LegacyComponentSerializer.legacyAmpersand().serialize(message)),
+                        )
+                } else {
+                    JobListings.instance.server.broadcast(message)
+                }
+            }
             return order
         }
 

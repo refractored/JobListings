@@ -57,7 +57,10 @@ Orders:
     # %2 = Order cost/reward amount (money)
     # This is considered the Order Info and is used in various messages.
   OrderInfo: "<gray>%0 <white>x <gray>%1"
-
+    # %0 = Order info
+    # %1 = Order amount
+    # %2 = Order cost/reward amount (money)
+  Announcement: "<green> A new order by <gray>%0</gray> has been created for %2: %1"
 Reload:
   Reloaded: "<green>Plugin reloaded."
 OrderComplete:
