@@ -296,6 +296,6 @@ ImportItems:
   UnsupportedPlugin: "<red>Unsupported Option."
   # %0 = Plugin Name
   PluginNotLoaded: "<red>Plugin not %0 loaded or installed."
-  # Prefix to use while importing items for enchants..
+  # Prefix to use while importing items for enchants.
   # To update the prefix, you will need to reimport all items.
   EnchantmentBookPrefix: "enchanted_book_"
