@@ -291,8 +291,11 @@ PresetGet:
 ImportItems:
   ImportingItems: "<green>Importing items."
   DoneImportingItems: "<green>Done importing items.
-  <newline><yellow><bold>Reminder 1:</bold>Updating or changing lore on items may require another import.
-  <newline><yellow><bold>Reminder 2:</bold>This adds EVERY custom item from a plugin, make sure to filter out what you don't want."
+  <newline><yellow><bold>Reminder 1:</bold> Updating or changing lore on items may require another import.
+  <newline><yellow><bold>Reminder 2:</bold> This adds EVERY custom item from a plugin, make sure to filter out what you don't want."
   UnsupportedPlugin: "<red>Unsupported Option."
   # %0 = Plugin Name
   PluginNotLoaded: "<red>Plugin not %0 loaded or installed."
+  # Prefix to use while importing items for enchants..
+  # To update the prefix, you will need to reimport all items.
+  EnchantmentBookPrefix: "enchanted_book_"

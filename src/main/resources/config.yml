@@ -57,11 +57,12 @@ Orders:
     - STRUCTURE_VOID
     - JIGSAW
   # Creating an order via material will not have any data. (/joblistings create material)
-  # By default spawners are blocked, because they will be all be pig spawners if not created via hand.
+  # By default spawners and enchantment books are blocked, because they will be all be pig spawners if not created via hand.
   # This can be disabled if you don't mind it.
   # This includes everything from BlacklistedMaterials too, so don't add them here if its already there.
   BlacklistedCreateMaterials:
     - SPAWNER
+    - ENCHANTMENT_BOOK
 
 # Mail is used when an order is updated and the player is offline
 Mail:
