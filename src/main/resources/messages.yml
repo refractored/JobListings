@@ -166,6 +166,7 @@ AllOrders:
 # As the name suggests, this gui is only for the orders you own. Includes orders that are pending.
 MyOrders:
   OrderCancelled: "<green>Order Cancelled!"
+  OrderObtained: "<green>Order Obtained!"
   # %0 = Order Info
   OrderCancelledAssignee: "<red>One of your orders, %0,<reset><red> was cancelled by the owner!"
   # The order info is displayed in the lore of the item.

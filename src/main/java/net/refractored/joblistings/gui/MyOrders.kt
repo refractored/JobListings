@@ -302,7 +302,7 @@ class MyOrders(
         orderDao.update(order)
         if (order.itemsObtained == order.itemCompleted) {
             player.sendMessage(
-                MessageUtil.toComponent("<green>Order Obtained!"),
+                MessageUtil.getMessage("MyOrders.OrderObtained"),
             )
             player.closeInventory()
             orderDao.delete(order)
