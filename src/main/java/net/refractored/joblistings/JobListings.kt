@@ -2,7 +2,6 @@ package net.refractored.joblistings
 
 import com.earth2me.essentials.Essentials
 import com.samjakob.spigui.SpiGUI
-import dev.unnm3d.redischat.RedisChat
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.config.Presets
@@ -50,11 +49,11 @@ class JobListings : JavaPlugin() {
     var ecoPlugin: Boolean = false
         private set
 
-    /**
-     * Returns true if eco is loaded
-     */
-    var redisChat: RedisChat? = null
-        private set
+//    /**
+//     * Returns true if redis is loaded
+//     */
+//    var redisChat: RedisChat? = null
+//        private set
 
     /**
      * Returns true if ItemsAdder is loaded
@@ -153,10 +152,10 @@ class JobListings : JavaPlugin() {
             logger.info("Hooked into ItemsAdder")
         }
 
-        server.pluginManager.getPlugin("RedisChat")?.let {
-            redisChat = (it as RedisChat)
-            logger.info("Hooked into RedisChat")
-        }
+//        server.pluginManager.getPlugin("RedisChat")?.let {
+//            redisChat = (it as RedisChat)
+//            logger.info("Hooked into RedisChat")
+//        }
 
         // Create command handler
         handler = BukkitCommandHandler.create(this)

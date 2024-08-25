@@ -4,14 +4,8 @@ import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
-import com.willfp.eco.core.items.CustomItem
 import com.willfp.eco.core.items.Items
-import dev.lone.itemsadder.api.ItemsAdder
-import dev.unnm3d.redischat.chat.objects.ChannelAudience
-import dev.unnm3d.redischat.chat.objects.ChatMessage
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
@@ -478,20 +472,20 @@ data class Order(
                             MessageReplacement(order.cost.toString()),
                         ),
                     )
-                if (JobListings.instance.redisChat != null && JobListings.instance.config.getBoolean("Redischat.RedisChatAnnounce", false)) {
-                    JobListings.instance.redisChat!!
-                        .dataManager
-                        .sendChatMessage(
-                            ChatMessage(
-                                ChannelAudience(),
-                                "",
-                                MiniMessage.miniMessage().serialize(message),
-                            ChannelAudience(JobListings.instance.config.getString("Redischat.Channel", "public")),
-                        )
-                    )
-                } else {
+//                if (JobListings.instance.redisChat != null && JobListings.instance.config.getBoolean("Redischat.RedisChatAnnounce", false)) {
+//                    JobListings.instance.redisChat!!
+//                        .dataManager
+//                        .sendChatMessage(
+//                            ChatMessage(
+//                                ChannelAudience(),
+//                                "",
+//                                MiniMessage.miniMessage().serialize(message),
+//                            ChannelAudience(JobListings.instance.config.getString("Redischat.Channel", "public")),
+//                        )
+//                    )
+//                } else {
                     JobListings.instance.server.broadcast(message)
-                }
+//                }
             }
             return order
         }

@@ -1,9 +1,6 @@
 package net.refractored.joblistings.commands
 
-import com.earth2me.essentials.Enchantments
-import com.willfp.eco.core.Eco
 import com.willfp.eco.core.items.Items
-import com.willfp.eco.core.items.builder.EnchantedBookBuilder
 import dev.lone.itemsadder.api.ItemsAdder
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.config.Presets
@@ -12,7 +9,6 @@ import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
 import org.bukkit.Registry
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemStack
 import revxrsal.commands.annotation.AutoComplete
 import revxrsal.commands.annotation.Command

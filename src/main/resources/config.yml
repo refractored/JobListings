@@ -90,11 +90,3 @@ Essentials:
   # will not be able to accept orders from the player that ignored them.
   UseIgnoreList: false
 
-# Options here require redis chat to be installed!
-# If RedisChat is not installed, these options will be ignored
-# https://www.spigotmc.org/resources/redischat%E2%9A%A1simple-intuitive-chat-suite%E2%9A%A1cross-server-support.111015/
-Redischat:
-  # If orders should be announced via redis chat. (Requires redis chat)
-  # Requires order announcements to be enabled in the Orders section.
-  RedisChatAnnounce: false
-  Channel: "public"
