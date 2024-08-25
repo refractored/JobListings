@@ -132,11 +132,7 @@ compileJava {
 }
 
 shadowJar {
-    if (getCurrentGitBranch() != "main" && getCurrentGitBranch() != "master" && getCurrentGitBranch() != "HEAD") {
-        archiveFileName = "JobListings-${version}.jar"
-    } else {
-        archiveFileName = "JobListings.jar"
-    }
+    archiveFileName = "JobListings-${version}.jar"
 //    relocate('kotlin', 'net.refractored.libs.kotlin')
     relocate("org.bstats", "net.refractored.libs.bstats")
 
