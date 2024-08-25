@@ -17,11 +17,11 @@ object Presets {
     fun getPreset(name: String): ItemStack? = preset[name]
 
     /**
-     * Gets a preset from the loaded presets
+     * Gets a read-only map of all the presets loaded.
      * @return The mutable preset list
      */
     @JvmStatic
-    fun getPresets() = preset
+    fun getPresets() = preset.toMap()
 
     /**
      * Create a new preset and adds it to the config & map
@@ -54,7 +54,9 @@ object Presets {
         if (!preset.containsKey(name)) {
             throw IllegalArgumentException("Preset does not exist.")
         }
+
         JobListings.instance.presets.set(name, null)
+        JobListings.instance.presets.save(JobListings.instance.dataFolder.resolve("presets.yml"))
         preset.remove(name)
     }
 
