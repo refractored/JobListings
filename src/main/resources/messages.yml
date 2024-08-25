@@ -158,6 +158,7 @@ AllOrders:
   # %0 = MaxOrdersAccepted from config.yml
   MaxOrdersAccepted: "<red>You cannot have more than %0 claimed orders at once."
   OrderAccepted: "<green>Order accepted."
+  OrderExpired: "<red>Your order, <gray>%0<red>, was never claimed so was removed."
   # %0 = Order Info
   # %1 = Order Assignee
   # This message is sent to the creator of the order as mail.

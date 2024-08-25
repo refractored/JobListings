@@ -287,35 +287,32 @@ data class Order(
     }
 
     /**
-     * Mark the order as expired and refund the user
+     * Mark the order as expired and refund the user.
+     * Order is marked incomplete whenever it is not done in time by its assignee.
      * @param notify Whether to notify the user, default is true
      */
     fun expireOrder(notify: Boolean = true) {
-        if (status == OrderStatus.INCOMPLETE) {
-            throw IllegalStateException("Order cannot be marked expired if its status is INCOMPLETE")
+        if (status != OrderStatus.PENDING) {
+            throw IllegalStateException("Order cannot be marked expired if its status is not pending ($status)")
         }
         JobListings.instance.eco.depositPlayer(getOwner(), cost)
         orderDao.delete(this)
         if (notify) {
             val message =
-                Component
-                    .text()
-                    .append(
-                        MessageUtil.toComponent(
-                            "<red>Your order, <gray>",
-                        ),
-                    ).append(getItemInfo())
-                    .append(
-                        MessageUtil.toComponent(
-                            "<red>has expired and you were refunded!",
-                        ),
-                    ).build()
+                MessageUtil.getMessage(
+                    "AllOrders.OrderExpired",
+                    listOf(
+                        MessageReplacement(getItemInfo()),
+                        MessageReplacement(getAssignee()?.name ?: "Unknown"),
+                    ),
+                )
             messageOwner(message)
         }
     }
 
     /**
      * Mark the order as canceled and notifies the assignee.
+     * Used whenever the order is cancelled by the owner.
      * @param notify Whether to notify the user and assignee, default is true
      */
     fun cancelOrder(
@@ -324,6 +321,9 @@ data class Order(
     ) {
         if (status == OrderStatus.INCOMPLETE) {
             throw IllegalStateException("Order is already marked incomplete")
+        }
+        if (status == OrderStatus.CANCELLED) {
+            throw IllegalStateException("Order is already marked cancelled")
         }
         status = OrderStatus.CANCELLED
         if (fullRefund) {
@@ -350,7 +350,8 @@ data class Order(
     }
 
     /**
-     * Mark the order as incomplete and refund the user
+     * Mark the order as incomplete and refund the user.
+     * This is used when the assignee did not complete the order in time.
      * @param notify Whether to notify the user and assignee, default is true
      */
     fun incompleteOrder(notify: Boolean = true) {

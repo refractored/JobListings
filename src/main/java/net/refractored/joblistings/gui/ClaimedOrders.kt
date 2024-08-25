@@ -172,9 +172,9 @@ class ClaimedOrders(
         when (order.status) {
             OrderStatus.CLAIMED -> {
                 gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
+                loadOrders(gui.currentPage, event.whoClicked as Player)
                 order.status = OrderStatus.INCOMPLETE
                 order.incompleteOrder()
-                TODO("Messages.yml is missing a message for this case.")
             }
             OrderStatus.INCOMPLETE -> {
                 val inventorySpaces =
