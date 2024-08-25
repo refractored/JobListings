@@ -165,6 +165,8 @@ AllOrders:
 # As the name suggests, this gui is only for the orders you own. Includes orders that are pending.
 MyOrders:
   OrderCancelled: "<green>Order Cancelled!"
+  # %0 = Order Info
+  OrderCancelledAssignee: "<red>One of your orders, %0,<reset><red> was cancelled by the owner!"
   # The order info is displayed in the lore of the item.
   # Due to the way lore is handled, to create a new line, just add a new line.
   # DONT use \n or <newline> as it will not work. This applies here cause of the way the lore is handled.
@@ -221,7 +223,7 @@ MyOrders:
     OrderCancelled: "<green>Order cancelled."
     # %0 = Order Info
     # This message is sent to the assignee as mail if the order is cancelled.
-    OrderCancelledNotification: "<red>One of your orders, <gray>%0 <red>, was cancelled by the owner!"
+    OrderCancelledNotification: "<red>One of your orders, <gray>%0<red>, was cancelled by the owner!"
     OrderAlreadyClaimed: "<red>You already claimed this order!"
     OrderClaimed: "<green>Order Claimed!"
 
@@ -270,6 +272,8 @@ ClaimedOrders:
   # %0 = Order items left to refund.
   OrderPartiallyRefunded: "<green>Order partially refunded! %0 items left to claim."
   OrderAlreadyRefunded: "<red>You have already refunded this order!"
+  OrderIncomplete: "<red>One of your orders, <reset>%0<red>wasn't able to be completed so you were refunded!"
+  OrderIncompleteAssignee: "<red>You were unable to complete the order you claimed, <reset>%0<red>!"
 CreatePreset:
   # %0 = Name
   CreatedPreset: "<green>Created preset: %0"

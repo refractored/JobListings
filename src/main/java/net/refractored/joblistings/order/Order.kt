@@ -338,21 +338,14 @@ data class Order(
             orderDao.update(this)
         }
         if (!notify) return
-        // TODO: MESSAGE-IFY
         if (assignee == null) return // This should never be null, but just in case
         val assigneeMessage =
-            Component
-                .text()
-                .append(
-                    MessageUtil.toComponent(
-                        "<red>Your order, , <gray>",
-                    ),
-                ).append(getItemInfo())
-                .append(
-                    MessageUtil.toComponent(
-                        "<red>was canceled by its owner!",
-                    ),
-                ).build()
+            MessageUtil.getMessage(
+                "MyOrders.AssigneeMessage",
+                listOf(
+                    MessageReplacement(getItemInfo()),
+                ),
+            )
         messageAssignee(assigneeMessage)
     }
 
@@ -374,35 +367,22 @@ data class Order(
             orderDao.update(this)
         }
         if (!notify) return
-        // TODO: MESSAGE-IFY
         val ownerMessage =
-            Component
-                .text()
-                .append(
-                    MessageUtil.toComponent(
-                        "<red>One of your orders, <gray>",
-                    ),
-                ).append(getItemInfo())
-                .append(
-                    MessageUtil.toComponent(
-                        "<red>wasn't able to be completed so you were refunded!",
-                    ),
-                ).build()
+            MessageUtil.getMessage(
+                "ClaimedOrders.OrderIncomplete",
+                listOf(
+                    MessageReplacement(getItemInfo()),
+                ),
+            )
         messageOwner(ownerMessage)
         if (assignee == null) return // This should never be null, but just in case
         val assigneeMessage =
-            Component
-                .text()
-                .append(
-                    MessageUtil.toComponent(
-                        "<red>You were unable to complete your order, <gray>",
-                    ),
-                ).append(getItemInfo())
-                .append(
-                    MessageUtil.toComponent(
-                        "<red>!",
-                    ),
-                ).build()
+            MessageUtil.getMessage(
+                "ClaimedOrders.OrderIncompleteAssignee",
+                listOf(
+                    MessageReplacement(getItemInfo()),
+                ),
+            )
         messageAssignee(assigneeMessage)
     }
 

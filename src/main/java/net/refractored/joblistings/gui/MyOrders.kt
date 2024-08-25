@@ -237,14 +237,6 @@ class MyOrders(
                 )
                 gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                 order.cancelOrder()
-                val assigneeMessage =
-                    MessageUtil.getMessage(
-                        "MyOrders.AssigneeMessage",
-                        listOf(
-                            MessageReplacement(order.getItemInfo()),
-                        ),
-                    )
-                order.messageAssignee(assigneeMessage)
                 loadOrders(gui.currentPage, event.whoClicked as Player)
                 gui.refreshInventory(event.whoClicked)
             }
