@@ -2,218 +2,213 @@ package net.refractored.joblistings.gui
 
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
-import com.samjakob.spigui.item.ItemBuilder
 import com.samjakob.spigui.menu.SGMenu
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import net.refractored.joblistings.JobListings
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
-import net.refractored.joblistings.JobListings.Companion.essentials
-import net.refractored.joblistings.JobListings.Companion.spiGUI
-import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
+import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.Order.Companion.getMaxOrdersAccepted
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
-import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
-import revxrsal.commands.bukkit.BukkitCommandActor
-import revxrsal.commands.bukkit.player
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.math.ceil
 
 class AllOrders {
-    companion object{
-        fun openAllOrders(actor: BukkitCommandActor) {
-            val gui = spiGUI.create(
-                // Me when no component support :((((
-                LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                    MessageUtil.toComponent(
-                        "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page {currentPage}/{maxPage})"
-                    )
+    private val config = JobListings.instance.gui.getConfigurationSection("AllOrders")!!
+
+    private val rows = config.getInt("Rows", 6)
+
+    private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
+
+    private var pageCount: Int = ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().coerceAtLeast(1)
+
+    val gui: SGMenu =
+        JobListings.instance.spiGUI.create(
+            // Me when no component support :((((
+            LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
+                MessageUtil.replaceMessage(
+                    config.getString("Title")!!,
+                    listOf(
+                        // I only did this for consistency in the messages.yml
+                        MessageReplacement("{currentPage}"),
+                        MessageReplacement("{maxPage}"),
+                    ),
                 ),
-                5)
+            ),
+            JobListings.instance.gui.getInt("AllOrders.Rows", 6),
+        )
 
-            val pageCount = if (ceil(Database.orderDao.countOf().toDouble() / 21).toInt() > 0) {
-                ceil(Database.orderDao.countOf().toDouble() / 21).toInt()
-            } else {
-                1
-            }
-
-
-            val borderItems = listOf(
-                0,  1,  2,  3,  4,  5,  6,  7,  8,
-                9,                              17,
-                18,                             26,
-                27,                             35,
-                    37, 38, 39, 40, 41, 42, 43,
-            )
-
-
-            for (i in 0..< pageCount) {
-                val pageSlot = 45 * i
-                borderItems.forEach{
-                    gui.setButton(
-                        (it + pageSlot),
-                        SGButton(
-                            ItemBuilder(Material.GREEN_STAINED_GLASS_PANE)
-                            .name(" ")
-                            .build()
-                        ),
-                    )
-                }
-            }
-
-            gui.setOnPageChange { inventory ->
-                if (gui.getButton(44 + (inventory.currentPage * 45)) == null) {
-                    loadItems(inventory, actor)
-                }
-            }
-
-
-            actor.player.openInventory(gui.inventory)
-            loadItems(gui, actor)
+    init {
+        gui.setOnPageChange { inventory ->
+            inventory.clearAllButStickiedSlots()
+            loadOrders(inventory.currentPage)
         }
 
-        private fun loadItems(gui: SGMenu, actor: BukkitCommandActor){
-            gui.setButton(
-                ((gui.currentPage * 45) + 44),
-                SGButton(
-                    ItemBuilder(Material.ARROW)
-                    .name("Next page")
-                    .build()
-                ).withListener { event: InventoryClickEvent ->
-                    gui.nextPage(actor.player)
-                },
+        loadNavButtons(config, gui, pageCount)
+        loadCosmeticItems(config, gui, pageCount)
+        loadOrders(0)
+    }
+
+    /**
+     * Clears all non-stickied slots, and loads the orders for the requested page.
+     * @param page The page to load orders for.
+     */
+    private fun loadOrders(page: Int) {
+        gui.clearAllButStickiedSlots()
+        val orders = Order.getPendingOrders(orderSlots.count(), page * orderSlots.count())
+        for ((index, slot) in orderSlots.withIndex()) {
+            val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: GuiHelper.getFallbackButton(config)
+            gui.setButton(slot + GuiHelper.getOffset(page, rows), button)
+        }
+    }
+
+    private fun getOrderButton(order: Order): SGButton {
+        val item = order.item.clone()
+        item.amount = minOf(order.itemAmount, item.maxStackSize)
+        val itemMetaCopy = item.itemMeta
+        val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
+        val expireDurationText =
+            MessageUtil.getMessage(
+                "General.DateFormat",
+                listOf(
+                    MessageReplacement(expireDuration.toDays().toString()),
+                    MessageReplacement(expireDuration.toHoursPart().toString()),
+                    MessageReplacement(expireDuration.toMinutesPart().toString()),
+                ),
             )
-            gui.setButton(
-                ((gui.currentPage * 45) + 36),
-                SGButton(
-                    ItemBuilder(Material.ARROW)
-                    .name("Previous page")
-                    .build()
-                ).withListener { event: InventoryClickEvent ->
-                    gui.previousPage(actor.player)
-                },
+        val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
+        val createdDurationText =
+            MessageUtil.getMessage(
+                "General.DatePastTense",
+                listOf(
+                    MessageReplacement(createdDuration.toDays().toString()),
+                    MessageReplacement(createdDuration.toHoursPart().toString()),
+                    MessageReplacement(createdDuration.toMinutesPart().toString()),
+                ),
             )
-            Order.getPendingOrders(21, gui.currentPage * 21 ).forEachIndexed { index, order ->
-                val item = order.item.clone()
-                val itemMetaCopy = item.itemMeta
-                val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
-                val expireDurationText = "${expireDuration.toDays()} Days, ${expireDuration.toHoursPart()} Hours, ${expireDuration.toMinutesPart()} Minutes"
-                val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
-                val createdDurationText = "${createdDuration.toDays()} Days ${createdDuration.toHoursPart()} Hours, ${createdDuration.toMinutesPart()} Minutes"
-                val infoLore = listOf(
-                    MessageUtil.toComponent("").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>Reward: <white>${order.cost}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>User: <white>${Bukkit.getOfflinePlayer(order.user).name}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>Created: <white>${createdDurationText} ago").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent("<#69b85c>Expires: <white>${expireDurationText}").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                    MessageUtil.toComponent(""),
-                    MessageUtil.toComponent("<gray>(Click to accept order)").decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
-                )
 
-                if (itemMetaCopy.hasLore()) {
-                    val itemLore = itemMetaCopy.lore()!!
-                    itemLore.addAll(infoLore)
-                    itemMetaCopy.lore(itemLore)
-                } else {
-                    itemMetaCopy.lore(infoLore)
-                }
+        val orderItemLore =
+            MessageUtil.getMessageList(
+                "AllOrders.OrderItemLore",
+                listOf(
+                    MessageReplacement(order.cost.toString()),
+                    MessageReplacement(order.getOwner().name ?: "Unknown"),
+                    MessageReplacement(createdDurationText),
+                    MessageReplacement(expireDurationText),
+                    MessageReplacement(order.itemAmount.toString()),
+                ),
+            )
 
-                item.itemMeta = itemMetaCopy
+        if (itemMetaCopy.hasLore()) {
+            val itemLore = itemMetaCopy.lore()!!
+            itemLore.addAll(orderItemLore)
+            itemMetaCopy.lore(itemLore)
+        } else {
+            itemMetaCopy.lore(orderItemLore)
+        }
 
-                val button = SGButton(
-                    item
-                ).withListener { event: InventoryClickEvent ->
-                    if (order.user == actor.uniqueId) {
-                        event.whoClicked.closeInventory()
-                        actor.reply(
-                            MessageUtil.toComponent("<red>You cannot accept your own order.")
-                        )
-                        return@withListener
-                    }
-                    if (order.status != OrderStatus.PENDING) {
-                        event.whoClicked.closeInventory()
-                        actor.reply(
-                            MessageUtil.toComponent("<red>Order is not pending. Someone might have already accepted it.")
-                        )
-                        return@withListener
-                    }
-                    if (order.isOrderExpired()) {
-                        event.whoClicked.closeInventory()
-                        actor.reply(
-                            MessageUtil.toComponent("<red>Order has expired.")
-                        )
-                        return@withListener
-                    }
-                    essentials?.let {
-                        if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
-                            val player = it.userMap.load(
-                                actor.player
-                            )
-                            val owner = it.userMap.load(
-                                Bukkit.getOfflinePlayer(order.user)
-                            )
-                            if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
-                                event.whoClicked.closeInventory()
-                                actor.reply(
-                                    MessageUtil.toComponent("<red>You cannot accept orders from players who have you ignored or you ignored yourself.")
-                                )
-                                return@withListener
-                            }
-                        }
-                    }
-                    val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
-                    queryBuilder.where().eq("assignee", actor.uniqueId).and().eq("status", OrderStatus.CLAIMED)
-                    val orders = orderDao.query(queryBuilder.prepare())
-                    if (orders.count() > JobListings.instance.config.getInt("Orders.MaxOrdersAccepted") ) {
-                        event.whoClicked.closeInventory()
-                        actor.reply(
-                            MessageUtil.toComponent("<red>You cannot have more than ${JobListings.instance.config.getInt("Orders.MaxOrdersAccepted")} claimed orders at once.")
-                        )
-                    }
-                    val ownerMessage = Component.text()
-                        .append(MessageUtil.toComponent(
-                            "<green>One of your orders, <gray>"
-                        ))
-                        .append(order.getItemInfo())
-                        .append(MessageUtil.toComponent(
-                            "<green>, was accepted by "
-                        ))
-                        .append(actor.player.displayName())
-                        .append(MessageUtil.toComponent(
-                            "<green>!"
-                        ))
-                        .build()
-                    order.messageOwner(ownerMessage)
-                    actor.reply(
-                        MessageUtil.toComponent("<green>Order accepted!")
+        item.itemMeta = itemMetaCopy
+
+        val button = SGButton(item)
+
+        button.setListener { event: InventoryClickEvent ->
+            clickOrder(event, order)
+        }
+        return button
+    }
+
+    /**
+     * Handles the click event for an order.
+     * @param event The click event.
+     * @param order The order.
+     */
+    private fun clickOrder(
+        event: InventoryClickEvent,
+        order: Order,
+    ) {
+        if (order.user == event.whoClicked.uniqueId) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
+            )
+            return
+        }
+        if (order.status != OrderStatus.PENDING) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage("General.OrderAlreadyClaimed"),
+            )
+            return
+        }
+        if (order.isOrderExpired()) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage("General.OrderExpired"),
+            )
+            return
+        }
+        JobListings.instance.essentials?.let {
+            if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
+                val player =
+                    it.users.load(
+                        event.whoClicked.uniqueId,
                     )
-                    order.acceptOrder(actor.player)
+                val owner =
+                    it.users.load(
+                        Bukkit.getOfflinePlayer(order.user).uniqueId,
+                    )
+                if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
                     event.whoClicked.closeInventory()
+                    event.whoClicked.sendMessage(
+                        MessageUtil.getMessage("General.Ignored"),
+                    )
+                    return
                 }
-                val baseSlot = (index + 10) + (gui.currentPage * 45)
-
-                var slot = baseSlot
-
-                while (gui.getButton(slot) != null) {
-                    if (slot >= 44) {
-                        throw IndexOutOfBoundsException("No more slots available in page ${gui.currentPage}")
-                    }
-                    slot++
-                }
-
-                gui.setButton( slot , button)
-
-
             }
-            gui.refreshInventory(actor.player)
+        }
+        val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+        queryBuilder
+            .where()
+            .eq("assignee", event.whoClicked.uniqueId)
+            .and()
+            .eq("status", OrderStatus.CLAIMED)
+        val orders = orderDao.query(queryBuilder.prepare())
+        val maxOrdersAccepted = getMaxOrdersAccepted(event.whoClicked as Player)
+        if (orders.count() > maxOrdersAccepted) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage(
+                    "AllOrders.OrderItemLore",
+                    listOf(
+                        MessageReplacement(
+                            "$maxOrdersAccepted",
+                        ),
+                    ),
+                ),
+            )
+        }
 
+        order.acceptOrder(event.whoClicked as Player)
+        event.whoClicked.closeInventory()
+    }
+
+    companion object {
+        /**
+         * Creates an instance of the AllOrders class, and returns a working gui.
+         * @return The gui.
+         */
+        fun getGUI(): SGMenu {
+            val allOrders = AllOrders()
+            return allOrders.gui
         }
     }
 }

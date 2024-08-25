@@ -1,8 +1,64 @@
 name: JobListings
-version: '1.1.1'
+version: '${version}'
 main: net.refractored.joblistings.JobListings
-api-version: '1.20'
+api-version: '1.19'
+authors: [refractored]
+description: "Players can create orders for items in minecraft."
+database: true
 depend: [Vault]
 softdepend:
+  - ItemsAdder
   - Essentials
   - eco
+  - EcoItems
+  - RedisChat
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:2.0.0
+  - com.j256.ormlite:ormlite-core:5.6
+  - com.j256.ormlite:ormlite-jdbc:5.6
+permissions:
+  joblistings.view.owned:
+    description: "View all the player made."
+    default: true
+  joblistings.view.owned.other:
+    description: "Open the owned orders GUI for other players."
+    default: op
+  joblistings.view.claimed:
+    description: "View all the orders the player has claimed."
+    default: true
+  joblistings.view.claimed.other:
+    description: "Open the claimed orders GUI for other players."
+    default: op
+  joblistings.view.orders:
+    description: "View all pending orders."
+    default: true
+  joblistings.view.orders.other:
+    description: "Open the orders GUI for other players."
+    default: op
+  joblistings.completeorders:
+    description: "Lets the player complete orders."
+    default: true
+  joblistings.create.hand:
+    description: "Lets the player create orders with the item in their hand."
+    default: true
+  joblistings.create.material:
+    description: "Lets the player create orders with a material."
+    default: true
+  joblistings.admin.reload:
+    description: "Lets the player reload the plugin."
+    default: op
+  joblistings.admin.create.preset:
+    description: "Lets the player create a preset."
+    default: op
+  joblistings.admin.remove.preset:
+    description: "Lets the player delete a preset."
+    default: op
+  joblistings.admin.info.preset:
+    description: "Lets the player view a copy of the preset in chat."
+    default: op
+  joblistings.admin.get.preset:
+    description: "Lets the player view a copy of the preset in chat."
+    default: op
+  joblistings.admin.import:
+    description: "Lets the player import items from a custom item plugin."
+    default: op

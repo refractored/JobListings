@@ -10,9 +10,13 @@ import org.bukkit.event.player.PlayerJoinEvent
 
 class PlayerJoinListener : Listener {
     @EventHandler(priority = EventPriority.LOW)
-    fun onJoin(event: PlayerJoinEvent){
-        Bukkit.getScheduler().runTaskLater(JobListings.instance, Runnable {
-            Mail.sendMail(event.player)
-        }, 20L * 10)
+    fun onJoin(event: PlayerJoinEvent) {
+        Bukkit.getScheduler().runTaskLater(
+            JobListings.instance,
+            Runnable {
+                Mail.sendMail(event.player)
+            },
+            20L * JobListings.instance.config.getInt("Mail.JoinDelay"),
+        )
     }
 }

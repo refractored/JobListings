@@ -5,8 +5,9 @@ import com.j256.ormlite.field.SqlType
 import com.j256.ormlite.field.types.BaseDataType
 import com.j256.ormlite.support.DatabaseResults
 import org.bukkit.inventory.ItemStack
+import java.time.LocalDateTime
 
-class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARRAY, arrayOf<Class<*>>(ItemStack::class.java)) {
+class LocalDateTimeSerializers private constructor() : BaseDataType(SqlType.LONG_STRING, arrayOf<Class<*>>(ItemStack::class.java)) {
     override fun parseDefaultString(
         fieldType: FieldType?,
         defaultStr: String?,
@@ -15,18 +16,18 @@ class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARR
     override fun javaToSqlArg(
         fieldType: FieldType?,
         javaObject: Any?,
-    ): ByteArray? {
+    ): String? {
         if (javaObject == null) {
             return null
         }
-        return (javaObject as ItemStack).serializeAsBytes()
+        return (javaObject as LocalDateTime).toString()
     }
 
     override fun resultToSqlArg(
         fieldType: FieldType?,
         results: DatabaseResults?,
         columnPos: Int,
-    ): Any = results!!.getBytes(columnPos)
+    ): Any? = results?.getString(columnPos)
 
     override fun sqlArgToJava(
         fieldType: FieldType?,
@@ -36,13 +37,13 @@ class ItemstackSerializers private constructor() : BaseDataType(SqlType.BYTE_ARR
         if (sqlArg == null) {
             return null
         }
-        return ItemStack.deserializeBytes(sqlArg as ByteArray)
+        return LocalDateTime.parse(sqlArg as String)
     }
 
     companion object {
-        private val singleTon = ItemstackSerializers()
+        private val singleTon = LocalDateTimeSerializers()
 
         @JvmStatic
-        fun getSingleton(): ItemstackSerializers = singleTon
+        fun getSingleton(): LocalDateTimeSerializers = singleTon
     }
 }

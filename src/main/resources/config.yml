@@ -3,19 +3,66 @@
 # by refractored
 #
 Database:
-  url: "jdbc:mysql://localhost:3306/database"
+  # For the url, you should only need to replace DATABASE_IP , PORT, and DATABASE_NAME.
+  # jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME
+  # replace url with "file" if you want to use sqlite.
+  url: "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME"
   user: "USERNAME"
   password: "PASSWORD"
 
 Orders:
-  # Max orders per rank coming soon
+  # These two values are used if a player does not have a permission set for the max.
+  # Replace X with number
+  # Permissions:
+  # joblistings.create.max.X
+  # joblistings.accepted.max.X
   MaxOrders: 3
   MaxOrdersAccepted: 3
   # Maximum/Minimum time in hours orders can be posted for
   MaxOrdersTime: 192
   MinOrdersTime: 48
+  # Time in hours to keep orders in the database after they have been fully completed
+  PickupDeadline: 500
   # Deadline in hours to complete an order
-  OrderDeadline: 24
+  OrderDeadline: 32
+  # Maximum amount of items per order
+  # Setting this to 0 will disable the limit
+  # Setting this to -1 will use the item's max stack size (May differ with material type)
+  MaximumItems: 256
+  # If orders can be created via hand (requires restart to change)
+  CreateHand: true
+  # If orders can be created via material (requires restart to change)
+  CreateMaterial: true
+  # If orders should be announced in chat when created
+  AnnounceOnOrderCreate: false
+  # Blocks players from creating orders with these materials Inhand, and via material.
+  BlacklistedMaterials:
+  # These materials below are blacklisted because they aren't actual stacks of items.
+  # Without this, creating an order with these materials will cause issues.
+    - FIRE
+    - LAVA
+    - WATER
+    - END_PORTAL
+    - END_GATEWAY
+    - NETHER_PORTAL
+    - AIR
+  # These materials below are blacklisted because they are admin blocks.
+  # If you want you can remove this.
+    - BEDROCK
+    - BARRIER
+    - LIGHT
+    - END_PORTAL_FRAME
+    - STRUCTURE_BLOCK
+    - COMMAND_BLOCK
+    - STRUCTURE_VOID
+    - JIGSAW
+  # Creating an order via material will not have any data. (/joblistings create material)
+  # By default spawners and enchantment books are blocked, because they will be all be pig spawners, or blank books if not created via hand.
+  # This can be disabled if you don't mind it.
+  # This includes everything from BlacklistedMaterials too, so don't add them here if its already there.
+  BlacklistedCreateMaterials:
+    - SPAWNER
+    - ENCHANTMENT_BOOK
 
 # Mail is used when an order is updated and the player is offline
 Mail:
@@ -25,8 +72,12 @@ Mail:
   # Mail Expire time in days
   # 0 = Never expire
   ExpireTime: 30
+  # All mail will be sent to this player when they join after their order is updated
+  # This is in seconds.
+  # This does not apply to essentials mail.
+  JoinDelay: 10
 
-# Options here are require the essentials plugin to be installed!
+# Options here require the essentials plugin to be installed!
 # If EssentialsX is not installed, these options will be ignored.
 # https://essentialsx.net/downloads.html
 Essentials:
@@ -38,3 +89,4 @@ Essentials:
   # the player will not be able to accept orders from ignored players and
   # will not be able to accept orders from the player that ignored them.
   UseIgnoreList: false
+

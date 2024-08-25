@@ -1,1 +1,307 @@
-# COMING SOON
+#
+# JobListings
+# by refractored
+#
+
+# This plugin uses MiniMessage for formatting.
+# The Ampersand character (&) and Section character (§) is not supported.
+# For more information, see https://docs.advntr.dev/minimessage/format.html
+
+General:
+  IsNotPlayer: "<red>You must be a player to use this command."
+  NoPermission: "<red>You do not have permission to use this command."
+  PlayerOnly: "<red>This command can only be executed by a player."
+  # %0 = Missing Argument
+  MissingArguments: "<red>You must specify a value for the argument: %0"
+  UnexpectedError: "<red>An error occurred while executing this command."
+  # %0 = Command Usage
+  TooManyArguments: "<red>Too many arguments! Correct usage: /%0"
+  NoSubcommandSpecified: "<red>You must specify a subcommand."
+  # %0 = Command
+  InvalidCommand: "<red>Invalid command: %0."
+  InvalidNumber: "<red>Expected a number, but found ''%0''."
+  CannotAcceptOwnOrder: "<red>You cannot accept your own order."
+  OrderAlreadyClaimed: "<red>Order is not pending. Someone might have already accepted it."
+  OrderExpired: "<red>Order has expired."
+  Ignored: "<red>You cannot accept orders from players who have you ignored or you ignored yourself."
+  # %0 = Type
+  # %1 = Value
+  InvalidEnum: "<red>Invalid %0: %1"
+  # %0 = Invalid Input Value
+  InvalidBoolean: "<red>Expected true or false, but found: {0}"
+  InvalidSubcommand: "<red>Invalid subcommand:  %0"
+  OnCooldown: "<red>You must wait %0 before using this command again."
+  # %0 = Parameter Name
+  # %1 = Min Number
+  # %2 = Max Number
+  # %3 = Found Number
+  NumNotInRange: "%0 must be between %1 and %2 (found %3)"
+  # %0 = Days
+  # %1 = Hours
+  # %2 = Minutes
+  DateFormat: "<white>%0 Days, %1 Hours, %2 Minutes"
+  # %0 = Days
+  # %1 = Hours
+  # %2 = Minutes
+  DatePastTense: "<white>%0 Days, %1 Hours, %2 Minutes ago"
+  InventoryFull: "<red>Your inventory is full."
+OrderStatus:
+  PENDING: "<white>Pending"
+  CLAIMED: "<white>Claimed"
+  COMPLETED: "<white>Completed"
+  INCOMPLETE: "<white>Incomplete"
+  CANCELLED: "<white>Cancelled"
+Orders:
+    # %0 = Order itemstack name
+    # %1 = Order amount
+    # %2 = Order cost/reward amount (money)
+    # This is considered the Order Info and is used in various messages.
+  OrderInfo: "<gray>%0 <white>x <gray>%1"
+    # %0 = Order info
+    # %1 = Order amount
+    # %2 = Order cost/reward amount (money)
+  Announcement: "<green>A new order by <gray>%0</gray> has been created for %2: %1"
+Reload:
+  Reloaded: "<green>Plugin reloaded."
+OrderComplete:
+  NoOrdersToComplete: "<red>There are no orders to complete."
+  # %0 = Order Info
+  DamagedItem: "<red>One of your orders call for a, %0<red>, but the item you have is damaged and cannot be delivered."
+  # %0 = Orders Completed
+  # %1 = Orders Updated (Orders that have had more items turned in)
+  # %2 = Total Order Count
+  OrderProgress: |-
+    <green>Completed <gold>%0</gold> out of <gold>%2</gold> orders.
+    <green>Updated <gold>%1</gold> out of <gold>%2</gold> orders.
+  # %0 = Order Info
+  # %1 = Order Item Progress
+  # %2 = Order Item Requirement
+  # This message is send to the player when they have made progress on an order.
+  ProgressMessageAssignee: |-
+    <green>You have made progress on the order <gray>%0.<green>.
+    <green>You have turned in <gray>%1 <green>of <gray>%2 <green> items.
+  # %0 = Order Info
+  # %1 = Order Assignee
+  # %2 = Order Item Progress
+  # %3 = Order Item Requirement
+  # This message is send to the order owner when progress was made on an order they own.
+  ProgressMessageOwner: |-
+    <green>One of your orders, <gray>%0 <green>has been updated by %1<green>!
+    <green>They have turned in <gold>%2</gold> out of <gold>%3</gold> items!
+  # %0 = Order Info
+  # %1 = Order Reward
+  CompletedMessageAssignee: "<green>You have completed the order <gray>%0<green> and received <gold>%1</gold>."
+  # %0 = Order Info
+  # %1 = Order Assignee Name
+  CompletedMessageOwner: "<green><green>One of your orders, <gray>%0 <green>has been completed by %1<green>!"
+  NoItemsFound: "<red>None of your order's requirements were met."
+  AllOrdersCompleted: "<green>All orders have been completed."
+CreateOrder:
+  MaterialNotFound: "<red>A material was not found."
+  LessThanOneItem: "<red>Item amount must be at least 1."
+  LessThanOneHour: "<red>Hours must be at least 1."
+  LessThanOneCost: "<red>Cost must be at least 1."
+  NotEnoughMoney: "<red>You do not have enough money to cover your order."
+  # %0 = Material Name
+  BlacklistedMaterial: "<red>You cannot create an order with %0."
+  # %0 = MaxOrdersTime from config.yml
+  MoreThanMaxHoursConfig: "<red>Hours must be less than or equal to %0"
+  # %0 = MinOrdersTime from config.yml
+  MoreThanMinHoursConfig: "<red>Hours must be more than or equal to %0"
+  # %0 = MaxOrders from config.yml
+  MaxOrdersReached: "<red>You cannot have more than %0 orders at once."
+  NotHoldingItem: "<red>You must be holding the item to create an order."
+  # %0 = Max item stack from material specified (or held)
+  # This message is only used if MaximumItems is set to -1 in config.yml
+  StackSizeExceeded: "<red>Amount must be less than or equal to %0"
+  # %0 = MaximumItems from config.yml
+  MaxOrdersExceeded: "<red>You cannot have more than %0 items in an order."
+  MaterialSetToAir: "<red>Item cannot be air."
+  # %0 = Order Info
+  # %1 = Order Reward
+  # %2 = Order Expires (in hours)
+  OrderCreated: |-
+    <green>Order created for %0
+    <green>Reward: <white>%1<reset>
+    <green>Expires in <white>%2<reset><white> hours
+Help:
+  # There is only one page at the moment, this is just to help with future updates.
+  Page1: |-
+    <bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><white>
+    <gray>/joblistings orders<white>: View all pending orders
+    <gray>/joblistings owned<white>: View and manage orders you own
+    <gray>/joblistings claimed<white>: View the orders you claimed
+    <gray>/joblistings complete<white>: Scans your inventory for items to complete an order
+    <gray>/joblistings create hand<white>: Create an order from the item in your hand
+    <gray>/joblistings create material<white>: Create an order from the specified material
+    <gray>/joblistings help<white>: Displays this menu
+# The All Orders menu, this does not apply to ALL orders.
+AllOrders:
+  # %0 = Order Reward
+  # %1 = Order Creator
+  # %2 = Order Created
+  # %3 = Order Expires
+  # %4 = Order Amount
+  # The order info is displayed in the lore of the item.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work.
+  OrderItemLore: |-
+    
+    <#69b85c>Reward: <white>%0
+    <#69b85c>User: <white>%1
+    <#69b85c>Created: <white>%2
+    <#69b85c>Expires: <white>%3
+    <#69b85c>Amount: <white>%4
+    
+    <gray>(Click to accept order)
+
+  # %0 = MaxOrdersAccepted from config.yml
+  MaxOrdersAccepted: "<red>You cannot have more than %0 claimed orders at once."
+  OrderAccepted: "<green>Order accepted."
+  OrderExpired: "<red>Your order, <gray>%0<red>, was never claimed so was removed."
+  # %0 = Order Info
+  # %1 = Order Assignee
+  # This message is sent to the creator of the order as mail.
+  OrderAcceptedNotification: "<green>One of your orders, <gray>%0 <green>, was accepted by %1<green>!"
+# As the name suggests, this gui is only for the orders you own. Includes orders that are pending.
+MyOrders:
+  OrderCancelled: "<green>Order Cancelled!"
+  OrderObtained: "<green>Order Obtained!"
+  # %0 = Order Info
+  OrderCancelledAssignee: "<red>One of your orders, %0,<reset><red> was cancelled by the owner!"
+  # The order info is displayed in the lore of the item.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work. This applies here cause of the way the lore is handled.
+  OrderItemLore:
+    # %0 = Order Reward
+    # %1 = Order Created
+    # %2 = Order Status
+    # %3 = Order Amount
+    # %4 = Order Expires
+    Pending: |-
+      
+      <#2A77EE>Reward: <white>%0
+      <#2A77EE>Created: <white>%1
+      <#2A77EE>Status: <white>%2
+      <#2A77EE>Amount: <white>%3
+      <#2A77EE>Expires in: <white>%4
+      
+      <reset><red>(Click to cancel order)
+
+    # %0 = Order Reward
+    # %1 = Order Created
+    # %2 = Order Status
+    # %3 = Order Amount
+    # %4 = Order Deadline
+    # %5 = Order Assignee
+    Claimed: |-
+      
+      <#2A77EE>Reward: <white>%0
+      <#2A77EE>Created: <white>%1
+      <#2A77EE>Status: <white>%2
+      <#2A77EE>Amount: <white>%3
+      <#2A77EE>Deadline: <white>%4
+      <#2A77EE>Assignee: <white>%5
+      
+      <reset><gray>In-progress orders only return half the payment.
+      <reset><yellow>(Click to cancel order)
+    # %0 = Order Reward
+    # %1 = Order Created
+    # %2 = Order Status
+    # %3 = Order Amount
+    # %4 = Order Claimed Amount
+    # %5 = Order Assignee
+    Completed: |-
+      
+      <#2A77EE>Reward: <white>%0
+      <#2A77EE>Created: <white>%1
+      <#2A77EE>Status: <white>%2
+      <#2A77EE>Amount: <white>%3
+      <#2A77EE>Claimed: <white>%4
+      <#2A77EE>Assignee: <white>%5
+      
+      <reset><green>(Click to claim order)
+      
+    OrderCancelled: "<green>Order cancelled."
+    # %0 = Order Info
+    # This message is sent to the assignee as mail if the order is cancelled.
+    OrderCancelledNotification: "<red>One of your orders, <gray>%0<red>, was cancelled by the owner!"
+    OrderAlreadyClaimed: "<red>You already claimed this order!"
+    OrderClaimed: "<green>Order Claimed!"
+
+# Orders the player claimed and needs to complete for a reward.
+ClaimedOrders:
+  # %0 = Order Reward
+  # %1 = Order Creator
+  # %2 = Order Created
+  # %3 = Order Deadline
+  # %4 = Order Amount
+  # %5 = Order Completed Amount
+  # The order info is displayed in the lore of the item.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work.
+  OrderItemLore: |-
+    
+    <#C734E6>Reward: <white>%0
+    <#C734E6>User: <white>%1
+    <#C734E6>Created: <white>%2
+    <#C734E6>Deadline: <white>%3
+    <#C734E6>Amount: <white>%4
+    <#C734E6>Amount Completed: <white>%4
+    
+    <red>(Click to cancel order)
+
+  # %0 = Order Reward
+  # %1 = Order Creator
+  # %2 = Order Created
+  # %3 = Order Amount
+  # %4 = Order Refunded Amount
+  # The order info is displayed in the lore of the item.
+  # Due to the way lore is handled, to create a new line, just add a new line.
+  # DONT use \n or <newline> as it will not work.
+  # This lore only shows up on orders that are incomplete.
+  OrderItemLoreIncomplete: |-
+    
+    <#C734E6>Reward: <white>%0
+    <#C734E6>User: <white>%1
+    <#C734E6>Created: <white>%2
+    <#C734E6>Amount: <white>%4
+    <#C734E6>Amount Refunded: <white>%4
+    
+    <gray>(Click to refund order)
+
+  OrderFullyRefunded: "<green>Order fully refunded."
+  # %0 = Order items left to refund.
+  OrderPartiallyRefunded: "<green>Order partially refunded! %0 items left to claim."
+  OrderAlreadyRefunded: "<red>You have already refunded this order!"
+  OrderIncomplete: "<red>One of your orders, <reset>%0<red>wasn't able to be completed so you were refunded!"
+  OrderIncompleteAssignee: "<red>You were unable to complete the order you claimed, <reset>%0<red>!"
+CreatePreset:
+  # %0 = Name
+  CreatedPreset: "<green>Created preset: %0"
+  MaterialAlreadyExists: "<red>A vanilla minecraft material with this name already exists."
+  PresetAlreadyExists: "<red>A preset with this name already exists."
+  NotHoldingItem: "<red>You must be holding the item to create a preset."
+RemovePreset:
+  RemovedPreset: "<green>Removed preset: %0"
+  PresetDoesNotExist: "<red>Preset does not exist."
+PresetInfo:
+  # %0 = Preset Name
+  # %1 = Preset Item
+  PresetInfo: "<green>Preset info for %0: %1"
+  PresetDoesNotExist: "<red>Preset does not exist."
+PresetGet:
+  InventoryFull: "<red>Your inventory is full."
+  # %0 = Preset Name
+  GotPreset: "<green>Added preset %0 to your inventory."
+ImportItems:
+  ImportingItems: "<green>Importing items."
+  DoneImportingItems: "<green>Done importing items.
+  <newline><yellow><bold>Reminder 1:</bold> Updating or changing lore on items may require another import.
+  <newline><yellow><bold>Reminder 2:</bold> This adds EVERY custom item from a plugin, make sure to filter out what you don't want."
+  UnsupportedPlugin: "<red>Unsupported Option."
+  # %0 = Plugin Name
+  PluginNotLoaded: "<red>Plugin not %0 loaded or installed."
+  # Prefix to use while importing items for enchants.
+  # To update the prefix, you will need to reimport all items.
+  EnchantmentBookPrefix: "enchanted_book_"
