@@ -47,7 +47,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ./files/JobListings.zip
+            ./files/JobListings
           tag_name: ${{ github.ref }}
           body: |
             # Changelog
