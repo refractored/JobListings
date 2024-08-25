@@ -43,14 +43,11 @@ jobs:
         with:
           path: ./files
 
-      - name: Display structure of downloaded files
-        run: ls -R ./files
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ./files/JobListings/JobListings.zip
+            ./files/JobListings/JobListings-*.jar
           tag_name: ${{ github.ref }}
           body: |
             # Changelog
