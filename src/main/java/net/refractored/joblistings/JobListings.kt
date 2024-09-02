@@ -2,6 +2,8 @@ package net.refractored.joblistings
 
 import com.earth2me.essentials.Essentials
 import com.samjakob.spigui.SpiGUI
+import com.tchristofferson.configupdater.ConfigUpdater
+import dev.unnm3d.redischat.api.RedisChatAPI
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.config.Presets
@@ -20,6 +22,8 @@ import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.command.CommandActor
 import revxrsal.commands.command.ExecutableCommand
 import java.io.File
+import java.io.IOException
+import java.util.*
 
 /**
  * The main plugin class
@@ -49,11 +53,11 @@ class JobListings : JavaPlugin() {
     var ecoPlugin: Boolean = false
         private set
 
-//    /**
-//     * Returns true if redis is loaded
-//     */
-//    var redisChat: RedisChat? = null
-//        private set
+    /**
+     * Returns api if RedisChat is loaded
+     */
+    var redisChat: RedisChatAPI? = null
+        private set
 
     /**
      * Returns true if ItemsAdder is loaded
@@ -95,12 +99,30 @@ class JobListings : JavaPlugin() {
         val pluginId = 22844
         val metrics: Metrics = Metrics(this, pluginId)
 
-        // Save default configs
         saveDefaultConfig()
+
+        val configFile = File(dataFolder, "config.yml")
+
+        try {
+            ConfigUpdater.update(this, "config.yml", configFile, listOf())
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        reloadConfig()
 
         if (!File(dataFolder, "messages.yml").exists()) {
             saveResource("messages.yml", false)
         }
+
+        val messagesFile = File(dataFolder, "config.yml")
+
+        try {
+            ConfigUpdater.update(this, "messages.yml", messagesFile, listOf())
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
 
         if (!File(dataFolder, "gui.yml").exists()) {
             saveResource("gui.yml", false)
@@ -152,18 +174,13 @@ class JobListings : JavaPlugin() {
             logger.info("Hooked into ItemsAdder")
         }
 
-//        server.pluginManager.getPlugin("RedisChat")?.let {
-//            redisChat = (it as RedisChat)
-//            logger.info("Hooked into RedisChat")
-//        }
+        server.pluginManager.getPlugin("RedisChat")?.let {
+            redisChat = RedisChatAPI.getAPI()
+            logger.info("Hooked into RedisChat")
+        }
 
         // Create command handler
         handler = BukkitCommandHandler.create(this)
-
-        // Register autocompletions
-//        val materialResolver = MaterialResolver()
-//        handler.registerValueResolver(OrderStack::class.java, materialResolver)
-//        handler.autoCompleter.registerParameterSuggestions(OrderStack::class.java, materialResolver)
 
         // Register the command exception handler
         handler.setExceptionHandler(CommandErrorHandler())

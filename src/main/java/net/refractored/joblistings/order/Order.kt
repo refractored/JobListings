@@ -5,7 +5,9 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import com.willfp.eco.core.items.Items
+import dev.unnm3d.redischat.api.RedisChatAPI
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.mail.Mail
@@ -472,20 +474,14 @@ data class Order(
                             MessageReplacement(order.cost.toString()),
                         ),
                     )
-//                if (JobListings.instance.redisChat != null && JobListings.instance.config.getBoolean("Redischat.RedisChatAnnounce", false)) {
-//                    JobListings.instance.redisChat!!
-//                        .dataManager
-//                        .sendChatMessage(
-//                            ChatMessage(
-//                                ChannelAudience(),
-//                                "",
-//                                MiniMessage.miniMessage().serialize(message),
-//                            ChannelAudience(JobListings.instance.config.getString("Redischat.Channel", "public")),
-//                        )
-//                    )
-//                } else {
+                if (JobListings.instance.redisChat != null && JobListings.instance.config.getBoolean("Redischat.RedisChatAnnounce", false)) {
+                    JobListings.instance.redisChat!!.broadcastMessage(
+                        JobListings.instance.redisChat!!.getChannel(JobListings.instance.config.getString("Redischat.RedisChatChannel")).get(),
+                        MiniMessage.miniMessage().serialize(message)
+                    )
+                } else {
                     JobListings.instance.server.broadcast(message)
-//                }
+                }
             }
             return order
         }

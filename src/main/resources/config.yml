@@ -90,3 +90,12 @@ Essentials:
   # will not be able to accept orders from the player that ignored them.
   UseIgnoreList: false
 
+# Options here require the Redischat plugin to be installed!
+# If Redischat is not installed, these options will be ignored.
+# https://www.spigotmc.org/resources/redischat%E2%9A%A1simple-intuitive-chat-suite%E2%9A%A1cross-server-support.111015/
+Redischat:
+  # If true, when an order is created, it will be announced in the RedisChat channel.
+  # Requires AnnounceOnOrderCreate to be true.
+  RedisChatAnnounce: false
+  # The channel to announce orders in.
+  RedisChatChannel: "joblistings"

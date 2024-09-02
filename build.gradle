@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'net.refractored'
-version = '2.0'
+version = '2.1'
 
 repositories {
     mavenCentral()
@@ -56,7 +56,11 @@ String getCurrentGitBranch() {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
 
+    // Eco
     compileOnly("com.willfp:eco:6.70.1")
+
+    // Config Updater
+    implementation "com.tchristofferson:ConfigUpdater:2.1-SNAPSHOT"
 
     // EssentialsX
     compileOnly 'net.essentialsx:EssentialsX:2.20.1'
@@ -86,7 +90,7 @@ dependencies {
     // SpiGUI (GUI)
     implementation 'com.samjakob:SpiGUI:1.3.1'
 
-//    compileOnly 'com.github.Emibergo02:RedisChat:5.3.1'
+    compileOnly 'com.github.Emibergo02:RedisChat:5.3.2'
 
 }
 
