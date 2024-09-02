@@ -123,7 +123,6 @@ class JobListings : JavaPlugin() {
             e.printStackTrace()
         }
 
-
         if (!File(dataFolder, "gui.yml").exists()) {
             saveResource("gui.yml", false)
         }

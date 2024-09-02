@@ -5,7 +5,6 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import com.willfp.eco.core.items.Items
-import dev.unnm3d.redischat.api.RedisChatAPI
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
@@ -22,6 +21,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Represents an order that has been placed on the job board
@@ -474,10 +474,16 @@ data class Order(
                             MessageReplacement(order.cost.toString()),
                         ),
                     )
-                if (JobListings.instance.redisChat != null && JobListings.instance.config.getBoolean("Redischat.RedisChatAnnounce", false)) {
+                if (JobListings.instance.redisChat != null &&
+                    JobListings.instance.config.getBoolean("Redischat.RedisChatAnnounce", false)
+                ) {
                     JobListings.instance.redisChat!!.broadcastMessage(
-                        JobListings.instance.redisChat!!.getChannel(JobListings.instance.config.getString("Redischat.RedisChatChannel")).get(),
-                        MiniMessage.miniMessage().serialize(message)
+                        JobListings.instance.redisChat!!
+                            .getChannel(
+                                JobListings.instance.config.getString("Redischat.RedisChatChannel"),
+                            ).getOrNull()
+                            ?: throw IllegalStateException("Channel not found"),
+                        MiniMessage.miniMessage().serialize(message),
                     )
                 } else {
                     JobListings.instance.server.broadcast(message)
