@@ -62,7 +62,7 @@ Orders:
   # This includes everything from BlacklistedMaterials too, so don't add them here if its already there.
   BlacklistedCreateMaterials:
     - SPAWNER
-    - ENCHANTMENT_BOOK
+    - ENCHANTED_BOOK
 
 # Mail is used when an order is updated and the player is offline
 Mail:
