@@ -115,7 +115,7 @@ class JobListings : JavaPlugin() {
             saveResource("messages.yml", false)
         }
 
-        val messagesFile = File(dataFolder, "config.yml")
+        val messagesFile = File(dataFolder, "messages.yml")
 
         try {
             ConfigUpdater.update(this, "messages.yml", messagesFile, listOf())
