@@ -98,4 +98,4 @@ Redischat:
   # Requires AnnounceOnOrderCreate to be true.
   RedisChatAnnounce: false
   # The channel to announce orders in.
-  RedisChatChannel: "joblistings"
+  RedisChatChannel: "public"
