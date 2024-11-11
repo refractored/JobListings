@@ -4,6 +4,7 @@ import com.earth2me.essentials.Essentials
 import com.samjakob.spigui.SpiGUI
 import com.tchristofferson.configupdater.ConfigUpdater
 import dev.unnm3d.redischat.api.RedisChatAPI
+import io.papermc.lib.PaperLib
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.config.Presets
@@ -91,6 +92,13 @@ class JobListings : JavaPlugin() {
     private lateinit var cleanDatabase: BukkitTask
 
     override fun onEnable() {
+        if (!PaperLib.isPaper()) {
+            logger.severe("This plugin requires Paper to run!")
+            logger.severe("Learn more here: https://papermc.io/")
+            logger.severe("The plugin will now disable itself.")
+            throw IllegalStateException("Server is not running Paper.")
+        }
+
         // Set the instance
         instance = this
 

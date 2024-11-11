@@ -80,6 +80,9 @@ dependencies {
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
 
+    implementation("io.papermc:paperlib:1.0.7")
+
+
     // ORMLite (ORM)
     compileOnly "com.j256.ormlite:ormlite-core:5.6"
     compileOnly "com.j256.ormlite:ormlite-jdbc:5.6"
@@ -118,6 +121,7 @@ processResources {
     if (getCurrentGitBranch() != "main" && getCurrentGitBranch() != "master" && getCurrentGitBranch() != "HEAD") {
         version = version + "-" + getCurrentGitBranch() + "-" + getGitHash()
     }
+
     def props = [version: version]
     inputs.properties props
     filteringCharset 'UTF-8'
@@ -143,8 +147,7 @@ shadowJar {
     archiveFileName = "JobListings-${version}.jar"
 //    relocate('kotlin', 'net.refractored.libs.kotlin')
     relocate("org.bstats", "net.refractored.libs.bstats")
-
-
+    relocate("io.papermc.lib", "net.refractored.libs.paperlib")
 }
 
 build.dependsOn shadowJar
