@@ -7,7 +7,6 @@ import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
-import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.BukkitCommandActor
@@ -27,47 +26,33 @@ class CompleteOrders {
             .and()
             .eq("status", OrderStatus.CLAIMED)
         val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
+
         if (orders.isEmpty()) {
             throw CommandErrorException(MessageUtil.getMessage("OrderComplete.NoOrdersToComplete"))
         }
+
         val orderCount = orders.count()
         var ordersUpdated = 0
         var ordersCompleted = 0
-        // TODO: REWRITE THIS ATROCITY
-        forEachOrder@ for (order in orders) {
-            forEachItem@ for (item in actor.player.inventory.storageContents) {
-                if (item == null) continue@forEachItem
-                if (!order.itemMatches(item)) continue@forEachItem
-                if (order.item is Damageable && item.itemMeta is Damageable) {
-                    if ((order.item as Damageable).damage != (item.itemMeta as Damageable).damage) {
-                        actor.reply(
-                            MessageUtil.getMessage(
-                                "OrderComplete.DamagedItem",
-                                listOf(
-                                    MessageReplacement(order.getItemInfo()),
-                                ),
-                            ),
-                        )
-                        continue@forEachItem
-                    }
-                }
-                if (order.itemCompleted + item.amount >= order.itemAmount) {
-                    // Order completed YIPPEE
-                    val itemsLeft = (order.itemCompleted + item.amount) - order.itemAmount
-                    order.completeOrder(true)
-                    item.amount = itemsLeft
-                    ordersCompleted++
-                    continue@forEachOrder
-                }
-                // Order not completed :(
+
+        for (item in actor.player.inventory.contents) {
+            if (item == null) continue
+            val order = orders.find { it.itemMatches(item) } ?: continue
+            val itemAmount = (order.itemCompleted + item.amount)
+            if (itemAmount < order.itemAmount) {
                 order.itemCompleted += item.amount
                 orderDao.update(order)
                 item.amount = 0
                 ordersUpdated++
                 messageProgress(actor, order)
-                continue@forEachItem
+                continue
             }
+            order.completeOrder(true)
+            item.amount = itemAmount - order.itemAmount
+            ordersCompleted++
+            continue
         }
+
         if (ordersUpdated == 0 && ordersCompleted == 0) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
@@ -75,6 +60,7 @@ class CompleteOrders {
                 ),
             )
         }
+
         if (ordersCompleted == orderCount) {
             actor.reply(
                 MessageUtil.getMessage(
@@ -83,6 +69,7 @@ class CompleteOrders {
             )
             return
         }
+
         actor.reply(
             MessageUtil.getMessage(
                 "OrderComplete.OrderProgress",
