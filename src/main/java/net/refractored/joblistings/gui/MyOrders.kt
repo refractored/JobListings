@@ -253,10 +253,10 @@ class MyOrders(
                     return
                 }
                 if (giveOrderItems(order, (event.whoClicked as Player))) {
-                    event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        MessageUtil.getMessage("MyOrders.OrderAlreadyClaimed"),
+                        MessageUtil.getMessage("MyOrders.OrderFullyClaimed"),
                     )
+                    orderDao.delete(order)
                     gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                     loadOrders(gui.currentPage, event.whoClicked as Player)
                     gui.refreshInventory(event.whoClicked)
@@ -300,15 +300,7 @@ class MyOrders(
         }
         order.itemsObtained += order.itemCompleted - itemsLeft
         orderDao.update(order)
-        if (order.itemsObtained == order.itemCompleted) {
-            player.sendMessage(
-                MessageUtil.getMessage("MyOrders.OrderObtained"),
-            )
-            player.closeInventory()
-            orderDao.delete(order)
-            return true
-        }
-        return false
+        return order.itemsObtained == order.itemCompleted
     }
 
     companion object {

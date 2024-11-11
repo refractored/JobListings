@@ -180,6 +180,7 @@ class JobListings : JavaPlugin() {
 
         // Create command handler
         handler = BukkitCommandHandler.create(this)
+        logger.info("I am aware of this deprecation message, it will be fixed in a future update.")
 
         // Register the command exception handler
         handler.setExceptionHandler(CommandErrorHandler())
