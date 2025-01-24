@@ -93,15 +93,22 @@ class JobListings : JavaPlugin() {
 
     override fun onEnable() {
         if (!PaperLib.isPaper()) {
-            logger.severe("-----------------------------------")
-            logger.severe("This plugin requires Paper to run!")
-            logger.severe("Paper is a high-performance fork of Spigot.")
-            logger.severe("Everything that works on Spigot works on Paper.")
-            logger.severe("Learn more here: https://papermc.io/")
-            logger.severe("")
-            logger.severe("The plugin will now disable itself.")
-            logger.severe("-----------------------------------")
-            throw IllegalStateException("Server is not running Paper.")
+            if (config.getBoolean("BypassPaperWarning")) {
+                logger.warning("The paper warning has been bypassed.")
+            } else {
+                logger.severe("-----------------------------------")
+                logger.severe("This plugin requires Paper to run!")
+                logger.severe("Paper is a high-performance fork of Spigot.")
+                logger.severe("Everything that works on Spigot works on Paper.")
+                logger.severe("Learn more here: https://papermc.io/")
+                logger.severe("")
+                logger.severe("This warning can be bypassed but is NOT recommended.")
+                logger.severe("Check the wiki: https://plugins.refractored.net")
+                logger.severe("")
+                logger.severe("The plugin will now disable itself.")
+                logger.severe("-----------------------------------")
+                throw IllegalStateException("Server is not running Paper.")
+            }
         }
 
         // Set the instance
