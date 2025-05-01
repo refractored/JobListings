@@ -7,7 +7,7 @@ import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
@@ -123,7 +123,7 @@ data class Order(
         UUID.randomUUID(),
         null,
         LocalDateTime.now(),
-        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.MinOrdersTime")),
+        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("orders.min-order-time")),
         null,
         null,
         null,
@@ -142,7 +142,7 @@ data class Order(
      */
     fun getItemInfo(): Component =
         MessageUtil.getMessage(
-            "Orders.OrderInfo",
+            "orders.OrderInfo",
             listOf(
                 MessageReplacement(item.displayName()),
                 MessageReplacement(itemAmount.toString()),
@@ -207,7 +207,7 @@ data class Order(
         }
         assignee = assigneePlayer.uniqueId
         timeClaimed = LocalDateTime.now()
-        timeDeadline = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.OrderDeadline"))
+        timeDeadline = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("orders.order-deadline"))
         status = OrderStatus.CLAIMED
         orderDao.update(this)
         if (!notify) return
@@ -252,7 +252,7 @@ data class Order(
         itemCompleted = itemAmount
         status = OrderStatus.COMPLETED
         timeCompleted = LocalDateTime.now()
-        timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.PickupDeadline"))
+        timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("orders.pickup-deadline"))
         orderDao.update(this)
         if (pay) {
             JobListings.instance.eco.depositPlayer(
@@ -359,7 +359,7 @@ data class Order(
             // No point of keeping the order if no items were turned in
             orderDao.delete(this)
         } else {
-            timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Orders.PickupDeadline"))
+            timePickup = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("orders.pickup-deadline"))
             orderDao.update(this)
         }
         if (!notify) return
@@ -387,9 +387,7 @@ data class Order(
      * @param itemArg The itemstack to compare
      * @return Whether the itemstack matches the order itemstack
      */
-    fun itemMatches(itemArg: ItemStack): Boolean {
-        return item.isSimilar(itemArg)
-    }
+    fun itemMatches(itemArg: ItemStack): Boolean = item.isSimilar(itemArg)
 
     fun isOrderExpired(): Boolean = LocalDateTime.now().isAfter(timeExpires)
 
@@ -421,7 +419,7 @@ data class Order(
             hours: Long,
             announce: Boolean = true,
         ): Order {
-            val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
+            val maxItems = JobListings.instance.config.getInt("orders.max-items")
             when {
                 maxItems == -1 && amount > item.maxStackSize -> {
                     throw IllegalArgumentException("Item stack size exceeded")
@@ -430,10 +428,10 @@ data class Order(
                     throw IllegalArgumentException("Max orders exceeded")
                 }
             }
-            if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
+            if (hours > JobListings.instance.config.getLong("orders.max-order-time")) {
                 throw IllegalArgumentException("Order time exceeds maximum")
             }
-            if (hours < JobListings.instance.config.getLong("Orders.MinOrdersTime")) {
+            if (hours < JobListings.instance.config.getLong("orders.min-order-time")) {
                 throw IllegalArgumentException("Order time exceeds maximum")
             }
             item.amount = 1
@@ -458,10 +456,10 @@ data class Order(
                 )
             orderDao.create(order)
 
-            if (announce && JobListings.instance.config.getBoolean("Orders.AnnounceOnOrderCreate", false)) {
+            if (announce && JobListings.instance.config.getBoolean("orders.AnnounceOnOrderCreate", false)) {
                 val message =
                     MessageUtil.getMessage(
-                        "Orders.Announcement",
+                        "orders.Announcement",
                         listOf(
                             MessageReplacement(order.getOwner().name ?: "Unknown"),
                             MessageReplacement(order.getItemInfo()),
@@ -516,7 +514,7 @@ data class Order(
                         it.permission.startsWith("joblistings.create.max.")
                     }.mapNotNull { it.permission.substringAfter("joblistings.create.max.").toIntOrNull() }
                     .maxOrNull()
-                    ?: JobListings.instance.config.getInt("Orders.MaxOrders", 1)
+                    ?: JobListings.instance.config.getInt("orders.max-orders", 1)
 
             return maxOrderAmount.coerceAtLeast(0)
         }
@@ -534,7 +532,7 @@ data class Order(
                         it.permission.startsWith("joblistings.accepted.max.")
                     }.mapNotNull { it.permission.substringAfter("joblistings.accepted.max.").toIntOrNull() }
                     .maxOrNull()
-                    ?: JobListings.instance.config.getInt("Orders.MaxOrdersAccepted", 1)
+                    ?: JobListings.instance.config.getInt("orders.max-accepted-orders", 1)
 
             return maxOrdersAccepted.coerceAtLeast(0)
         }

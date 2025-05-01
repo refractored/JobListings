@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.SECTION_CHAR
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.Companion.mailDao
+import net.refractored.joblistings.database.Database.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageUtil
@@ -54,7 +54,7 @@ data class Mail(
                         if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
                             0L
                         } else {
-                            (System.currentTimeMillis() + (24 * 3600 * JobListings.instance.config.getLong("Orders.MinOrdersTime")))
+                            (System.currentTimeMillis() + (24 * 3600 * JobListings.instance.config.getLong("orders.min-order-time")))
                         }
                     it.mail.sendMail(
                         essPlayer,

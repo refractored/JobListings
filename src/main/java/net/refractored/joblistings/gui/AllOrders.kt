@@ -6,7 +6,7 @@ import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
 import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
 import net.refractored.joblistings.order.Order
@@ -50,7 +50,12 @@ class AllOrders {
     init {
         gui.setOnPageChange { inventory ->
             inventory.clearAllButStickiedSlots()
-            loadOrders(inventory.currentPage)
+            Bukkit.getScheduler().runTaskAsynchronously(
+                JobListings.instance,
+                Runnable {
+                    loadOrders(inventory.currentPage)
+                },
+            )
         }
 
         loadNavButtons(config, gui, pageCount)

@@ -2,7 +2,7 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.Order.Companion.getMaxOrders
@@ -27,7 +27,7 @@ class CreateOrderHand {
         actor: BukkitCommandActor,
         cost: Double,
         @Optional amount: Int = 1,
-        @Optional hours: Long = JobListings.instance.config.getLong("Orders.MaxOrdersTime"),
+        @Optional hours: Long = JobListings.instance.config.getLong("orders.max-order-time"),
     ) {
         if (actor.isConsole) {
             throw CommandErrorException(
@@ -47,14 +47,14 @@ class CreateOrderHand {
             )
         }
 
-        if (hours > JobListings.instance.config.getLong("Orders.MaxOrdersTime")) {
+        if (hours > JobListings.instance.config.getLong("orders.max-order-time")) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMaxHoursConfig",
                     listOf(
                         MessageReplacement(
                             JobListings.instance.config
-                                .getLong("Orders.MaxOrdersTime")
+                                .getLong("orders.max-order-time")
                                 .toString(),
                         ),
                     ),
@@ -62,14 +62,14 @@ class CreateOrderHand {
             )
         }
 
-        if (hours < JobListings.instance.config.getLong("Orders.MinOrdersTime")) {
+        if (hours < JobListings.instance.config.getLong("orders.min-order-time")) {
             throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMinHoursConfig",
                     listOf(
                         MessageReplacement(
                             JobListings.instance.config
-                                .getLong("Orders.MinOrdersTime")
+                                .getLong("orders.min-order-time")
                                 .toString(),
                         ),
                     ),
@@ -96,7 +96,9 @@ class CreateOrderHand {
             .eq("status", OrderStatus.PENDING)
             .and()
             .eq("user", actor.uniqueId)
+
         val orders = orderDao.query(queryBuilder.prepare())
+
         val maxOrders = getMaxOrders(actor.player)
 
         if (orders.count() >= maxOrders) {
@@ -121,7 +123,7 @@ class CreateOrderHand {
         }
 
         val blacklistedMaterials =
-            JobListings.instance.config.getStringList("Orders.BlacklistedMaterials").mapNotNull { material ->
+            JobListings.instance.config.getStringList("orders.BlacklistedMaterials").mapNotNull { material ->
                 try {
                     Material.valueOf(material)
                 } catch (e: IllegalArgumentException) {
@@ -144,7 +146,7 @@ class CreateOrderHand {
             item.itemMeta = damageableMeta
         }
 
-        val maxItems = JobListings.instance.config.getInt("Orders.MaximumItems")
+        val maxItems = JobListings.instance.config.getInt("orders.max-items")
 
         when {
             maxItems == -1 && amount > item.maxStackSize -> {

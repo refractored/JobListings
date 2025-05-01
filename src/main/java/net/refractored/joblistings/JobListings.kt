@@ -193,8 +193,8 @@ class JobListings : JavaPlugin() {
             val stringArgs = args.joinToString(" ").lowercase()
 
             val config = instance.config
-            val blacklistedMaterials = config.getStringList("Orders.BlacklistedMaterials")
-            val additionalBlacklistedMaterials = config.getStringList("Orders.BlacklistedCreateMaterials")
+            val blacklistedMaterials = config.getStringList("orders.BlacklistedMaterials")
+            val additionalBlacklistedMaterials = config.getStringList("orders.BlacklistedCreateMaterials")
             val blacklist =
                 (blacklistedMaterials + additionalBlacklistedMaterials)
                     .map { it.lowercase() }
@@ -214,15 +214,15 @@ class JobListings : JavaPlugin() {
                 .toMutableSet()
         }
 
-        if (!instance.config.getBoolean("Orders.CreateHand", true) && !instance.config.getBoolean("Orders.CreateMaterial", true)) {
+        if (!instance.config.getBoolean("orders.CreateHand", true) && !instance.config.getBoolean("orders.CreateMaterial", true)) {
             logger.warning("You have disabled both order creation methods!")
             logger.warning("Please double check your config!")
         }
         // Register commands
-        if (instance.config.getBoolean("Orders.CreateHand", true)) {
+        if (instance.config.getBoolean("orders.CreateHand", true)) {
             handler.register(CreateOrderHand())
         }
-        if (instance.config.getBoolean("Orders.CreateMaterial", true)) {
+        if (instance.config.getBoolean("orders.CreateMaterial", true)) {
             handler.register(CreateOrderMaterial())
         }
         handler.register(OwnedOrders())

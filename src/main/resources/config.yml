@@ -11,25 +11,25 @@ Database:
   user: "USERNAME"
   password: "PASSWORD"
 
-Orders:
+orders:
   # These two values are used if a player does not have a permission set for the max.
   # Replace X with number
   # Permissions:
   # joblistings.create.max.X
   # joblistings.accepted.max.X
-  MaxOrders: 3
-  MaxOrdersAccepted: 3
+  max-orders: 3
+  max-accepted-orders: 3
   # Maximum/Minimum time in hours orders can be posted for
-  MaxOrdersTime: 192
-  MinOrdersTime: 48
+  max-order-time: 192
+  min-order-time: 48
   # Time in hours to keep orders in the database after they have been fully completed
-  PickupDeadline: 500
+  pickup-deadline: 500
   # Deadline in hours to complete an order
-  OrderDeadline: 32
+  order-deadline: 32
   # Maximum amount of items per order
   # Setting this to 0 will disable the limit
   # Setting this to -1 will use the item's max stack size (May differ with material type)
-  MaximumItems: 256
+  max-items: 256
   # If orders can be created via hand (requires restart to change)
   CreateHand: true
   # If orders can be created via material (requires restart to change)
@@ -47,8 +47,7 @@ Orders:
     - END_GATEWAY
     - NETHER_PORTAL
     - AIR
-  # These materials below are blacklisted because they are admin blocks.
-  # If you want you can remove this.
+  # These materials below are blacklisted by default because they are unobtainable in vanilla mc.
     - BEDROCK
     - BARRIER
     - LIGHT
@@ -60,7 +59,7 @@ Orders:
   # Creating an order via material will not have any data. (/joblistings create material)
   # By default spawners and enchantment books are blocked, because they will be all be pig spawners, or blank books if not created via hand.
   # This can be disabled if you don't mind it.
-  # This includes everything from BlacklistedMaterials too, so don't add them here if its already there.
+  # This includes everything from BlacklistedMaterials too, so don't add them here if it's already there.
   BlacklistedCreateMaterials:
     - SPAWNER
     - ENCHANTED_BOOK
@@ -93,7 +92,6 @@ Essentials:
 
 # Options here require the Redischat plugin to be installed!
 # If Redischat is not installed, these options will be ignored.
-# https://www.spigotmc.org/resources/redischat%E2%9A%A1simple-intuitive-chat-suite%E2%9A%A1cross-server-support.111015/
 Redischat:
   # If true, when an order is created, it will be announced in the RedisChat channel.
   # Requires AnnounceOnOrderCreate to be true.
