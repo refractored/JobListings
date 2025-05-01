@@ -10,7 +10,9 @@ import com.j256.ormlite.logger.NullLogBackend.NullLogBackendFactory
 import com.j256.ormlite.table.TableUtils
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.mail.Mail
+import net.refractored.joblistings.order.ClaimedOrder
 import net.refractored.joblistings.order.Order
+import net.refractored.joblistings.order.PendingOrder
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
@@ -19,80 +21,92 @@ import java.util.*
 /**
  * A static class used for database operations.
  */
-class Database {
-    companion object {
-        /**
-         * The connection source for the database.
-         */
-        @JvmStatic
-        lateinit var connectionSource: JdbcConnectionSource
-            private set
+object Database {
+    /**
+     * The connection source for the database.
+     */
+    @JvmStatic
+    lateinit var connectionSource: JdbcConnectionSource
+        private set
 
-        /**
-         * The order DAO, used for database operations on orders.
-         */
-        @JvmStatic
-        lateinit var orderDao: Dao<Order, UUID>
-            private set
+    /**
+     * The order DAO, used for database operations on orders.
+     */
+    @JvmStatic
+    lateinit var orderDao: Dao<Order, UUID>
+        private set
 
-        /**
-         * The order DAO, used for database operations on orders.
-         */
-        @JvmStatic
-        lateinit var mailDao: Dao<Mail, UUID>
-            private set
+    /**
+     * The pending order DAO, used for database operations on orders.
+     */
+    @JvmStatic
+    lateinit var pendingOrderDao: Dao<PendingOrder, UUID>
+        private set
 
-        /**
-         * Initializes the database with values from the config.
-         * This should be called once.
-         * Call before any other database operations, and after the config has been loaded.
-         */
-        @JvmStatic
-        fun init() {
-            JobListings.instance.logger.info("Initializing database...")
-            LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
+    /**
+     * The claimed order DAO, used for database operations on orders.
+     */
+    @JvmStatic
+    lateinit var claimedOrderDao: Dao<ClaimedOrder, UUID>
+        private set
 
-            if (JobListings.instance.config.getString("Database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME") {
-                JobListings.instance.logger.severe("Database not setup in config.")
-                throw Exception("Database not setup in config.")
+    /**
+     * The order DAO, used for database operations on orders.
+     */
+    @JvmStatic
+    lateinit var mailDao: Dao<Mail, UUID>
+        private set
+
+    /**
+     * Initializes the database with values from the config.
+     * This should be called once.
+     * Call before any other database operations, and after the config has been loaded.
+     */
+    @JvmStatic
+    fun init() {
+        JobListings.instance.logger.info("Initializing database...")
+        LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
+
+        if (JobListings.instance.config.getString("Database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME") {
+            JobListings.instance.logger.severe("Database not setup in config.")
+            throw Exception("Database not setup in config.")
+        }
+
+        connectionSource =
+            if (JobListings.instance.config
+                    .getString("Database.url")
+                    .equals("file", true)
+            ) {
+                JdbcPooledConnectionSource(
+                    "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db",
+                )
+            } else {
+                JdbcPooledConnectionSource(
+                    JobListings.instance.config.getString("Database.url"),
+                    JobListings.instance.config.getString("Database.user"),
+                    JobListings.instance.config.getString("Database.password"),
+                )
             }
 
-            connectionSource =
-                if (JobListings.instance.config
-                        .getString("Database.url")
-                        .equals("file", true)
-                ) {
-                    JdbcPooledConnectionSource(
-                        "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db",
-                    )
-                } else {
-                    JdbcPooledConnectionSource(
-                        JobListings.instance.config.getString("Database.url"),
-                        JobListings.instance.config.getString("Database.user"),
-                        JobListings.instance.config.getString("Database.password"),
-                    )
-                }
+        @Suppress("UNCHECKED_CAST")
+        orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
 
-            @Suppress("UNCHECKED_CAST")
-            orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
+        TableUtils.createTableIfNotExists(connectionSource, Order::class.java)
 
-            TableUtils.createTableIfNotExists(connectionSource, Order::class.java)
+        @Suppress("UNCHECKED_CAST")
+        mailDao = DaoManager.createDao(connectionSource, Mail::class.java) as Dao<Mail, UUID>
 
-            @Suppress("UNCHECKED_CAST")
-            mailDao = DaoManager.createDao(connectionSource, Mail::class.java) as Dao<Mail, UUID>
+        TableUtils.createTableIfNotExists(connectionSource, Mail::class.java)
 
-            TableUtils.createTableIfNotExists(connectionSource, Mail::class.java)
+        DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
 
-            DataPersisterManager.registerDataPersisters(ItemstackSerializers.getSingleton())
+        DataPersisterManager.registerDataPersisters(ComponentSerializers.getSingleton())
 
-            DataPersisterManager.registerDataPersisters(ComponentSerializers.getSingleton())
+        DataPersisterManager.registerDataPersisters(LocalDateTimeSerializers.getSingleton())
 
-            DataPersisterManager.registerDataPersisters(LocalDateTimeSerializers.getSingleton())
-
-            System.setProperty("com.j256.ormlite.logger.type", "LOCAL")
-            System.setProperty("com.j256.ormlite.logger.level", "ERROR")
-            System.setProperty(LoggerFactory.LOG_TYPE_SYSTEM_PROPERTY, "LOCAL")
-            JobListings.instance.logger.info("Database initialized")
-        }
+        System.setProperty("com.j256.ormlite.logger.type", "LOCAL")
+        System.setProperty("com.j256.ormlite.logger.level", "ERROR")
+        System.setProperty(LoggerFactory.LOG_TYPE_SYSTEM_PROPERTY, "LOCAL")
+        JobListings.instance.logger.info("Database initialized")
     }
 }

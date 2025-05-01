@@ -7,7 +7,7 @@ import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
@@ -387,9 +387,7 @@ data class Order(
      * @param itemArg The itemstack to compare
      * @return Whether the itemstack matches the order itemstack
      */
-    fun itemMatches(itemArg: ItemStack): Boolean {
-        return item.isSimilar(itemArg)
-    }
+    fun itemMatches(itemArg: ItemStack): Boolean = item.isSimilar(itemArg)
 
     fun isOrderExpired(): Boolean = LocalDateTime.now().isAfter(timeExpires)
 

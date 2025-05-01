@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.SECTION_CHAR
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.Companion.mailDao
+import net.refractored.joblistings.database.Database.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageUtil

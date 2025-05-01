@@ -2,7 +2,7 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.Companion.orderDao
+import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.Order.Companion.getMaxOrders
@@ -96,7 +96,9 @@ class CreateOrderHand {
             .eq("status", OrderStatus.PENDING)
             .and()
             .eq("user", actor.uniqueId)
+
         val orders = orderDao.query(queryBuilder.prepare())
+
         val maxOrders = getMaxOrders(actor.player)
 
         if (orders.count() >= maxOrders) {
