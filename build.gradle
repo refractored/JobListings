@@ -56,23 +56,18 @@ String getCurrentGitBranch() {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
 
-    // Eco
-    compileOnly("com.willfp:eco:6.70.1")
-
     // Config Updater
     implementation "com.tchristofferson:ConfigUpdater:2.1-SNAPSHOT"
 
     // EssentialsX
     compileOnly 'net.essentialsx:EssentialsX:2.20.1'
 
-    compileOnly 'com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14'
-
     // Kotlin
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:2.0.0"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
 
     // Lamp (Commands)
-    implementation "com.github.Revxrsal.Lamp:common:3.2.1"
-    implementation "com.github.Revxrsal.Lamp:bukkit:3.2.1"
+    implementation "com.github.Revxrsal.Lamp:common:3.3.6"
+    implementation "com.github.Revxrsal.Lamp:bukkit:3.3.6"
 
     // Adventure (Components)
     compileOnly "net.kyori:adventure-platform-bukkit:4.1.2"
@@ -146,8 +141,8 @@ compileJava {
 shadowJar {
     archiveFileName = "JobListings-${version}.jar"
 //    relocate('kotlin', 'net.refractored.libs.kotlin')
-    relocate("org.bstats", "net.refractored.libs.bstats")
-    relocate("io.papermc.lib", "net.refractored.libs.paperlib")
+    relocate("org.bstats", "net.refractored.joblistings.libs.bstats")
+    relocate("io.papermc.lib", "net.refractored.joblistings.libs.paperlib")
 }
 
 build.dependsOn shadowJar

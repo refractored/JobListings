@@ -4,7 +4,6 @@ import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
-import com.willfp.eco.core.items.Items
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
@@ -389,11 +388,6 @@ data class Order(
      * @return Whether the itemstack matches the order itemstack
      */
     fun itemMatches(itemArg: ItemStack): Boolean {
-        if (JobListings.instance.ecoPlugin) {
-            Items.getCustomItem(item)?.let { customItem ->
-                return customItem.matches(itemArg)
-            }
-        }
         return item.isSimilar(itemArg)
     }
 

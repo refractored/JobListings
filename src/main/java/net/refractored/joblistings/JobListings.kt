@@ -7,7 +7,6 @@ import dev.unnm3d.redischat.api.RedisChatAPI
 import io.papermc.lib.PaperLib
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
-import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.exceptions.CommandErrorHandler
 import net.refractored.joblistings.listeners.PlayerJoinListener
@@ -49,21 +48,9 @@ class JobListings : JavaPlugin() {
         private set
 
     /**
-     * Returns true if eco is loaded
-     */
-    var ecoPlugin: Boolean = false
-        private set
-
-    /**
      * Returns api if RedisChat is loaded
      */
     var redisChat: RedisChatAPI? = null
-        private set
-
-    /**
-     * Returns true if ItemsAdder is loaded
-     */
-    var itemsAdder: Boolean = false
         private set
 
     /**
@@ -158,9 +145,6 @@ class JobListings : JavaPlugin() {
         // Load preset config
         presets = YamlConfiguration.loadConfiguration(dataFolder.resolve("presets.yml"))
 
-        // Load presets
-        Presets.refreshPresets()
-
         // Initialize the database
         Database.init()
 
@@ -183,16 +167,6 @@ class JobListings : JavaPlugin() {
             }
         }
 
-        server.pluginManager.getPlugin("eco")?.let {
-            ecoPlugin = true
-            logger.info("Hooked into eco")
-        }
-
-        server.pluginManager.getPlugin("ItemsAdder")?.let {
-            itemsAdder = true
-            logger.info("Hooked into ItemsAdder")
-        }
-
         server.pluginManager.getPlugin("RedisChat")?.let {
             redisChat = RedisChatAPI.getAPI()
             logger.info("Hooked into RedisChat")
@@ -205,13 +179,13 @@ class JobListings : JavaPlugin() {
         // Register the command exception handler
         handler.setExceptionHandler(CommandErrorHandler())
 
-        handler.autoCompleter.registerSuggestion(
-            "presets",
-        ) { args: List<String?>?, sender: CommandActor?, command: ExecutableCommand? ->
-            return@registerSuggestion Presets
-                .getPresets()
-                .keys
-        }
+//        handler.autoCompleter.registerSuggestion(
+//            "presets",
+//        ) { args: List<String?>?, sender: CommandActor?, command: ExecutableCommand? ->
+//            return@registerSuggestion Presets
+//                .getPresets()
+//                .keys
+//        }
 
         handler.autoCompleter.registerSuggestion(
             "materials",
@@ -233,9 +207,9 @@ class JobListings : JavaPlugin() {
                     .filterNot { name -> name in blacklist.map { it.lowercase() } }
                     .toMutableSet()
 
-            val presetSuggestions = Presets.getPresets().keys
+//            val presetSuggestions = Presets.getPresets().keys
 
-            return@registerSuggestion (materialSuggestions + presetSuggestions)
+            return@registerSuggestion (materialSuggestions /*+ presetSuggestions*/)
                 .filter { it.startsWith(stringArgs, ignoreCase = true) }
                 .toMutableSet()
         }
@@ -257,18 +231,15 @@ class JobListings : JavaPlugin() {
         handler.register(CompleteOrders())
         handler.register(HelpCommand())
         handler.register(ReloadCommand())
-        handler.register(CreatePreset())
-        handler.register(RemovePreset())
-        handler.register(PresetInfo())
-        handler.register(PresetGet())
-        handler.register(ImportItems())
+
+        handler.enableAdventure()
 //        handler.registerBrigadier()
 
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)
 
         cleanDatabase =
-            server.scheduler.runTaskTimer(
+            server.scheduler.runTaskTimerAsynchronously(
                 this,
                 Runnable {
                     Order.updateExpiredOrders()
@@ -301,7 +272,7 @@ class JobListings : JavaPlugin() {
         reloadConfig()
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
         gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
-        Presets.refreshPresets()
+//        Presets.refreshPresets()
     }
 
     companion object {

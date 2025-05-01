@@ -5,7 +5,8 @@
 Database:
   # For the url, you should only need to replace DATABASE_IP , PORT, and DATABASE_NAME.
   # jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME
-  # replace url with "file" if you want to use sqlite.
+  # If you would like to use an external database, set sqlite to false.
+  sqlite: true
   url: "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME"
   user: "USERNAME"
   password: "PASSWORD"

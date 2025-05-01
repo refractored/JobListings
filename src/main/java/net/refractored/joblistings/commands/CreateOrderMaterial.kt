@@ -2,7 +2,6 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.config.Presets
 import net.refractored.joblistings.database.Database.Companion.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -113,8 +112,8 @@ class CreateOrderMaterial {
         }
 
         val item: ItemStack =
-            Presets.getPreset(stackName)
-                ?: Material.getMaterial(stackName.uppercase())?.let { ItemStack(it) }
+            /* Presets.getPreset(stackName)
+                ?:*/ Material.getMaterial(stackName.uppercase())?.let { ItemStack(it) }
                 ?: throw CommandErrorException(
                     MessageUtil.getMessage("CreateOrder.MaterialNotFound"),
                 )
