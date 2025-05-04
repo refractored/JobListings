@@ -6,7 +6,11 @@ import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.order.BaseOrder
+import net.refractored.joblistings.order.impl.Creation
+import net.refractored.joblistings.order.impl.Expires
+import net.refractored.joblistings.order.impl.Item
+import net.refractored.joblistings.order.impl.Owner
+import net.refractored.joblistings.order.impl.Rewardable
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
@@ -18,8 +22,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
-//                              ┌-> IncompleteOrder
-// PendingOrder -> ClaimedOrder ┼-> CanceledOrder
+//                              ┌-> FailedOrder
+// PendingOrder -> ClaimedOrder ┼
 //                              └-> CompletedOrder
 
 /**
@@ -28,53 +32,39 @@ import kotlin.jvm.optionals.getOrNull
 @DatabaseTable(tableName = "joblistings_pending_orders")
 data class PendingOrder(
     @DatabaseField(id = true)
-    override val id: UUID,
-    /**
-     * The reward of the order if completed
-     */
-    @DatabaseField
-    override var reward: Double,
-    /**
-     * The player's uuid who created the order
-     */
-    @DatabaseField
-    override var user: UUID,
-    /**
-     * The item
-     *
-     * This ItemStack is not representative of the amount of items required to complete it.
-     * @see itemAmount
-     */
+    val id: UUID,
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
+    override var expireTime: LocalDateTime,
     @DatabaseField(persisterClass = ItemstackSerializers::class)
     override var item: ItemStack,
-    /**
-     * The amount of items required to complete the order
-     */
     @DatabaseField
     override var itemAmount: Int,
+    @DatabaseField
+    override var reward: Double,
+    @DatabaseField
+    override var owner: UUID,
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    var timeCreated: LocalDateTime,
-) : BaseOrder {
+    override var creation: LocalDateTime,
+) : Owner,
+    Item,
+    Expires,
+    Rewardable,
+    Creation {
     /**
      * This constructor should only be used for ORMLite
      */
     constructor() : this(
         UUID.randomUUID(),
+        LocalDateTime.now().plusHours(
+            JobListings.Companion.instance.config
+                .getLong("orders.max-order-time"),
+        ),
+        (ItemBuilder(Material.STONE).amount(1).build()),
+        0,
         0.0,
         UUID.randomUUID(),
-        (ItemBuilder(Material.STONE).amount(1).build()),
-        69,
         LocalDateTime.now(),
     )
-
-    fun isOrderDeadlinePassed(): Boolean {
-        val deadline =
-            timeCreated.plusHours(
-                JobListings.Companion.instance.config
-                    .getLong("orders.order-deadline"),
-            )
-        return LocalDateTime.now().isAfter(deadline)
-    }
 
     private fun toClaimedOrder(
         player: Player,
@@ -82,13 +72,14 @@ data class PendingOrder(
     ): ClaimedOrder =
         ClaimedOrder(
             id,
-            reward,
-            user,
+            LocalDateTime.now().plusHours(JobListings.instance.config.getLong("orders.order-deadline")),
             item,
             itemAmount,
+            owner,
             player.uniqueId,
-            0,
+            reward,
             localDateTime,
+            0,
         )
 
     /**
@@ -100,7 +91,7 @@ data class PendingOrder(
         Database.pendingOrderDao.delete(this)
     }
 
-    override fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.pending")
+    fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.pending")
 
     /**
      * Mark the order as expired and refund the user.
@@ -198,12 +189,14 @@ data class PendingOrder(
             val pendingOrder =
                 PendingOrder(
                     UUID.randomUUID(),
-                    cost,
-                    user,
+                    LocalDateTime.now().plusHours(hours),
                     item,
                     amount,
+                    cost,
+                    user,
                     LocalDateTime.now(),
                 )
+
             Database.pendingOrderDao.create(pendingOrder)
 
             if (announce &&

@@ -34,7 +34,7 @@ String getGitHash() {
         if (result.exitValue() == 0) {
             gitCommitHash = result.text.trim()
         }
-    } catch (e) {
+    } catch (ignored) {
     }
     return gitCommitHash
 }
@@ -48,7 +48,7 @@ String getCurrentGitBranch() {
         if (result.exitValue() == 0) {
             gitBranch = result.text.trim()
         }
-    } catch (e) {
+    } catch (ignored) {
     }
     return gitBranch
 }

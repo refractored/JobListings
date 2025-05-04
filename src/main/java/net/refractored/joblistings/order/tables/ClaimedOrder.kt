@@ -5,8 +5,12 @@ import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.order.Assignee
-import net.refractored.joblistings.order.BaseOrder
+import net.refractored.joblistings.order.impl.Assignee
+import net.refractored.joblistings.order.impl.Creation
+import net.refractored.joblistings.order.impl.Expires
+import net.refractored.joblistings.order.impl.Item
+import net.refractored.joblistings.order.impl.Owner
+import net.refractored.joblistings.order.impl.Rewardable
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
@@ -22,50 +26,73 @@ import java.util.UUID
 @DatabaseTable(tableName = "joblistings_claimed_orders")
 data class ClaimedOrder(
     @DatabaseField(id = true)
-    override val id: UUID,
-    @DatabaseField
-    override var reward: Double,
-    @DatabaseField
-    override var user: UUID,
+    val id: UUID,
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
+    override var expireTime: LocalDateTime,
     @DatabaseField(persisterClass = ItemstackSerializers::class)
     override var item: ItemStack,
     @DatabaseField
     override var itemAmount: Int,
     @DatabaseField
+    override var owner: UUID,
+    @DatabaseField
     override var assignee: UUID,
     @DatabaseField
-    var amountTurnedIn: Int,
+    override var reward: Double,
+    /**
+     * The time the database entry was created.
+     *
+     * In this case, it represents the time the order was claimed.
+     */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    var timeClaimed: LocalDateTime,
-) : BaseOrder,
-    Assignee {
+    override var creation: LocalDateTime,
+    /**
+     * The amount of items that the [assignee] has turned in.
+     *
+     * This is out of how many in [itemAmount].
+     */
+    @DatabaseField
+    var amountTurnedIn: Int,
+) : Owner,
+    Rewardable,
+    Item,
+    Assignee,
+    Expires,
+    Creation {
     /**
      * This constructor should only be used for ORMLite
      */
     constructor() : this(
         UUID.randomUUID(),
-        0.0,
-        UUID.randomUUID(),
+        LocalDateTime.now().plusHours(
+            JobListings.Companion.instance.config
+                .getLong("orders.max-order-time"),
+        ),
         (ItemBuilder(Material.STONE).amount(1).build()),
-        69,
-        UUID.randomUUID(),
         0,
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        0.0,
         LocalDateTime.now(),
+        0,
     )
 
-    private fun toCompleteOrder(timeCompleted: LocalDateTime = LocalDateTime.now()) =
-        CompletedOrder(
+    private fun toCompleteOrder(timeCompleted: LocalDateTime = LocalDateTime.now()): CompletedOrder {
+        //
+        return CompletedOrder(
             id,
-            reward,
-            user,
+            timeCompleted,
             item,
             itemAmount,
+            reward,
             amountTurnedIn,
+            reward,
             timeCompleted,
         )
+    }
 
     private fun toFailedOrder(
-        failureType: FailedOrder.FailureStatus,
+        failureType: FailedOrder.FailureType,
         timeIncompleted: LocalDateTime = LocalDateTime.now(),
     ) = FailedOrder(
         id,
@@ -84,8 +111,13 @@ data class ClaimedOrder(
      */
     fun incompleteOrder(notify: Boolean = true) {
         JobListings.instance.eco.depositPlayer(getOwner(), reward)
-        Database.failedOrderDao.create(toFailedOrder(FailedOrder.FailureStatus.INCOMPLETE))
-        Database.claimedOrderDao.delete(this)
+        if (amountTurnedIn == 0) {
+            // No point of keeping the order if no items were turned in
+            Database.claimedOrderDao.delete(this)
+        } else {
+            Database.failedOrderDao.create(toFailedOrder(FailedOrder.FailureType.INCOMPLETE))
+            Database.claimedOrderDao.delete(this)
+        }
         if (!notify) return
         val ownerMessage =
             MessageUtil.getMessage(
@@ -119,8 +151,13 @@ data class ClaimedOrder(
         } else {
             JobListings.instance.eco.depositPlayer(getOwner(), (reward / 2))
         }
-        Database.failedOrderDao.create(toFailedOrder(FailedOrder.FailureStatus.CANCELED))
-        Database.claimedOrderDao.delete(this)
+        if (amountTurnedIn == 0) {
+            // No point of keeping the order if no items were turned in
+            Database.claimedOrderDao.delete(this)
+        } else {
+            Database.failedOrderDao.create(toFailedOrder(FailedOrder.FailureType.CANCELED))
+            Database.claimedOrderDao.delete(this)
+        }
         if (!notify) return
         val assigneeMessage =
             MessageUtil.getMessage(
@@ -170,5 +207,5 @@ data class ClaimedOrder(
         messageOwner(ownerMessage)
     }
 
-    override fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.claimed")
+    fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.claimed")
 }

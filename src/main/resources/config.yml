@@ -2,7 +2,7 @@
 # JobListings
 # by refractored
 #
-Database:
+database:
   # For the url, you should only need to replace DATABASE_IP , PORT, and DATABASE_NAME.
   # jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME
   # If you would like to use an external database, set sqlite to false.
@@ -10,6 +10,24 @@ Database:
   url: "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME"
   user: "USERNAME"
   password: "PASSWORD"
+
+# Any pending orders are orders that are not claimed by anymore.
+pending-orders:
+  on-creation:
+    announce: true # If true, pending orders will be announced in chat when created, message can be edited in lang.yml
+  expiration:
+    minimum: 48 # Minimum time in hours pending orders can be kept in the database.
+    maximum: 192 # Maximum time in hours pending orders can be kept in the database.
+
+claimed-orders:
+  # Time is in hours.
+  expiration: 336 # 336 hours (14 days)
+
+# If an order is either not completed in time, or canceled by the owner, AND items were already turned in,
+# the order will be saved as a failed order. This lets the assignee claim the items back.
+failed-orders:
+  # Time is in hours.
+  expiration: 336 # 336 hours (14 days)
 
 orders:
   # These two values are used if a player does not have a permission set for the max.

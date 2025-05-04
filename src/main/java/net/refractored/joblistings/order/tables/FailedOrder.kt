@@ -3,6 +3,9 @@ package net.refractored.joblistings.order.tables
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
+import net.refractored.joblistings.order.impl.Assignee
+import net.refractored.joblistings.order.impl.Expires
+import net.refractored.joblistings.order.impl.Item
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageUtil
@@ -19,38 +22,48 @@ import java.util.UUID
 data class FailedOrder(
     @DatabaseField(id = true)
     val id: UUID,
-    @DatabaseField
-    var assignee: UUID,
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
+    override var expireTime: LocalDateTime,
     @DatabaseField(persisterClass = ItemstackSerializers::class)
-    var item: ItemStack,
+    override var item: ItemStack,
+    @DatabaseField
+    override var itemAmount: Int,
+    @DatabaseField
+    override var assignee: UUID,
+    /**
+     * The amount of items that the [assignee] has turned in.
+     *
+     * This is out of how many in [itemAmount].
+     */
     @DatabaseField
     var amountTurnedIn: Int,
-    @DatabaseField
-    var amountReclaimed: Int = 0,
     /**
      * The time the order was switched from claimed to incomplete.
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeIncompleted: LocalDateTime,
     @DatabaseField
-    val status: FailureStatus,
-) {
+    val status: FailureType,
+) : Item,
+    Assignee,
+    Expires {
     /**
      * This constructor should only be used for ORMLite
      */
     constructor() : this(
         UUID.randomUUID(),
-        UUID.randomUUID(),
-        (ItemBuilder(Material.STONE).amount(1).build()),
+        LocalDateTime.now().plusHours(1),
+        ItemBuilder(Material.STONE).amount(1).build(),
         0,
+        UUID.randomUUID(),
         0,
         LocalDateTime.now(),
-        FailureStatus.INCOMPLETE,
+        FailureType.INCOMPLETE,
     )
 
     fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.incomplete")
 
-    enum class FailureStatus {
+    enum class FailureType {
         /**
          * The order was not completed in time.
          */

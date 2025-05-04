@@ -1,4 +1,4 @@
-package net.refractored.joblistings.order
+package net.refractored.joblistings.order.impl
 
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.mail.Mail
