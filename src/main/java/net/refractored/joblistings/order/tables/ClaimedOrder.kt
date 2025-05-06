@@ -84,10 +84,9 @@ data class ClaimedOrder(
             timeCompleted,
             item,
             itemAmount,
-            reward,
-            amountTurnedIn,
-            reward,
+            owner,
             timeCompleted,
+            0,
         )
     }
 
@@ -96,11 +95,12 @@ data class ClaimedOrder(
         timeIncompleted: LocalDateTime = LocalDateTime.now(),
     ) = FailedOrder(
         id,
-        assignee,
-        item,
-        amountTurnedIn,
-        0,
         timeIncompleted,
+        item,
+        itemAmount,
+        assignee,
+        timeIncompleted,
+        0,
         failureType,
     )
 

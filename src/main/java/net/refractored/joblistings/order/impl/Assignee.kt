@@ -14,7 +14,7 @@ interface Assignee {
 
     /**
      * Get the OfflinePlayer of the owner of the order
-     * @return The owner of the order
+     * @return The assignee, as an [OfflinePlayer].
      */
     fun getAssignee(): OfflinePlayer = Bukkit.getOfflinePlayer(assignee)
 

@@ -23,7 +23,7 @@ import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
 //                              ┌-> FailedOrder
-// PendingOrder -> ClaimedOrder ┼
+// PendingOrder -> ClaimedOrder |
 //                              └-> CompletedOrder
 
 /**

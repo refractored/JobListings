@@ -14,7 +14,7 @@ interface Owner {
 
     /**
      * Get the OfflinePlayer of the owner of the order
-     * @return The owner of the order
+     * @return The owner, as an [OfflinePlayer].
      */
     fun getOwner(): OfflinePlayer = Bukkit.getOfflinePlayer(owner)
 

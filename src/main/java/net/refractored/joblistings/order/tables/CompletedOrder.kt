@@ -27,17 +27,17 @@ data class CompletedOrder(
     @DatabaseField
     override var owner: UUID,
     /**
+     * The time the order was finished.
+     */
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
+    var creation: LocalDateTime,
+    /**
      * The amount of items that the [owner] has claimed from this order.
      *
      * This is out of how many in [itemAmount].
      */
     @DatabaseField
     var itemClaimedAmount: Int,
-    /**
-     * The time the order was finished.
-     */
-    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    var timeFinished: LocalDateTime,
 ) : Owner,
     Item,
     Expires {
@@ -50,8 +50,8 @@ data class CompletedOrder(
         ItemBuilder(Material.STONE).amount(1).build(),
         0,
         UUID.randomUUID(),
-        0,
         LocalDateTime.now(),
+        0,
     )
 
     fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.completed")

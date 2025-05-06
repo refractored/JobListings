@@ -4,6 +4,7 @@ import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.order.impl.Assignee
+import net.refractored.joblistings.order.impl.Creation
 import net.refractored.joblistings.order.impl.Expires
 import net.refractored.joblistings.order.impl.Item
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -31,22 +32,23 @@ data class FailedOrder(
     @DatabaseField
     override var assignee: UUID,
     /**
-     * The amount of items that the [assignee] has turned in.
+     * The time the order was switched from claimed to incomplete.
+     */
+    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
+    override var creation: LocalDateTime,
+    /**
+     * The amount of items that the [assignee] has turned in, and needs to reclaim.
      *
      * This is out of how many in [itemAmount].
      */
     @DatabaseField
     var amountTurnedIn: Int,
-    /**
-     * The time the order was switched from claimed to incomplete.
-     */
-    @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    var timeIncompleted: LocalDateTime,
     @DatabaseField
     val status: FailureType,
 ) : Item,
     Assignee,
-    Expires {
+    Expires,
+    Creation {
     /**
      * This constructor should only be used for ORMLite
      */
@@ -56,8 +58,8 @@ data class FailedOrder(
         ItemBuilder(Material.STONE).amount(1).build(),
         0,
         UUID.randomUUID(),
-        0,
         LocalDateTime.now(),
+        0,
         FailureType.INCOMPLETE,
     )
 
