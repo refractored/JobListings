@@ -9,9 +9,9 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 
 class PlayerJoinListener : Listener {
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
-        Bukkit.getScheduler().runTaskLater(
+        Bukkit.getScheduler().runTaskLaterAsynchronously(
             JobListings.instance,
             Runnable {
                 Mail.sendMail(event.player)

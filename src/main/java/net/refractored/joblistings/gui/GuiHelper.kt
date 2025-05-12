@@ -47,7 +47,7 @@ object GuiHelper {
     private fun generateItem(subsection: ConfigurationSection): ItemStack =
         generateItem(
             Material.valueOf(
-                subsection.getString("Material", "BEDROCK")!!,
+                subsection.getString("Material") ?: "BEDROCK",
             ),
             subsection.getInt("Amount"),
             subsection.getInt("ModelData"),
