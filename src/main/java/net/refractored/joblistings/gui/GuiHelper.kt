@@ -52,7 +52,7 @@ object GuiHelper {
             subsection.getInt("Amount"),
             subsection.getInt("ModelData"),
             subsection.getString("Name") ?: "null",
-            subsection.getStringList("Amount").map { line ->
+            subsection.getStringList("Lore").map { line ->
                 MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
             },
         )

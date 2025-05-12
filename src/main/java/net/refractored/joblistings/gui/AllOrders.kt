@@ -6,12 +6,12 @@ import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.database.Database.orderDao
+import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
 import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
-import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.Order.Companion.getMaxOrdersAccepted
-import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.order.tables.ClaimedOrder
+import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Bukkit
@@ -29,7 +29,7 @@ class AllOrders {
 
     private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
 
-    private var pageCount: Int = ceil(orderDao.countOf().toDouble() / orderSlots.count()).toInt().coerceAtLeast(1)
+    private var pageCount: Int = ceil(Database.pendingOrderDao.countOf().toDouble() / orderSlots.count()).toInt().coerceAtLeast(1)
 
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
@@ -60,7 +60,13 @@ class AllOrders {
 
         loadNavButtons(config, gui, pageCount)
         loadCosmeticItems(config, gui, pageCount)
-        loadOrders(0)
+
+        Bukkit.getScheduler().runTaskAsynchronously(
+            JobListings.instance,
+            Runnable {
+                loadOrders(0)
+            },
+        )
     }
 
     /**
@@ -69,18 +75,18 @@ class AllOrders {
      */
     private fun loadOrders(page: Int) {
         gui.clearAllButStickiedSlots()
-        val orders = Order.getPendingOrders(orderSlots.count(), page * orderSlots.count())
+        val orders = PendingOrder.getOrders(orderSlots.count(), page * orderSlots.count())
         for ((index, slot) in orderSlots.withIndex()) {
             val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: GuiHelper.getFallbackButton(config)
             gui.setButton(slot + GuiHelper.getOffset(page, rows), button)
         }
     }
 
-    private fun getOrderButton(order: Order): SGButton {
+    private fun getOrderButton(order: PendingOrder): SGButton {
         val item = order.item.clone()
         item.amount = minOf(order.itemAmount, item.maxStackSize)
         val itemMetaCopy = item.itemMeta
-        val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
+        val expireDuration = Duration.between(LocalDateTime.now(), order.expireTime)
         val expireDurationText =
             MessageUtil.getMessage(
                 "General.DateFormat",
@@ -90,7 +96,7 @@ class AllOrders {
                     MessageReplacement(expireDuration.toMinutesPart().toString()),
                 ),
             )
-        val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
+        val createdDuration = Duration.between(order.creation, LocalDateTime.now())
         val createdDurationText =
             MessageUtil.getMessage(
                 "General.DatePastTense",
@@ -105,7 +111,7 @@ class AllOrders {
             MessageUtil.getMessageList(
                 "AllOrders.OrderItemLore",
                 listOf(
-                    MessageReplacement(order.cost.toString()),
+                    MessageReplacement(order.reward.toString()),
                     MessageReplacement(order.getOwner().name ?: "Unknown"),
                     MessageReplacement(createdDurationText),
                     MessageReplacement(expireDurationText),
@@ -138,19 +144,20 @@ class AllOrders {
      */
     private fun clickOrder(
         event: InventoryClickEvent,
-        order: Order,
+        order: PendingOrder,
     ) {
-        if (order.user == event.whoClicked.uniqueId) {
-            event.whoClicked.closeInventory()
-            event.whoClicked.sendMessage(
-                MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
-            )
-            return
-        }
-        if (order.status != OrderStatus.PENDING) {
+        val existingOrder = Database.pendingOrderDao.queryForId(order.id)
+        if (existingOrder == null) {
             event.whoClicked.closeInventory()
             event.whoClicked.sendMessage(
                 MessageUtil.getMessage("General.OrderAlreadyClaimed"),
+            )
+            return
+        }
+        if (order.owner == event.whoClicked.uniqueId) {
+            event.whoClicked.closeInventory()
+            event.whoClicked.sendMessage(
+                MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
             )
             return
         }
@@ -169,7 +176,7 @@ class AllOrders {
                     )
                 val owner =
                     it.users.load(
-                        Bukkit.getOfflinePlayer(order.user).uniqueId,
+                        order.owner,
                     )
                 if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
                     event.whoClicked.closeInventory()
@@ -180,13 +187,11 @@ class AllOrders {
                 }
             }
         }
-        val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
+        val queryBuilder: QueryBuilder<ClaimedOrder, UUID> = Database.claimedOrderDao.queryBuilder()
         queryBuilder
             .where()
             .eq("assignee", event.whoClicked.uniqueId)
-            .and()
-            .eq("status", OrderStatus.CLAIMED)
-        val orders = orderDao.query(queryBuilder.prepare())
+        val orders = Database.claimedOrderDao.query(queryBuilder.prepare())
         val maxOrdersAccepted = getMaxOrdersAccepted(event.whoClicked as Player)
         if (orders.count() > maxOrdersAccepted) {
             event.whoClicked.closeInventory()
@@ -202,7 +207,7 @@ class AllOrders {
             )
         }
 
-        order.acceptOrder(event.whoClicked as Player)
+        order.markClaimed(event.whoClicked as Player)
         event.whoClicked.closeInventory()
     }
 

@@ -1,6 +1,7 @@
 package net.refractored.joblistings.order.tables
 
 import com.j256.ormlite.field.DatabaseField
+import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -144,6 +145,22 @@ data class PendingOrder(
     }
 
     companion object {
+        /**
+         * Get a specific page of the newest orders from the database
+         * @param limit Number of orders per page
+         * @param offset Starting point for the current page
+         * @return List of newest orders for the current page
+         */
+        fun getOrders(
+            limit: Int,
+            offset: Int,
+        ): List<PendingOrder> {
+            val queryBuilder: QueryBuilder<PendingOrder, UUID> = Database.pendingOrderDao.queryBuilder()
+            queryBuilder.limit(limit.toLong())
+            queryBuilder.offset(offset.toLong())
+            return Database.pendingOrderDao.query(queryBuilder.prepare()).sortedByDescending { it.creation }
+        }
+
         /**
          * Create a new order and insert it into the database
          * @param user The user who created the order
