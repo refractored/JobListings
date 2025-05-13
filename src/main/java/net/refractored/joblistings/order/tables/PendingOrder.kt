@@ -146,6 +146,24 @@ data class PendingOrder(
 
     companion object {
         /**
+         * Gets the max orders a player can create, if a player has a permission node it will be grabbed instead.
+         * If they don't have one, the config option will be used instead.
+         * If the config isn't set, it will default to 1.
+         * @return The max order amount.
+         */
+        fun getMaxOrders(player: Player): Int {
+            val maxOrderAmount =
+                player.effectivePermissions
+                    .filter {
+                        it.permission.startsWith("joblistings.create.max.")
+                    }.mapNotNull { it.permission.substringAfter("joblistings.create.max.").toIntOrNull() }
+                    .maxOrNull()
+                    ?: JobListings.instance.config.getInt("orders.max-orders", 1)
+
+            return maxOrderAmount.coerceAtLeast(0)
+        }
+
+        /**
          * Get a specific page of the newest orders from the database
          * @param limit Number of orders per page
          * @param offset Starting point for the current page

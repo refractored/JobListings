@@ -16,6 +16,7 @@ import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
 import java.util.UUID
@@ -208,4 +209,24 @@ data class ClaimedOrder(
     }
 
     fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.claimed")
+
+    companion object {
+        /**
+         * Gets the max claimed orders a player can claim, if a player has a permission node it will be grabbed instead.
+         * If they don't have one, the config option will be used instead.
+         * If the config isn't set, it will default to 1.
+         * @return The max order amount.
+         */
+        fun getMaxOrdersAccepted(player: Player): Int {
+            val maxOrdersAccepted =
+                player.effectivePermissions
+                    .filter {
+                        it.permission.startsWith("joblistings.accepted.max.")
+                    }.mapNotNull { it.permission.substringAfter("joblistings.accepted.max.").toIntOrNull() }
+                    .maxOrNull()
+                    ?: JobListings.instance.config.getInt("orders.max-accepted-orders", 1)
+
+            return maxOrdersAccepted.coerceAtLeast(0)
+        }
+    }
 }

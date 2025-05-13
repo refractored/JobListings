@@ -9,7 +9,6 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
 import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
-import net.refractored.joblistings.order.Order.Companion.getMaxOrdersAccepted
 import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
@@ -61,12 +60,13 @@ class AllOrders {
         loadNavButtons(config, gui, pageCount)
         loadCosmeticItems(config, gui, pageCount)
 
-        Bukkit.getScheduler().runTaskAsynchronously(
-            JobListings.instance,
-            Runnable {
-                loadOrders(0)
-            },
-        )
+//        Bukkit.getScheduler().runTaskAsynchronously(
+//            JobListings.instance,
+//            Runnable {
+        // TODO: Fix this
+        loadOrders(0)
+//            },
+//        )
     }
 
     /**
@@ -192,7 +192,7 @@ class AllOrders {
             .where()
             .eq("assignee", event.whoClicked.uniqueId)
         val orders = Database.claimedOrderDao.query(queryBuilder.prepare())
-        val maxOrdersAccepted = getMaxOrdersAccepted(event.whoClicked as Player)
+        val maxOrdersAccepted = ClaimedOrder.getMaxOrdersAccepted(event.whoClicked as Player)
         if (orders.count() > maxOrdersAccepted) {
             event.whoClicked.closeInventory()
             event.whoClicked.sendMessage(

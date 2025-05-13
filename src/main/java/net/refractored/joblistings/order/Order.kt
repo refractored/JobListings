@@ -5,7 +5,6 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.mail.Mail
@@ -20,7 +19,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.jvm.optionals.getOrNull
 
 /**
  * Represents an order that has been placed on the job board
@@ -403,88 +401,6 @@ data class Order(
 
     companion object {
         /**
-         * Create a new order and insert it into the database
-         * @param user The user who created the order
-         * @param cost The reward for completing the order
-         * @param item The itemstack required to complete the order
-         * @param amount The amount of items required to complete the order
-         * @param hours The amount of hours the order will be available for
-         * @return The created order
-         */
-        fun createOrder(
-            user: UUID,
-            cost: Double,
-            item: ItemStack,
-            amount: Int,
-            hours: Long,
-            announce: Boolean = true,
-        ): Order {
-            val maxItems = JobListings.instance.config.getInt("orders.max-items")
-            when {
-                maxItems == -1 && amount > item.maxStackSize -> {
-                    throw IllegalArgumentException("Item stack size exceeded")
-                }
-                maxItems != 0 && amount >= maxItems -> {
-                    throw IllegalArgumentException("Max orders exceeded")
-                }
-            }
-            if (hours > JobListings.instance.config.getLong("orders.max-order-time")) {
-                throw IllegalArgumentException("Order time exceeds maximum")
-            }
-            if (hours < JobListings.instance.config.getLong("orders.min-order-time")) {
-                throw IllegalArgumentException("Order time exceeds maximum")
-            }
-            item.amount = 1
-            val order =
-                Order(
-                    UUID.randomUUID(),
-                    cost,
-                    user,
-                    null,
-                    LocalDateTime.now(),
-                    LocalDateTime.now().plusHours(hours),
-                    null,
-                    null,
-                    null,
-                    null,
-                    OrderStatus.PENDING,
-                    item,
-                    amount,
-                    0,
-                    0,
-                    0,
-                )
-            orderDao.create(order)
-
-            if (announce && JobListings.instance.config.getBoolean("orders.AnnounceOnOrderCreate", false)) {
-                val message =
-                    MessageUtil.getMessage(
-                        "orders.Announcement",
-                        listOf(
-                            MessageReplacement(order.getOwner().name ?: "Unknown"),
-                            MessageReplacement(order.getItemInfo()),
-                            MessageReplacement(order.cost.toString()),
-                        ),
-                    )
-                if (JobListings.instance.redisChat != null &&
-                    JobListings.instance.config.getBoolean("Redischat.RedisChatAnnounce", false)
-                ) {
-                    JobListings.instance.redisChat!!.broadcastMessage(
-                        JobListings.instance.redisChat!!
-                            .getChannel(
-                                JobListings.instance.config.getString("Redischat.RedisChatChannel"),
-                            ).getOrNull()
-                            ?: throw IllegalStateException("Channel not found"),
-                        MiniMessage.miniMessage().serialize(message),
-                    )
-                } else {
-                    JobListings.instance.server.broadcast(message)
-                }
-            }
-            return order
-        }
-
-        /**
          * Get a specific page of the newest orders from the database
          * @param limit Number of orders per page
          * @param offset Starting point for the current page
@@ -499,42 +415,6 @@ data class Order(
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
             return orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
-        }
-
-        /**
-         * Gets the max orders a player can create, if a player has a permission node it will be grabbed instead.
-         * If they don't have one, the config option will be used instead.
-         * If the config isn't set, it will default to 1.
-         * @return The max order amount.
-         */
-        fun getMaxOrders(player: Player): Int {
-            val maxOrderAmount =
-                player.effectivePermissions
-                    .filter {
-                        it.permission.startsWith("joblistings.create.max.")
-                    }.mapNotNull { it.permission.substringAfter("joblistings.create.max.").toIntOrNull() }
-                    .maxOrNull()
-                    ?: JobListings.instance.config.getInt("orders.max-orders", 1)
-
-            return maxOrderAmount.coerceAtLeast(0)
-        }
-
-        /**
-         * Gets the max claimed orders a player can claim, if a player has a permission node it will be grabbed instead.
-         * If they don't have one, the config option will be used instead.
-         * If the config isn't set, it will default to 1.
-         * @return The max order amount.
-         */
-        fun getMaxOrdersAccepted(player: Player): Int {
-            val maxOrdersAccepted =
-                player.effectivePermissions
-                    .filter {
-                        it.permission.startsWith("joblistings.accepted.max.")
-                    }.mapNotNull { it.permission.substringAfter("joblistings.accepted.max.").toIntOrNull() }
-                    .maxOrNull()
-                    ?: JobListings.instance.config.getInt("orders.max-accepted-orders", 1)
-
-            return maxOrdersAccepted.coerceAtLeast(0)
         }
 
         /**

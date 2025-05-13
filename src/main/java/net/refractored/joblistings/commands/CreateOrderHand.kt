@@ -5,8 +5,9 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
-import net.refractored.joblistings.order.Order.Companion.getMaxOrders
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.order.tables.PendingOrder
+import net.refractored.joblistings.order.tables.PendingOrder.Companion.getMaxOrders
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
@@ -148,35 +149,35 @@ class CreateOrderHand {
 
         val maxItems = JobListings.instance.config.getInt("orders.max-items")
 
-        when {
-            maxItems == -1 && amount > item.maxStackSize -> {
-                throw CommandErrorException(
-                    MessageUtil.getMessage(
-                        "CreateOrder.StackSizeExceeded",
-                        listOf(
-                            MessageReplacement(item.maxStackSize.toString()),
-                        ),
-                    ),
-                )
-            }
-            maxItems != 0 && amount >= maxItems -> {
-                throw CommandErrorException(
-                    MessageUtil.getMessage(
-                        "CreateOrder.MaxOrdersExceeded",
-                        listOf(
-                            MessageReplacement(maxItems.toString()),
-                        ),
-                    ),
-                )
-            }
-        }
+//        when {
+//            maxItems == -1 && amount > item.maxStackSize -> {
+//                throw CommandErrorException(
+//                    MessageUtil.getMessage(
+//                        "CreateOrder.StackSizeExceeded",
+//                        listOf(
+//                            MessageReplacement(item.maxStackSize.toString()),
+//                        ),
+//                    ),
+//                )
+//            }
+//            maxItems != 0 && amount >= maxItems -> {
+//                throw CommandErrorException(
+//                    MessageUtil.getMessage(
+//                        "CreateOrder.MaxOrdersExceeded",
+//                        listOf(
+//                            MessageReplacement(maxItems.toString()),
+//                        ),
+//                    ),
+//                )
+//            }
+//        }
 
         item.amount = 1
 
         JobListings.instance.eco.withdrawPlayer(actor.player, cost)
 
         val order =
-            Order.createOrder(
+            PendingOrder.create(
                 actor.uniqueId,
                 cost,
                 item,

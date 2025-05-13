@@ -5,8 +5,8 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
-import net.refractored.joblistings.order.Order.Companion.getMaxOrders
 import net.refractored.joblistings.order.OrderStatus
+import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
@@ -100,7 +100,7 @@ class CreateOrderMaterial {
             .and()
             .eq("user", actor.uniqueId)
         val orders = orderDao.query(queryBuilder.prepare())
-        val maxOrders = getMaxOrders(actor.player)
+        val maxOrders = PendingOrder.getMaxOrders(actor.player)
 
         if (orders.count() >= maxOrders) {
             throw CommandErrorException(
@@ -163,7 +163,7 @@ class CreateOrderMaterial {
         JobListings.instance.eco.withdrawPlayer(actor.player, cost)
 
         val order =
-            Order.createOrder(
+            PendingOrder.create(
                 actor.uniqueId,
                 cost,
                 item,

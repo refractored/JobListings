@@ -83,24 +83,24 @@ object Database {
         JobListings.instance.logger.info("Initializing database...")
         LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
 
-        if (JobListings.instance.config.getString("Database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME") {
+        if (JobListings.instance.config.getString("database.url") == "jdbc:mysql://DATABASE_IP:PORT/DATABASE_NAME" &&
+            !JobListings.instance.config.getBoolean("database.sqlite")
+        ) {
             JobListings.instance.logger.severe("Database not setup in config.")
             throw Exception("Database not setup in config.")
         }
 
         connectionSource =
-            if (JobListings.instance.config
-                    .getString("Database.url")
-                    .equals("file", true)
+            if (JobListings.instance.config.getBoolean("database.sqlite")
             ) {
                 JdbcPooledConnectionSource(
                     "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db",
                 )
             } else {
                 JdbcPooledConnectionSource(
-                    JobListings.instance.config.getString("Database.url"),
-                    JobListings.instance.config.getString("Database.user"),
-                    JobListings.instance.config.getString("Database.password"),
+                    JobListings.instance.config.getString("database.url"),
+                    JobListings.instance.config.getString("database.user"),
+                    JobListings.instance.config.getString("database.password"),
                 )
             }
 
@@ -108,6 +108,26 @@ object Database {
         orderDao = DaoManager.createDao(connectionSource, Order::class.java) as Dao<Order, UUID>
 
         TableUtils.createTableIfNotExists(connectionSource, Order::class.java)
+
+        @Suppress("UNCHECKED_CAST")
+        pendingOrderDao = DaoManager.createDao(connectionSource, PendingOrder::class.java) as Dao<PendingOrder, UUID>
+
+        TableUtils.createTableIfNotExists(connectionSource, PendingOrder::class.java)
+
+        @Suppress("UNCHECKED_CAST")
+        claimedOrderDao = DaoManager.createDao(connectionSource, ClaimedOrder::class.java) as Dao<ClaimedOrder, UUID>
+
+        TableUtils.createTableIfNotExists(connectionSource, ClaimedOrder::class.java)
+
+        @Suppress("UNCHECKED_CAST")
+        completedOrderDao = DaoManager.createDao(connectionSource, CompletedOrder::class.java) as Dao<CompletedOrder, UUID>
+
+        TableUtils.createTableIfNotExists(connectionSource, CompletedOrder::class.java)
+
+        @Suppress("UNCHECKED_CAST")
+        failedOrderDao = DaoManager.createDao(connectionSource, FailedOrder::class.java) as Dao<FailedOrder, UUID>
+
+        TableUtils.createTableIfNotExists(connectionSource, FailedOrder::class.java)
 
         @Suppress("UNCHECKED_CAST")
         mailDao = DaoManager.createDao(connectionSource, Mail::class.java) as Dao<Mail, UUID>
