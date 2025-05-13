@@ -66,7 +66,7 @@ class CreateOrderMaterial {
         }
 
         if (hours < JobListings.instance.config.getLong("orders.min-order-time")) {
-            throw net.refractored.joblistings.exceptions.CommandErrorException(
+            throw CommandErrorException(
                 MessageUtil.getMessage(
                     "CreateOrder.MoreThanMinHoursConfig",
                     listOf(

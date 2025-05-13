@@ -3,6 +3,8 @@ package net.refractored.joblistings.util
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
 
 class MessageUtil {
@@ -84,6 +86,16 @@ class MessageUtil {
             return toComponent(replacedMessage)
         }
     }
+}
+
+object Messages {
+    /**
+     * Converts a [Component] to a legacy string using the specified character.
+     */
+    fun Component.toLegacy(char: Char = AMPERSAND_CHAR): String =
+        LegacyComponentSerializer.legacy(char).serialize(
+            this,
+        )
 }
 
 class MessageReplacement(

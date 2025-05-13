@@ -7,16 +7,16 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
 import kotlinx.coroutines.withContext
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
+import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
-import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
+import net.refractored.joblistings.gui.GuiHelper.generateItem
 import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages.toLegacy
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.time.Duration
@@ -36,35 +36,80 @@ class AllOrders(
 
     private var pageCount: Int = ceil(Database.pendingOrderDao.countOf().toDouble() / orderSlots.count()).toInt().coerceAtLeast(1)
 
+    private var orderPage: Int = 0
+
+    private fun getName(): Component =
+        MessageUtil.replaceMessage(
+            config.getString("Title")!!,
+            listOf(
+                MessageReplacement((orderPage + 1).toString()),
+                MessageReplacement(pageCount.toString()),
+            ),
+        )
+
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
-            // Me when no component support :((((
-            LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                MessageUtil.replaceMessage(
-                    config.getString("Title")!!,
-                    listOf(
-                        // I only did this for consistency in the messages.yml
-                        MessageReplacement("{currentPage}"),
-                        MessageReplacement("{maxPage}"),
-                    ),
-                ),
-            ),
+            getName().toLegacy(),
             JobListings.instance.gui.getInt("AllOrders.Rows", 6),
         )
 
     init {
-        gui.setOnPageChange { inventory ->
-            inventory.clearAllButStickiedSlots()
-            JobListings.instance.launch {
-                loadOrders(inventory.currentPage)
-            }
-        }
-
-        loadNavButtons(config, gui, pageCount)
-        loadCosmeticItems(config, gui, pageCount)
-
         JobListings.instance.launch {
             loadOrders(0)
+            withContext(JobListings.instance.minecraftDispatcher) {
+                experimentLoadNavButtons(config, gui)
+                GuiHelper.loadCosmeticItems(config, gui, 1)
+                gui.refreshInventory(player)
+            }
+        }
+    }
+
+    fun experimentLoadNavButtons(
+        config: ConfigurationSection,
+        gui: SGMenu,
+    ) {
+        val navKeys =
+            listOf(
+                config.getConfigurationSection("NextPage")!!,
+                config.getConfigurationSection("PreviousPage")!!,
+            )
+        navKeys.forEach { configKey ->
+            val button =
+                SGButton(
+                    generateItem(configKey),
+                )
+            when (configKey.name) {
+                "NextPage" -> {
+                    button.setListener { event ->
+                        val nextPage = orderPage + 1
+                        if (nextPage > pageCount - 1) {
+                            return@setListener
+                        }
+                        orderPage = nextPage
+                        JobListings.instance.launch {
+                            loadOrders(nextPage)
+                        }
+                    }
+                }
+                "PreviousPage" -> {
+                    button.setListener { event ->
+                        if (orderPage <= 0) {
+                            return@setListener
+                        }
+                        orderPage--
+                        JobListings.instance.launch {
+                            loadOrders(gui.currentPage - 1)
+                        }
+                    }
+                }
+            }
+            configKey.getIntegerList("Slots").forEach { slot ->
+                gui.setButton(
+                    slot,
+                    button,
+                )
+                gui.stickSlot(slot)
+            }
         }
     }
 
@@ -78,12 +123,12 @@ class AllOrders(
 
             withContext(JobListings.instance.minecraftDispatcher) {
                 gui.clearAllButStickiedSlots()
+                gui.name = getName().toLegacy()
 
                 for ((index, slot) in orderSlots.withIndex()) {
                     val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: GuiHelper.getFallbackButton(config)
-                    gui.setButton(slot + GuiHelper.getOffset(page, rows), button)
+                    gui.setButton(slot, button)
                 }
-
                 gui.refreshInventory(player)
             }
         }

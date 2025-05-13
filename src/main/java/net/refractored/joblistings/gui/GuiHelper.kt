@@ -44,7 +44,7 @@ object GuiHelper {
         return item
     }
 
-    private fun generateItem(subsection: ConfigurationSection): ItemStack =
+    fun generateItem(subsection: ConfigurationSection): ItemStack =
         generateItem(
             Material.valueOf(
                 subsection.getString("Material") ?: "BEDROCK",
