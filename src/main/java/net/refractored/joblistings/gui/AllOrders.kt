@@ -54,11 +54,12 @@ class AllOrders(
         )
 
     init {
+        experimentLoadNavButtons(config, gui)
+        GuiHelper.loadCosmeticItems(config, gui, 1)
+
         JobListings.instance.launch {
             loadOrders(0)
             withContext(JobListings.instance.minecraftDispatcher) {
-                experimentLoadNavButtons(config, gui)
-                GuiHelper.loadCosmeticItems(config, gui, 1)
                 gui.refreshInventory(player)
             }
         }
