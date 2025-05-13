@@ -22,7 +22,7 @@ class GetOrders {
         @Optional player: Player? = null,
     ) {
         if (player == null) {
-            actor.player.openInventory(AllOrders.getGUI().inventory)
+            AllOrders.openGUI(actor.player)
             return
         }
         if (!actor.player.hasPermission("joblistings.view.orders.others")) {
@@ -31,6 +31,6 @@ class GetOrders {
         if (actor.isConsole) {
             throw CommandErrorException(MessageUtil.getMessage("General.PlayerOnly"))
         }
-        player.openInventory(AllOrders.getGUI().inventory)
+        AllOrders.openGUI(player)
     }
 }

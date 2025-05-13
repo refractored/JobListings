@@ -1,8 +1,12 @@
 package net.refractored.joblistings.gui
 
+import com.github.shynixn.mccoroutine.bukkit.asyncDispatcher
+import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.bukkit.minecraftDispatcher
 import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
+import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
@@ -13,15 +17,17 @@ import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.math.ceil
+import kotlin.times
 
-class AllOrders {
+class AllOrders(
+    val player: Player,
+) {
     private val config = JobListings.instance.gui.getConfigurationSection("AllOrders")!!
 
     private val rows = config.getInt("Rows", 6)
@@ -49,36 +55,37 @@ class AllOrders {
     init {
         gui.setOnPageChange { inventory ->
             inventory.clearAllButStickiedSlots()
-            Bukkit.getScheduler().runTaskAsynchronously(
-                JobListings.instance,
-                Runnable {
-                    loadOrders(inventory.currentPage)
-                },
-            )
+            JobListings.instance.launch {
+                loadOrders(inventory.currentPage)
+            }
         }
 
         loadNavButtons(config, gui, pageCount)
         loadCosmeticItems(config, gui, pageCount)
 
-//        Bukkit.getScheduler().runTaskAsynchronously(
-//            JobListings.instance,
-//            Runnable {
-        // TODO: Fix this
-        loadOrders(0)
-//            },
-//        )
+        JobListings.instance.launch {
+            loadOrders(0)
+        }
     }
 
     /**
      * Clears all non-stickied slots, and loads the orders for the requested page.
      * @param page The page to load orders for.
      */
-    private fun loadOrders(page: Int) {
-        gui.clearAllButStickiedSlots()
-        val orders = PendingOrder.getOrders(orderSlots.count(), page * orderSlots.count())
-        for ((index, slot) in orderSlots.withIndex()) {
-            val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: GuiHelper.getFallbackButton(config)
-            gui.setButton(slot + GuiHelper.getOffset(page, rows), button)
+    private suspend fun loadOrders(page: Int) {
+        withContext(JobListings.instance.asyncDispatcher) {
+            val orders = PendingOrder.getOrders(orderSlots.count(), page * orderSlots.count())
+
+            withContext(JobListings.instance.minecraftDispatcher) {
+                gui.clearAllButStickiedSlots()
+
+                for ((index, slot) in orderSlots.withIndex()) {
+                    val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: GuiHelper.getFallbackButton(config)
+                    gui.setButton(slot + GuiHelper.getOffset(page, rows), button)
+                }
+
+                gui.refreshInventory(player)
+            }
         }
     }
 
@@ -216,9 +223,13 @@ class AllOrders {
          * Creates an instance of the AllOrders class, and returns a working gui.
          * @return The gui.
          */
-        fun getGUI(): SGMenu {
-            val allOrders = AllOrders()
+        fun getGUI(player: Player): SGMenu {
+            val allOrders = AllOrders(player)
             return allOrders.gui
+        }
+
+        fun openGUI(player: Player) {
+            player.openInventory(this.getGUI(player).inventory)
         }
     }
 }

@@ -1,7 +1,7 @@
 plugins {
     id "io.github.goooler.shadow" version "8.1.8"
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
 }
 
 group = 'net.refractored'
@@ -65,6 +65,11 @@ dependencies {
     // Kotlin
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
 
+    // Kotlin Coroutines
+    implementation"org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2"
+    implementation"com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:2.22.0"
+    implementation"com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:2.22.0"
+
     // Lamp (Commands)
     implementation "com.github.Revxrsal.Lamp:common:3.3.6"
     implementation "com.github.Revxrsal.Lamp:bukkit:3.3.6"
@@ -77,10 +82,9 @@ dependencies {
 
     implementation("io.papermc:paperlib:1.0.7")
 
-
     // ORMLite (ORM)
-    compileOnly "com.j256.ormlite:ormlite-core:5.6"
-    compileOnly "com.j256.ormlite:ormlite-jdbc:5.6"
+    compileOnly "com.j256.ormlite:ormlite-core:6.1"
+    compileOnly "com.j256.ormlite:ormlite-jdbc:6.1"
 
     // Vault (Economy)
     compileOnly "com.github.MilkBowl:VaultAPI:1.7"

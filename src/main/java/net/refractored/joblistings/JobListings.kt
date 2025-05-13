@@ -1,6 +1,7 @@
 package net.refractored.joblistings
 
 import com.earth2me.essentials.Essentials
+import com.github.shynixn.mccoroutine.bukkit.SuspendingJavaPlugin
 import com.samjakob.spigui.SpiGUI
 import com.tchristofferson.configupdater.ConfigUpdater
 import dev.unnm3d.redischat.api.RedisChatAPI
@@ -16,19 +17,17 @@ import org.bstats.bukkit.Metrics
 import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.command.CommandActor
 import revxrsal.commands.command.ExecutableCommand
 import java.io.File
 import java.io.IOException
-import java.util.*
 
 /**
  * The main plugin class
  */
-class JobListings : JavaPlugin() {
+class JobListings : SuspendingJavaPlugin() {
     /**
      * The plugin's GUI manager
      */
@@ -78,7 +77,7 @@ class JobListings : JavaPlugin() {
 
     private lateinit var cleanDatabase: BukkitTask
 
-    override fun onEnable() {
+    override suspend fun onEnableAsync() {
         if (!PaperLib.isPaper()) {
             if (config.getBoolean("BypassPaperWarning")) {
                 logger.warning("The paper warning has been bypassed.")
@@ -173,8 +172,8 @@ class JobListings : JavaPlugin() {
         }
 
         // Create command handler
+        // TODO: Update lamp
         handler = BukkitCommandHandler.create(this)
-        logger.info("I am aware of this deprecation message, it will be fixed in a future update.")
 
         // Register the command exception handler
         handler.setExceptionHandler(CommandErrorHandler())
@@ -254,7 +253,7 @@ class JobListings : JavaPlugin() {
         logger.info("JobListings has been enabled!")
     }
 
-    override fun onDisable() {
+    override suspend fun onDisableAsync() {
         if (this::handler.isInitialized) {
             handler.unregisterAllCommands()
         }
