@@ -1,6 +1,7 @@
 package net.refractored.joblistings.order.tables
 
 import com.j256.ormlite.field.DatabaseField
+import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
@@ -227,6 +228,32 @@ data class ClaimedOrder(
                     ?: JobListings.instance.config.getInt("orders.max-accepted-orders", 1)
 
             return maxOrdersAccepted.coerceAtLeast(0)
+        }
+
+        /**
+         * Gets the claimed orders for a player.
+         * @param player The player to get the claimed orders for.
+         * @return A list of claimed orders for the player.
+         */
+        fun getClaimedOrders(player: Player): List<ClaimedOrder> {
+            val queryBuilder: QueryBuilder<ClaimedOrder, UUID> = Database.claimedOrderDao.queryBuilder()
+            queryBuilder
+                .where()
+                .eq("assignee", player.uniqueId)
+            return Database.claimedOrderDao.query(queryBuilder.prepare())
+        }
+
+        /**
+         * Count the amount of claimed orders for a player.
+         * @param player The player to count the claimed orders for.
+         * @return The amount of claimed orders for the player.
+         */
+        fun countClaimedOrders(player: Player): Long {
+            val queryBuilder: QueryBuilder<ClaimedOrder, UUID> = Database.claimedOrderDao.queryBuilder()
+            queryBuilder
+                .where()
+                .eq("assignee", player.uniqueId)
+            return Database.claimedOrderDao.countOf(queryBuilder.prepare())
         }
     }
 }

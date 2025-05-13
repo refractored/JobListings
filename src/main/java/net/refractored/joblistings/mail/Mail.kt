@@ -4,6 +4,7 @@ import com.earth2me.essentials.Console
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
+import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.SECTION_CHAR
@@ -96,7 +97,7 @@ data class Mail(
             }
         }
 
-        fun sendMail(player: Player) {
+        suspend fun sendMail(player: Player) {
             if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
             queryBuilder.where().eq("user", player.uniqueId)
@@ -105,6 +106,7 @@ data class Mail(
             for (mail in allMail) {
                 player.sendMessage(mail.message)
                 mailDao.delete(mail)
+                delay(1000L)
             }
         }
     }

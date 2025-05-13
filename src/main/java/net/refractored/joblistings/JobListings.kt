@@ -2,10 +2,17 @@ package net.refractored.joblistings
 
 import com.earth2me.essentials.Essentials
 import com.github.shynixn.mccoroutine.bukkit.SuspendingJavaPlugin
+import com.github.shynixn.mccoroutine.bukkit.launch
 import com.samjakob.spigui.SpiGUI
 import com.tchristofferson.configupdater.ConfigUpdater
 import dev.unnm3d.redischat.api.RedisChatAPI
 import io.papermc.lib.PaperLib
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.database.Database
@@ -17,7 +24,6 @@ import org.bstats.bukkit.Metrics
 import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.scheduler.BukkitTask
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.command.CommandActor
 import revxrsal.commands.command.ExecutableCommand
@@ -75,7 +81,7 @@ class JobListings : SuspendingJavaPlugin() {
     lateinit var presets: FileConfiguration
         private set
 
-    private lateinit var cleanDatabase: BukkitTask
+    private lateinit var cleanDatabase: Job
 
     override suspend fun onEnableAsync() {
         if (!PaperLib.isPaper()) {
@@ -237,20 +243,24 @@ class JobListings : SuspendingJavaPlugin() {
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)
 
-        cleanDatabase =
-            server.scheduler.runTaskTimerAsynchronously(
-                this,
-                Runnable {
-                    Order.updateExpiredOrders()
-                    Order.updateDeadlineOrders()
-                    Order.updatePickupDeadline()
-                    Mail.purgeMail()
-                },
-                20L,
-                40L,
-            )
+        cleanDatabase = launch { runDatabaseCleaner() }
 
         logger.info("JobListings has been enabled!")
+    }
+
+    suspend fun runDatabaseCleaner() {
+        withContext(Dispatchers.IO) {
+            while (coroutineContext.isActive) {
+                Order.updateExpiredOrders()
+                yield()
+                Order.updateDeadlineOrders()
+                yield()
+                Order.updatePickupDeadline()
+                yield()
+                Mail.purgeMail()
+                delay(1000L * 5L)
+            }
+        }
     }
 
     override suspend fun onDisableAsync() {

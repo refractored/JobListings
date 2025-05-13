@@ -3,7 +3,6 @@ package net.refractored.joblistings.gui
 import com.github.shynixn.mccoroutine.bukkit.asyncDispatcher
 import com.github.shynixn.mccoroutine.bukkit.launch
 import com.github.shynixn.mccoroutine.bukkit.minecraftDispatcher
-import com.j256.ormlite.stmt.QueryBuilder
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
 import kotlinx.coroutines.withContext
@@ -196,7 +195,9 @@ class AllOrders(
         val button = SGButton(item)
 
         button.setListener { event: InventoryClickEvent ->
-            clickOrder(event, order)
+            JobListings.instance.launch {
+                clickOrder(event, order)
+            }
         }
         return button
     }
@@ -206,73 +207,74 @@ class AllOrders(
      * @param event The click event.
      * @param order The order.
      */
-    private fun clickOrder(
+    private suspend fun clickOrder(
         event: InventoryClickEvent,
         order: PendingOrder,
     ) {
-        val existingOrder = Database.pendingOrderDao.queryForId(order.id)
-        if (existingOrder == null) {
-            event.whoClicked.closeInventory()
-            event.whoClicked.sendMessage(
-                MessageUtil.getMessage("General.OrderAlreadyClaimed"),
-            )
-            return
-        }
-        if (order.owner == event.whoClicked.uniqueId) {
-            event.whoClicked.closeInventory()
-            event.whoClicked.sendMessage(
-                MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
-            )
-            return
-        }
-        if (order.isOrderExpired()) {
-            event.whoClicked.closeInventory()
-            event.whoClicked.sendMessage(
-                MessageUtil.getMessage("General.OrderExpired"),
-            )
-            return
-        }
-        JobListings.instance.essentials?.let {
-            if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
-                val player =
-                    it.users.load(
-                        event.whoClicked.uniqueId,
-                    )
-                val owner =
-                    it.users.load(
-                        order.owner,
-                    )
-                if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
+        withContext(JobListings.instance.asyncDispatcher) {
+            Database.pendingOrderDao.queryForId(order.id) ?: run {
+                withContext(JobListings.instance.minecraftDispatcher) {
                     event.whoClicked.closeInventory()
-                    event.whoClicked.sendMessage(
-                        MessageUtil.getMessage("General.Ignored"),
-                    )
-                    return
+                }
+                event.whoClicked.sendMessage(
+                    MessageUtil.getMessage("General.OrderAlreadyClaimed"),
+                )
+                return@withContext
+            }
+            if (order.owner == event.whoClicked.uniqueId) {
+                event.whoClicked.closeInventory()
+                event.whoClicked.sendMessage(
+                    MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
+                )
+                return@withContext
+            }
+            if (order.isOrderExpired()) {
+                event.whoClicked.closeInventory()
+                event.whoClicked.sendMessage(
+                    MessageUtil.getMessage("General.OrderExpired"),
+                )
+                return@withContext
+            }
+            JobListings.instance.essentials?.let {
+                if (JobListings.instance.config.getBoolean("Essentials.UseIgnoreList")) {
+                    val player =
+                        it.users.load(
+                            event.whoClicked.uniqueId,
+                        )
+                    val owner =
+                        it.users.load(
+                            order.owner,
+                        )
+                    if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
+                        event.whoClicked.closeInventory()
+                        event.whoClicked.sendMessage(
+                            MessageUtil.getMessage("General.Ignored"),
+                        )
+                        return@withContext
+                    }
                 }
             }
-        }
-        val queryBuilder: QueryBuilder<ClaimedOrder, UUID> = Database.claimedOrderDao.queryBuilder()
-        queryBuilder
-            .where()
-            .eq("assignee", event.whoClicked.uniqueId)
-        val orders = Database.claimedOrderDao.query(queryBuilder.prepare())
-        val maxOrdersAccepted = ClaimedOrder.getMaxOrdersAccepted(event.whoClicked as Player)
-        if (orders.count() > maxOrdersAccepted) {
-            event.whoClicked.closeInventory()
-            event.whoClicked.sendMessage(
-                MessageUtil.getMessage(
-                    "AllOrders.OrderItemLore",
-                    listOf(
-                        MessageReplacement(
-                            "$maxOrdersAccepted",
+            val maxOrdersAccepted = ClaimedOrder.getMaxOrdersAccepted(event.whoClicked as Player)
+            if (ClaimedOrder.countClaimedOrders(event.whoClicked as Player) > maxOrdersAccepted) {
+                event.whoClicked.closeInventory()
+                event.whoClicked.sendMessage(
+                    MessageUtil.getMessage(
+                        "AllOrders.OrderItemLore",
+                        listOf(
+                            MessageReplacement(
+                                "$maxOrdersAccepted",
+                            ),
                         ),
                     ),
-                ),
-            )
-        }
+                )
+            }
 
-        order.markClaimed(event.whoClicked as Player)
-        event.whoClicked.closeInventory()
+            order.markClaimed(event.whoClicked as Player)
+
+            withContext(JobListings.instance.minecraftDispatcher) {
+                event.whoClicked.closeInventory()
+            }
+        }
     }
 
     companion object {
