@@ -13,10 +13,6 @@ softdepend:
   - EcoItems
   - RedisChat
   - Presets
-libraries:
-  - org.jetbrains.kotlin:kotlin-stdlib:2.1.0
-  - com.j256.ormlite:ormlite-core:6.1
-  - com.j256.ormlite:ormlite-jdbc:6.1
 permissions:
   joblistings.view.owned:
     description: "View all the player made."
