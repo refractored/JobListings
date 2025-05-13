@@ -34,7 +34,7 @@ class AllOrders(
 
     private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
 
-    private var pageCount: Int = ceil(Database.pendingOrderDao.countOf().toDouble() / orderSlots.count()).toInt().coerceAtLeast(1)
+    private var pageCount: Int = 1
 
     private var orderPage: Int = 0
 
@@ -50,7 +50,7 @@ class AllOrders(
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
             getName().toLegacy(),
-            JobListings.instance.gui.getInt("AllOrders.Rows", 6),
+            rows,
         )
 
     init {
@@ -60,6 +60,16 @@ class AllOrders(
                 experimentLoadNavButtons(config, gui)
                 GuiHelper.loadCosmeticItems(config, gui, 1)
                 gui.refreshInventory(player)
+            }
+        }
+
+        JobListings.instance.launch {
+            withContext(JobListings.instance.asyncDispatcher) {
+                pageCount = ceil(Database.pendingOrderDao.countOf().toDouble() / orderSlots.count()).toInt().coerceAtLeast(1)
+
+                withContext(JobListings.instance.minecraftDispatcher) {
+                    gui.name = getName().toLegacy()
+                }
             }
         }
     }
@@ -129,6 +139,7 @@ class AllOrders(
                     val button: SGButton = orders.getOrNull(index)?.let { getOrderButton(it) } ?: GuiHelper.getFallbackButton(config)
                     gui.setButton(slot, button)
                 }
+
                 gui.refreshInventory(player)
             }
         }
