@@ -15,9 +15,8 @@ import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Optional
-import revxrsal.commands.bukkit.BukkitCommandActor
+import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
-import revxrsal.commands.bukkit.player
 import java.util.*
 
 class CreateOrderHand {
@@ -30,11 +29,7 @@ class CreateOrderHand {
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("orders.max-order-time"),
     ) {
-        if (actor.isConsole) {
-            throw CommandErrorException(
-                MessageUtil.getMessage("General.IsNotPlayer"),
-            )
-        }
+        val player = actor.requirePlayer()
 
         if (amount < 1) {
             throw CommandErrorException(
@@ -84,7 +79,7 @@ class CreateOrderHand {
             )
         }
 
-        if (JobListings.instance.eco.getBalance(actor.player) < cost) {
+        if (JobListings.instance.eco.getBalance(player) < cost) {
             throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
             )
@@ -96,11 +91,11 @@ class CreateOrderHand {
             .where()
             .eq("status", OrderStatus.PENDING)
             .and()
-            .eq("user", actor.uniqueId)
+            .eq("user", actor.uniqueId())
 
         val orders = orderDao.query(queryBuilder.prepare())
 
-        val maxOrders = getMaxOrders(actor.player)
+        val maxOrders = getMaxOrders(player)
 
         if (orders.count() >= maxOrders) {
             throw CommandErrorException(
@@ -112,7 +107,7 @@ class CreateOrderHand {
         }
 
         val item =
-            actor.player.inventory.itemInMainHand
+            player.inventory.itemInMainHand
                 .clone()
 
         if (item.type == Material.AIR) {
@@ -174,11 +169,11 @@ class CreateOrderHand {
 
         item.amount = 1
 
-        JobListings.instance.eco.withdrawPlayer(actor.player, cost)
+        JobListings.instance.eco.withdrawPlayer(player, cost)
 
         val order =
             PendingOrder.create(
-                actor.uniqueId,
+                actor.uniqueId(),
                 cost,
                 item,
                 amount,
@@ -187,7 +182,7 @@ class CreateOrderHand {
 
         val orderInfo = order.getItemInfo()
 
-        actor.player.sendMessage(
+        player.sendMessage(
             MessageUtil.getMessage(
                 "CreateOrder.OrderCreated",
                 listOf(

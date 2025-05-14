@@ -79,7 +79,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
 
     // Config Updater
     implementation("com.tchristofferson:ConfigUpdater:2.1-SNAPSHOT")
@@ -96,8 +96,9 @@ dependencies {
     implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:2.22.0")
 
     // Lamp (Commands)
-    implementation("com.github.Revxrsal.Lamp:common:3.3.6")
-    implementation("com.github.Revxrsal.Lamp:bukkit:3.3.6")
+    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.12")
+    implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.12")
+    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.12")
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
 
@@ -111,7 +112,7 @@ dependencies {
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 
     // SpiGUI (GUI)
-    implementation("com.samjakob:SpiGUI:1.3.1")
+    implementation("com.samjakob:SpiGUI:v1.4.1")
 
     compileOnly("com.github.Emibergo02:RedisChat:5.3.2")
 }

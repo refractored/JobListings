@@ -16,17 +16,15 @@ import kotlinx.coroutines.yield
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.exceptions.CommandErrorHandler
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.order.Order
 import org.bstats.bukkit.Metrics
-import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
-import revxrsal.commands.bukkit.BukkitCommandHandler
-import revxrsal.commands.command.CommandActor
-import revxrsal.commands.command.ExecutableCommand
+import revxrsal.commands.Lamp
+import revxrsal.commands.bukkit.BukkitLamp
+import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import java.io.File
 import java.io.IOException
 
@@ -61,7 +59,7 @@ class JobListings : SuspendingJavaPlugin() {
     /**
      * The command handler
      */
-    private lateinit var handler: BukkitCommandHandler
+    private lateinit var lamp: Lamp<BukkitCommandActor>
 
     /**
      * The messages configuration
@@ -179,10 +177,11 @@ class JobListings : SuspendingJavaPlugin() {
 
         // Create command handler
         // TODO: Update lamp
-        handler = BukkitCommandHandler.create(this)
-
-        // Register the command exception handler
-        handler.setExceptionHandler(CommandErrorHandler())
+        lamp =
+            BukkitLamp
+                .builder(this)
+                // .exceptionHandler(CommandErrorHandler())
+                .build()
 
 //        handler.autoCompleter.registerSuggestion(
 //            "presets",
@@ -192,53 +191,23 @@ class JobListings : SuspendingJavaPlugin() {
 //                .keys
 //        }
 
-        handler.autoCompleter.registerSuggestion(
-            "materials",
-        ) { args: List<String>, sender: CommandActor?, command: ExecutableCommand? ->
-            val stringArgs = args.joinToString(" ").lowercase()
-
-            val config = instance.config
-            val blacklistedMaterials = config.getStringList("orders.BlacklistedMaterials")
-            val additionalBlacklistedMaterials = config.getStringList("orders.BlacklistedCreateMaterials")
-            val blacklist =
-                (blacklistedMaterials + additionalBlacklistedMaterials)
-                    .map { it.lowercase() }
-                    .toSet()
-
-            val materialSuggestions =
-                Material.entries
-                    .asSequence()
-                    .map { it.name.lowercase() }
-                    .filterNot { name -> name in blacklist.map { it.lowercase() } }
-                    .toMutableSet()
-
-//            val presetSuggestions = Presets.getPresets().keys
-
-            return@registerSuggestion (materialSuggestions /*+ presetSuggestions*/)
-                .filter { it.startsWith(stringArgs, ignoreCase = true) }
-                .toMutableSet()
-        }
-
         if (!instance.config.getBoolean("orders.CreateHand", true) && !instance.config.getBoolean("orders.CreateMaterial", true)) {
             logger.warning("You have disabled both order creation methods!")
             logger.warning("Please double check your config!")
         }
         // Register commands
         if (instance.config.getBoolean("orders.CreateHand", true)) {
-            handler.register(CreateOrderHand())
+            lamp.register(CreateOrderHand())
         }
         if (instance.config.getBoolean("orders.CreateMaterial", true)) {
-            handler.register(CreateOrderMaterial())
+            lamp.register(CreateOrderMaterial())
         }
-        handler.register(OwnedOrders())
-        handler.register(GetOrders())
-        handler.register(ClaimedOrders())
-        handler.register(CompleteOrders())
-        handler.register(HelpCommand())
-        handler.register(ReloadCommand())
-
-        handler.enableAdventure()
-//        handler.registerBrigadier()
+        lamp.register(OwnedOrders())
+        lamp.register(GetOrders())
+        lamp.register(ClaimedOrders())
+        lamp.register(CompleteOrders())
+        lamp.register(HelpCommand())
+        lamp.register(ReloadCommand())
 
         // Register listeners
         server.pluginManager.registerEvents(PlayerJoinListener(), this)
@@ -264,8 +233,8 @@ class JobListings : SuspendingJavaPlugin() {
     }
 
     override suspend fun onDisableAsync() {
-        if (this::handler.isInitialized) {
-            handler.unregisterAllCommands()
+        if (this::lamp.isInitialized) {
+            lamp.unregisterAllCommands()
         }
         if (this::cleanDatabase.isInitialized) {
             cleanDatabase.cancel()

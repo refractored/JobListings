@@ -7,9 +7,8 @@ import org.bukkit.entity.Player
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Optional
-import revxrsal.commands.bukkit.BukkitCommandActor
+import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
-import revxrsal.commands.bukkit.player
 
 class OwnedOrders {
     @CommandPermission("joblistings.view.owned")
@@ -19,11 +18,9 @@ class OwnedOrders {
         actor: BukkitCommandActor,
         @Optional player: Player? = null,
     ) {
-        if (player == null) {
-            actor.player.openInventory(MyOrders.getGUI(actor.player).inventory)
-            return
-        }
-        if (!actor.player.hasPermission("joblistings.view.owned.others")) {
+        val player = actor.requirePlayer()
+
+        if (!player.hasPermission("joblistings.view.owned.others")) {
             throw CommandErrorException(MessageUtil.getMessage("General.NoPermission"))
         }
         if (actor.isConsole) {

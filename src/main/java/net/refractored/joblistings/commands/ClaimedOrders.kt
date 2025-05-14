@@ -7,9 +7,8 @@ import org.bukkit.entity.Player
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Optional
-import revxrsal.commands.bukkit.BukkitCommandActor
+import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
-import revxrsal.commands.bukkit.player
 
 class ClaimedOrders {
     @CommandPermission("joblistings.view.claimed")
@@ -20,14 +19,11 @@ class ClaimedOrders {
         @Optional player: Player? = null,
     ) {
         if (player == null) {
-            actor.player.openInventory(ClaimedOrders.getGUI(actor.player).inventory)
+            actor.requirePlayer().openInventory(ClaimedOrders.getGUI(actor.requirePlayer()).inventory)
             return
         }
-        if (!actor.player.hasPermission("joblistings.view.claimed.other")) {
+        if (!actor.isConsole || !actor.requirePlayer().hasPermission("joblistings.view.claimed.other")) {
             throw CommandErrorException(MessageUtil.getMessage("General.NoPermission"))
-        }
-        if (actor.isConsole) {
-            throw CommandErrorException(MessageUtil.getMessage("General.PlayerOnly"))
         }
         player.openInventory(ClaimedOrders.getGUI(player).inventory)
     }

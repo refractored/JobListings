@@ -2,6 +2,7 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.commands.autocomplete.MaterialSuggesstion
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -11,32 +12,26 @@ import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import revxrsal.commands.annotation.AutoComplete
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Optional
-import revxrsal.commands.bukkit.BukkitCommandActor
+import revxrsal.commands.annotation.SuggestWith
+import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
-import revxrsal.commands.bukkit.player
 import java.util.*
 
 class CreateOrderMaterial {
     @CommandPermission("joblistings.create.material")
     @Description("Create an order from the specified material.")
     @Command("joblistings create material")
-    @AutoComplete("@materials * * *")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
-        stackName: String,
+        @SuggestWith(MaterialSuggesstion::class) stackName: String,
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("orders.max-order-time"),
     ) {
-        if (actor.isConsole) {
-            throw CommandErrorException(
-                MessageUtil.getMessage("General.IsNotPlayer"),
-            )
-        }
+        val player = actor.requirePlayer()
 
         if (amount < 1) {
             throw CommandErrorException(
@@ -86,7 +81,7 @@ class CreateOrderMaterial {
             )
         }
 
-        if (JobListings.instance.eco.getBalance(actor.player) < cost) {
+        if (JobListings.instance.eco.getBalance(player) < cost) {
             throw CommandErrorException(
                 MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
             )
@@ -98,9 +93,9 @@ class CreateOrderMaterial {
             .where()
             .eq("status", OrderStatus.PENDING)
             .and()
-            .eq("user", actor.uniqueId)
+            .eq("user", actor.uniqueId())
         val orders = orderDao.query(queryBuilder.prepare())
-        val maxOrders = PendingOrder.getMaxOrders(actor.player)
+        val maxOrders = PendingOrder.getMaxOrders(player)
 
         if (orders.count() >= maxOrders) {
             throw CommandErrorException(
@@ -160,11 +155,11 @@ class CreateOrderMaterial {
 
         item.amount = 1
 
-        JobListings.instance.eco.withdrawPlayer(actor.player, cost)
+        JobListings.instance.eco.withdrawPlayer(player, cost)
 
         val order =
             PendingOrder.create(
-                actor.uniqueId,
+                actor.uniqueId(),
                 cost,
                 item,
                 amount,
@@ -173,7 +168,7 @@ class CreateOrderMaterial {
 
         val orderInfo = order.getItemInfo()
 
-        actor.player.sendMessage(
+        player.sendMessage(
             MessageUtil.getMessage(
                 "CreateOrder.OrderCreated",
                 listOf(

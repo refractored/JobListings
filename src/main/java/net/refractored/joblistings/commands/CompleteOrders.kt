@@ -9,9 +9,8 @@ import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
-import revxrsal.commands.bukkit.BukkitCommandActor
+import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
-import revxrsal.commands.bukkit.player
 import java.util.*
 
 class CompleteOrders {
@@ -19,10 +18,12 @@ class CompleteOrders {
     @Description("Scans your inventory for items to complete an order")
     @Command("joblistings complete")
     fun completeOrders(actor: BukkitCommandActor) {
+        val player = actor.requirePlayer()
+
         val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
         queryBuilder
             .where()
-            .eq("assignee", actor.uniqueId)
+            .eq("assignee", actor.uniqueId())
             .and()
             .eq("status", OrderStatus.CLAIMED)
         val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
@@ -35,7 +36,7 @@ class CompleteOrders {
         var ordersUpdated = 0
         var ordersCompleted = 0
 
-        for (item in actor.player.inventory.contents) {
+        for (item in player.inventory.contents) {
             if (item == null) continue
             val order = orders.find { it.itemMatches(item) } ?: continue
             val itemAmount = (order.itemCompleted + item.amount)
@@ -101,7 +102,8 @@ class CompleteOrders {
                 "OrderComplete.ProgressMessageOwner",
                 listOf(
                     MessageReplacement(order.getItemInfo()),
-                    MessageReplacement(actor.player.displayName()),
+                    // TODO: Migrate to use new order system
+                    MessageReplacement(order.getAssignee()!!.name!!),
                     MessageReplacement(order.itemCompleted.toString()),
                     MessageReplacement(order.itemAmount.toString()),
                 ),

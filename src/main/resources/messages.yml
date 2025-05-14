@@ -3,7 +3,7 @@
 # by refractored
 #
 
-# This plugin uses MiniMessage for formatting.
+# This plugin uses non-strict MiniMessage for formatting.
 # The Ampersand character (&) and Section character (§) is not supported.
 # For more information, see https://docs.advntr.dev/minimessage/format.html
 
@@ -276,32 +276,3 @@ ClaimedOrders:
   OrderAlreadyRefunded: "<red>You have already refunded this order!"
   OrderIncomplete: "<red>One of your orders, <reset>%0<red>wasn't able to be completed so you were refunded!"
   OrderIncompleteAssignee: "<red>You were unable to complete the order you claimed, <reset>%0<red>!"
-CreatePreset:
-  # %0 = Name
-  CreatedPreset: "<green>Created preset: %0"
-  MaterialAlreadyExists: "<red>A vanilla minecraft material with this name already exists."
-  PresetAlreadyExists: "<red>A preset with this name already exists."
-  NotHoldingItem: "<red>You must be holding the item to create a preset."
-RemovePreset:
-  RemovedPreset: "<green>Removed preset: %0"
-  PresetDoesNotExist: "<red>Preset does not exist."
-PresetInfo:
-  # %0 = Preset Name
-  # %1 = Preset Item
-  PresetInfo: "<green>Preset info for %0: %1"
-  PresetDoesNotExist: "<red>Preset does not exist."
-PresetGet:
-  InventoryFull: "<red>Your inventory is full."
-  # %0 = Preset Name
-  GotPreset: "<green>Added preset %0 to your inventory."
-ImportItems:
-  ImportingItems: "<green>Importing items."
-  DoneImportingItems: "<green>Done importing items.
-  <newline><yellow><bold>Reminder 1:</bold> Updating or changing lore on items may require another import.
-  <newline><yellow><bold>Reminder 2:</bold> This adds EVERY custom item from a plugin, make sure to filter out what you don't want."
-  UnsupportedPlugin: "<red>Unsupported Option."
-  # %0 = Plugin Name
-  PluginNotLoaded: "<red>Plugin not %0 loaded or installed."
-  # Prefix to use while importing items for enchants.
-  # To update the prefix, you will need to reimport all items.
-  EnchantmentBookPrefix: "enchanted_book_"

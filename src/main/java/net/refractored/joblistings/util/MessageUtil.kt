@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.JobListings
 
 class MessageUtil {
@@ -96,6 +97,31 @@ object Messages {
         LegacyComponentSerializer.legacy(char).serialize(
             this,
         )
+
+    /**
+     * Converts this [Component] to a string using minimessage.
+     */
+    fun Component.toMinimessage(): String = MiniMessage.miniMessage().serialize(this)
+
+    /**
+     * Converts this string to a component using minimessage.
+     */
+    fun String.miniToComponent(): Component = MiniMessage.miniMessage().deserialize(this)
+
+    fun Component.toPlaintext(): String = PlainTextComponentSerializer.plainText().serialize(this)
+
+    /**
+     * Returns a new string obtained by replacing all occurrences of the [oldValue] substring in this string
+     * with the specified [newValue] component formatted as minimessage.
+     *
+     * If the object has a method to get the raw minimessage,
+     * it's recommended to use that instead as this just converts it back to minimessage,
+     */
+    fun String.replace(
+        oldValue: String,
+        newValue: Component,
+        ignoreCase: Boolean = false,
+    ): String = this.replace(oldValue, newValue.toMinimessage(), ignoreCase)
 }
 
 class MessageReplacement(
