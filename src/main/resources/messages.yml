@@ -147,11 +147,11 @@ AllOrders:
   # DONT use \n or <newline> as it will not work.
   OrderItemLore: |-
     
-    <#69b85c>Reward: <white>%0
-    <#69b85c>User: <white>%1
-    <#69b85c>Created: <white>%2
-    <#69b85c>Expires: <white>%3
-    <#69b85c>Amount: <white>%4
+    <#69b85c>Reward: <white>%reward%
+    <#69b85c>Owner: <white>%owner%
+    <#69b85c>Created: <white>%created%
+    <#69b85c>Expires: <white>%expires%
+    <#69b85c>Amount: <white>%amount%
     
     <gray>(Click to accept order)
 

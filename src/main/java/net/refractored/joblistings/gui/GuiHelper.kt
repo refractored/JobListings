@@ -3,8 +3,8 @@ package net.refractored.joblistings.gui
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextDecoration
-import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages.fixItalics
+import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
@@ -32,10 +32,7 @@ object GuiHelper {
             modelData,
         )
         itemMeta.displayName(
-            MessageUtil
-                .toComponent(
-                    name,
-                ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+            name.miniToComponent().fixItalics(),
         )
         item.itemMeta = itemMeta
         item.lore(
@@ -53,7 +50,7 @@ object GuiHelper {
             subsection.getInt("ModelData"),
             subsection.getString("Name") ?: "null",
             subsection.getStringList("Lore").map { line ->
-                MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                (line.miniToComponent()).fixItalics()
             },
         )
 
@@ -76,15 +73,12 @@ object GuiHelper {
             fallbackConfig.getInt("ModelData"),
         )
         itemMeta.displayName(
-            MessageUtil
-                .toComponent(
-                    fallbackConfig.getString("Name") ?: "null",
-                ).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE),
+            (fallbackConfig.getString("Name") ?: "null").miniToComponent().fixItalics(),
         )
         item.itemMeta = itemMeta
         item.lore(
             fallbackConfig.getStringList("Amount").map { line ->
-                MessageUtil.toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                line.miniToComponent().fixItalics()
             },
         )
         return SGButton(item)

@@ -12,7 +12,7 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.entity.Player
 import java.time.LocalDateTime
 import java.util.*
@@ -38,7 +38,7 @@ data class Mail(
         UUID.randomUUID(),
         LocalDateTime.now(),
         LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Mail.ExpireTime")),
-        MessageUtil.toComponent(""),
+        "".miniToComponent(),
     )
 
     companion object {

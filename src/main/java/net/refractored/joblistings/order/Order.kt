@@ -12,6 +12,8 @@ import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
@@ -219,9 +221,10 @@ data class Order(
             )
         messageOwner(ownerMessage)
         messageAssignee(
-            MessageUtil.getMessage(
-                "AllOrders.OrderAccepted",
-            ),
+            Messages
+                .getString(
+                    "AllOrders.OrderAccepted",
+                ).miniToComponent(),
         )
     }
 

@@ -7,6 +7,8 @@ import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.util.Messages.miniToComponent
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
@@ -29,7 +31,7 @@ class CompleteOrders {
         val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
 
         if (orders.isEmpty()) {
-            throw CommandErrorException(MessageUtil.getMessage("OrderComplete.NoOrdersToComplete"))
+            throw CommandErrorException(Messages.getString("OrderComplete.NoOrdersToComplete").miniToComponent())
         }
 
         val orderCount = orders.count()
@@ -56,15 +58,16 @@ class CompleteOrders {
 
         if (ordersUpdated == 0 && ordersCompleted == 0) {
             throw CommandErrorException(
-                MessageUtil.getMessage(
-                    "OrderComplete.NoItemsFound",
-                ),
+                Messages
+                    .getString(
+                        "OrderComplete.NoItemsFound",
+                    ).miniToComponent(),
             )
         }
 
         if (ordersCompleted == orderCount) {
             actor.reply(
-                MessageUtil.getMessage(
+                Messages.getString(
                     "OrderComplete.AllOrdersCompleted",
                 ),
             )

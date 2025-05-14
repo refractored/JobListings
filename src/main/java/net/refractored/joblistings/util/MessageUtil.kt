@@ -7,68 +7,16 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.util.Messages.miniToComponent
+import org.bukkit.configuration.file.FileConfiguration
 
 class MessageUtil {
     companion object {
-        fun toComponent(miniMessage: String): Component = MiniMessage.miniMessage().deserialize(miniMessage)
-
-        fun getMessage(key: String): Component = toComponent(JobListings.instance.messages.getString(key) ?: (key))
-
-        fun getMessageUnformatted(key: String): String = JobListings.instance.messages.getString(key) ?: (key)
-
-        fun getMessageList(
-            key: String,
-            replacements: List<MessageReplacement>,
-        ): List<Component> {
-            var replacedMessage = getMessageUnformatted(key)
-
-            for ((index, replacement) in replacements.withIndex()) {
-                if (replacement.string != null) {
-                    replacedMessage = replacedMessage.replace("%$index", replacement.string)
-                } else if (replacement.component != null) {
-                    replacedMessage =
-                        replacedMessage.replace(
-                            "%$index",
-                            MiniMessage
-                                .miniMessage()
-                                .serialize(replacement.component),
-                        )
-                }
-            }
-
-            return replacedMessage.lines().map { line ->
-                toComponent(line).decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-            }
-        }
-
-        fun replaceMessage(
-            miniMessage: String,
-            replacements: List<MessageReplacement>,
-        ): Component {
-            var replacedMessage = miniMessage
-
-            for ((index, replacement) in replacements.withIndex()) {
-                if (replacement.string != null) {
-                    replacedMessage = replacedMessage.replace("%$index", replacement.string)
-                } else if (replacement.component != null) {
-                    replacedMessage =
-                        replacedMessage.replace(
-                            "%$index",
-                            MiniMessage
-                                .miniMessage()
-                                .serialize(replacement.component),
-                        )
-                }
-            }
-
-            return toComponent(replacedMessage)
-        }
-
         fun getMessage(
             key: String,
             replacements: List<MessageReplacement>,
         ): Component {
-            var replacedMessage = getMessageUnformatted(key)
+            var replacedMessage = Messages.getString(key)
 
             for ((index, replacement) in replacements.withIndex()) {
                 if (replacement.string != null) {
@@ -84,12 +32,35 @@ class MessageUtil {
                 }
             }
 
-            return toComponent(replacedMessage)
+            return (replacedMessage).miniToComponent()
         }
     }
 }
 
 object Messages {
+    /**
+     * The configuration of the messages.
+     */
+    private val config: FileConfiguration
+        get() = JobListings.instance.messages
+
+    /**
+     * @return a string from the messages.yml.
+     */
+    fun getStringOrNull(path: String): String? = config.getString(path)
+
+    /**
+     * @return a string from the messages.yml.
+     *
+     * If the path is not found, the path itself is returned.
+     */
+    fun getString(path: String): String = getStringOrNull(path) ?: path
+
+    /**
+     * @return a list of strings from the messages.ym.
+     */
+    fun getStrings(path: String): List<String> = config.getStringList(path)
+
     /**
      * Converts a [Component] to a legacy string using the specified character.
      */
@@ -122,6 +93,15 @@ object Messages {
         newValue: Component,
         ignoreCase: Boolean = false,
     ): String = this.replace(oldValue, newValue.toMinimessage(), ignoreCase)
+
+    /**
+     * Disables the italic decoration on this component if it is not present.
+     *
+     * This is useful because by default, lore is italicized in Minecraft by default
+     *
+     * @return The component with the italic decoration disabled.
+     */
+    fun Component.fixItalics(): Component = this.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
 }
 
 class MessageReplacement(

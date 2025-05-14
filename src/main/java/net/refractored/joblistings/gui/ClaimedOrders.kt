@@ -2,8 +2,6 @@ package net.refractored.joblistings.gui
 
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.gui.GuiHelper.getFallbackButton
@@ -14,6 +12,10 @@ import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.replace
+import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -47,16 +49,11 @@ class ClaimedOrders(
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
             // Me when no component support :((((
-            LegacyComponentSerializer.legacy(AMPERSAND_CHAR).serialize(
-                MessageUtil.replaceMessage(
-                    config.getString("Title")!!,
-                    listOf(
-                        // I only did this for consistency in the messages.yml
-                        MessageReplacement("{currentPage}"),
-                        MessageReplacement("{maxPage}"),
-                    ),
-                ),
-            ),
+            (config.getString("Title") ?: "Title")
+                .replace("%0", "{currentPage}")
+                .replace("%1", "{maxPage}")
+                .miniToComponent()
+                .toLegacy(),
             config.getInt("Rows", 6),
         )
 
@@ -117,28 +114,26 @@ class ClaimedOrders(
             )
         val infoLore =
             if (order.status != OrderStatus.INCOMPLETE) {
-                MessageUtil.getMessageList(
-                    "ClaimedOrders.OrderItemLore",
-                    listOf(
-                        MessageReplacement(order.cost.toString()),
-                        MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
-                        MessageReplacement(createdDurationText),
-                        MessageReplacement(deadlineDurationText),
-                        MessageReplacement(order.itemAmount.toString()),
-                        MessageReplacement(order.itemCompleted.toString()),
-                    ),
-                )
+                Messages
+                    .getString("ClaimedOrders.OrderItemLore")
+                    .replace("%0", order.cost.toString())
+                    .replace("%1", Bukkit.getOfflinePlayer(order.user).name ?: "Unknown")
+                    .replace("%2", createdDurationText)
+                    .replace("%3", deadlineDurationText)
+                    .replace("%4", order.itemAmount.toString())
+                    .replace("%5", order.itemCompleted.toString())
+                    .lines()
+                    .map { it.miniToComponent() }
             } else {
-                MessageUtil.getMessageList(
-                    "ClaimedOrders.OrderItemLoreIncomplete",
-                    listOf(
-                        MessageReplacement(order.cost.toString()),
-                        MessageReplacement(Bukkit.getOfflinePlayer(order.user).name ?: "Unknown"),
-                        MessageReplacement(createdDurationText),
-                        MessageReplacement(order.itemAmount.toString()),
-                        MessageReplacement(order.itemsReturned.toString()),
-                    ),
-                )
+                Messages
+                    .getString("ClaimedOrders.OrderItemLoreIncomplete")
+                    .replace("%0", order.cost.toString())
+                    .replace("%1", Bukkit.getOfflinePlayer(order.user).name ?: "Unknown")
+                    .replace("%2", createdDurationText)
+                    .replace("%4", order.itemAmount.toString())
+                    .replace("%5", order.itemsReturned.toString())
+                    .lines()
+                    .map { it.miniToComponent() }
             }
 
         if (itemMetaCopy.hasLore()) {
@@ -183,21 +178,21 @@ class ClaimedOrders(
                 if (inventorySpaces == 0) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        MessageUtil.getMessage("General.InventoryFull"),
+                        Messages.getString("General.InventoryFull"),
                     )
                     return
                 }
                 if (order.itemCompleted == order.itemsReturned) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        MessageUtil.getMessage("ClaimedOrders.OrderAlreadyRefunded"),
+                        Messages.getString("ClaimedOrders.OrderAlreadyRefunded"),
                     )
                     return
                 }
                 if (giveRefundableItems(order, (event.whoClicked as Player))) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        MessageUtil.getMessage("ClaimedOrders.OrderFullyRefunded"),
+                        Messages.getString("ClaimedOrders.OrderFullyRefunded"),
                     )
                     gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                     orderDao.delete(order)

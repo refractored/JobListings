@@ -3,9 +3,7 @@
 # by refractored
 #
 AllOrders:
-  # %0 = Current Page
-  # %1 = Max Pages
-  Title: "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page %0/%1)"
+  Title: "<gradient:#7ECD71:#4CB13B><bold>All Orders</gradient> <#3e403f>(Page %current_page%/%max_pages%)"
   Rows: 5
   # Orderslots is the slots the plugin will attempt to load an order.
   # If there aren't enough orders to fill up each slot, it will use the FallbackItem to fill in the rest.

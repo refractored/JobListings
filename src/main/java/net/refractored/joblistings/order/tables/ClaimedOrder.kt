@@ -16,6 +16,7 @@ import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -209,7 +210,7 @@ data class ClaimedOrder(
         messageOwner(ownerMessage)
     }
 
-    fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.claimed")
+    fun getStatusComponent() = Messages.getString("OrderStatus.claimed")
 
     companion object {
         /**

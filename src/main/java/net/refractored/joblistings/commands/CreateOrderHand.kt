@@ -10,6 +10,8 @@ import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.order.tables.PendingOrder.Companion.getMaxOrders
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Material
 import org.bukkit.inventory.meta.Damageable
 import revxrsal.commands.annotation.Command
@@ -33,13 +35,13 @@ class CreateOrderHand {
 
         if (amount < 1) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneItem"),
+                Messages.getString("CreateOrder.LessThanOneItem").miniToComponent(),
             )
         }
 
         if (hours < 1) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneHour"),
+                Messages.getString("CreateOrder.LessThanOneHour").miniToComponent(),
             )
         }
 
@@ -75,13 +77,13 @@ class CreateOrderHand {
 
         if (cost < 1) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.LessThanOneCost"),
+                Messages.getString("CreateOrder.LessThanOneCost").miniToComponent(),
             )
         }
 
         if (JobListings.instance.eco.getBalance(player) < cost) {
             throw CommandErrorException(
-                MessageUtil.getMessage("CreateOrder.NotEnoughMoney"),
+                Messages.getString("CreateOrder.NotEnoughMoney").miniToComponent(),
             )
         }
 
@@ -112,9 +114,10 @@ class CreateOrderHand {
 
         if (item.type == Material.AIR) {
             throw CommandErrorException(
-                MessageUtil.getMessage(
-                    "CreateOrder.NotHoldingItem",
-                ),
+                Messages
+                    .getString(
+                        "CreateOrder.NotHoldingItem",
+                    ).miniToComponent(),
             )
         }
 

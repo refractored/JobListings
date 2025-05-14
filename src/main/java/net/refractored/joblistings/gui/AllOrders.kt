@@ -14,6 +14,10 @@ import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.util.Messages.fixItalics
+import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.replace
 import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
@@ -37,14 +41,20 @@ class AllOrders(
 
     private var orderPage: Int = 0
 
+//    private fun getName(): Component =
+//        MessageUtil.replaceMessage(
+//            config.getString("Title")!!,
+//            listOf(
+//                MessageReplacement((orderPage + 1).toString()),
+//                MessageReplacement(pageCount.toString()),
+//            ),
+//        )
+
     private fun getName(): Component =
-        MessageUtil.replaceMessage(
-            config.getString("Title")!!,
-            listOf(
-                MessageReplacement((orderPage + 1).toString()),
-                MessageReplacement(pageCount.toString()),
-            ),
-        )
+        (config.getString("Title") ?: "Title")
+            .replace("%current_page%", (orderPage + 1).toString())
+            .replace("%max_pages%", pageCount.toString())
+            .miniToComponent()
 
     val gui: SGMenu =
         JobListings.instance.spiGUI.create(
@@ -171,16 +181,15 @@ class AllOrders(
             )
 
         val orderItemLore =
-            MessageUtil.getMessageList(
-                "AllOrders.OrderItemLore",
-                listOf(
-                    MessageReplacement(order.reward.toString()),
-                    MessageReplacement(order.getOwner().name ?: "Unknown"),
-                    MessageReplacement(createdDurationText),
-                    MessageReplacement(expireDurationText),
-                    MessageReplacement(order.itemAmount.toString()),
-                ),
-            )
+            Messages
+                .getString("AllOrders.OrderItemLore")
+                .replace("%reward%", order.reward.toString())
+                .replace("%owner%", order.getOwner().name ?: "Unknown")
+                .replace("%created%", createdDurationText)
+                .replace("%expire%", expireDurationText)
+                .replace("%amount%", order.itemAmount.toString())
+                .lines()
+                .map { it.miniToComponent().fixItalics() }
 
         if (itemMetaCopy.hasLore()) {
             val itemLore = itemMetaCopy.lore()!!
@@ -217,7 +226,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    MessageUtil.getMessage("General.OrderAlreadyClaimed"),
+                    Messages.getString("General.OrderAlreadyClaimed"),
                 )
                 return@withContext
             }
@@ -226,7 +235,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
+                    Messages.getString("General.CannotAcceptOwnOrder"),
                 )
                 return@withContext
             }
@@ -235,7 +244,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    MessageUtil.getMessage("General.OrderExpired"),
+                    Messages.getString("General.OrderExpired"),
                 )
                 return@withContext
             }
@@ -254,7 +263,7 @@ class AllOrders(
                             event.whoClicked.closeInventory()
                         }
                         event.whoClicked.sendMessage(
-                            MessageUtil.getMessage("General.Ignored"),
+                            Messages.getString("General.Ignored"),
                         )
                         return@withContext
                     }

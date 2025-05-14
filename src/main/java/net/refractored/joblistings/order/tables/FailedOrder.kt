@@ -9,7 +9,7 @@ import net.refractored.joblistings.order.impl.Expires
 import net.refractored.joblistings.order.impl.Item
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
@@ -63,7 +63,7 @@ data class FailedOrder(
         FailureType.INCOMPLETE,
     )
 
-    fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.incomplete")
+    fun getStatusComponent() = Messages.getString("OrderStatus.incomplete")
 
     enum class FailureType {
         /**

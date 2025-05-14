@@ -37,6 +37,6 @@ class HelpCommand {
         for (command in list) {
             actor.reply("<gray>/${command.usage()}<white>: ${command.description()}".miniToComponent())
         }
-        actor.reply("Page $page/${Help.numberOfPages(commands.count(), ENTRIES_PER_PAGE)} ")
+        actor.reply("<#505050>Page <gray>$page</gray>/<gray>${Help.numberOfPages(commands.count(), ENTRIES_PER_PAGE)}".miniToComponent())
     }
 }

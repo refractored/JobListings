@@ -16,6 +16,8 @@ import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -92,7 +94,7 @@ data class PendingOrder(
         Database.pendingOrderDao.delete(this)
     }
 
-    fun getStatusComponent() = MessageUtil.getMessage("OrderStatus.pending")
+    fun getStatusComponent() = Messages.getString("OrderStatus.pending")
 
     /**
      * Mark the order as expired and refund the user.
@@ -137,9 +139,10 @@ data class PendingOrder(
             )
         messageOwner(ownerMessage)
         assignee.sendMessage(
-            MessageUtil.Companion.getMessage(
-                "AllOrders.OrderAccepted",
-            ),
+            Messages
+                .getString(
+                    "AllOrders.OrderAccepted",
+                ).miniToComponent(),
         )
         return claimedOrder
     }

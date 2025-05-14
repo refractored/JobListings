@@ -1,7 +1,7 @@
 package net.refractored.joblistings.commands
 
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.util.Messages
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
@@ -13,6 +13,6 @@ class ReloadCommand {
     @Command("joblistings reload")
     fun reload(actor: BukkitCommandActor) {
         JobListings.instance.reload()
-        actor.reply(MessageUtil.getMessage("Reload.Reloaded"))
+        actor.reply(Messages.getString("Reload.Reloaded"))
     }
 }
