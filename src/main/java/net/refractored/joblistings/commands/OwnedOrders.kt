@@ -1,31 +1,27 @@
 package net.refractored.joblistings.commands
 
-import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.gui.MyOrders
-import net.refractored.joblistings.util.MessageUtil
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
-import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class OwnedOrders {
     @CommandPermission("joblistings.view.owned")
-    @Description("View and manage orders you own")
+    @Description("Opens the owned orders GUI for the player")
     @Command("joblistings owned")
-    fun viewOrder(
-        actor: BukkitCommandActor,
-        @Optional player: Player? = null,
-    ) {
-        val player = actor.requirePlayer()
+    fun viewOrder(actor: BukkitCommandActor) {
+        actor.requirePlayer().openInventory(MyOrders.getGUI(actor.requirePlayer()).inventory)
+    }
 
-        if (!player.hasPermission("joblistings.view.owned.others")) {
-            throw CommandErrorException(MessageUtil.getMessage("General.NoPermission"))
-        }
-        if (actor.isConsole) {
-            throw CommandErrorException(MessageUtil.getMessage("General.PlayerOnly"))
-        }
-        player.openInventory(MyOrders.getGUI(player).inventory)
+    @CommandPermission("joblistings.view.owned.other")
+    @Description("Opens the owned orders GUI for another player")
+    @Command("joblistings owned other")
+    fun openOrdersOther(
+        actor: BukkitCommandActor,
+        player: Player,
+    ) {
+        actor.requirePlayer().openInventory(MyOrders.getGUI(actor.requirePlayer()).inventory)
     }
 }

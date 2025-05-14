@@ -222,14 +222,18 @@ class AllOrders(
                 return@withContext
             }
             if (order.owner == event.whoClicked.uniqueId) {
-                event.whoClicked.closeInventory()
+                withContext(JobListings.instance.minecraftDispatcher) {
+                    event.whoClicked.closeInventory()
+                }
                 event.whoClicked.sendMessage(
                     MessageUtil.getMessage("General.CannotAcceptOwnOrder"),
                 )
                 return@withContext
             }
             if (order.isOrderExpired()) {
-                event.whoClicked.closeInventory()
+                withContext(JobListings.instance.minecraftDispatcher) {
+                    event.whoClicked.closeInventory()
+                }
                 event.whoClicked.sendMessage(
                     MessageUtil.getMessage("General.OrderExpired"),
                 )
@@ -246,7 +250,9 @@ class AllOrders(
                             order.owner,
                         )
                     if (owner.isIgnoredPlayer(player) || player.isIgnoredPlayer(owner)) {
-                        event.whoClicked.closeInventory()
+                        withContext(JobListings.instance.minecraftDispatcher) {
+                            event.whoClicked.closeInventory()
+                        }
                         event.whoClicked.sendMessage(
                             MessageUtil.getMessage("General.Ignored"),
                         )
@@ -256,7 +262,9 @@ class AllOrders(
             }
             val maxOrdersAccepted = ClaimedOrder.getMaxOrdersAccepted(event.whoClicked as Player)
             if (ClaimedOrder.countClaimedOrders(event.whoClicked as Player) > maxOrdersAccepted) {
-                event.whoClicked.closeInventory()
+                withContext(JobListings.instance.minecraftDispatcher) {
+                    event.whoClicked.closeInventory()
+                }
                 event.whoClicked.sendMessage(
                     MessageUtil.getMessage(
                         "AllOrders.OrderItemLore",

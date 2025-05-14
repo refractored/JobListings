@@ -1,7 +1,7 @@
 name: JobListings
 version: '${version}'
 main: net.refractored.joblistings.JobListings
-api-version: '1.20'
+api-version: '1.21'
 authors: [refractored]
 description: "Players can create orders for items in minecraft."
 database: true
@@ -35,6 +35,9 @@ permissions:
   joblistings.completeorders:
     description: "Lets the player complete orders."
     default: true
+  joblistings.help:
+    description: "Gets list of usable commands."
+    default: true
   joblistings.create.hand:
     description: "Lets the player create orders with the item in their hand."
     default: true
@@ -43,19 +46,4 @@ permissions:
     default: true
   joblistings.admin.reload:
     description: "Lets the player reload the plugin."
-    default: op
-  joblistings.admin.create.preset:
-    description: "Lets the player create a preset."
-    default: op
-  joblistings.admin.remove.preset:
-    description: "Lets the player delete a preset."
-    default: op
-  joblistings.admin.info.preset:
-    description: "Lets the player view a copy of the preset in chat."
-    default: op
-  joblistings.admin.get.preset:
-    description: "Lets the player view a copy of the preset in chat."
-    default: op
-  joblistings.admin.import:
-    description: "Lets the player import items from a custom item plugin."
     default: op

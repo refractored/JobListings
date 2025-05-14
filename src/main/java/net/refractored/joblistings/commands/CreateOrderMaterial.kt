@@ -14,6 +14,7 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
+import revxrsal.commands.annotation.Named
 import revxrsal.commands.annotation.Optional
 import revxrsal.commands.annotation.SuggestWith
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
@@ -26,7 +27,7 @@ class CreateOrderMaterial {
     @Command("joblistings create material")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
-        @SuggestWith(MaterialSuggesstion::class) stackName: String,
+        @SuggestWith(MaterialSuggesstion::class) @Named("type")stackName: String,
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("orders.max-order-time"),

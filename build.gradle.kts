@@ -70,6 +70,7 @@ repositories {
     mavenCentral()
 
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://repo.essentialsx.net/releases/")
     maven("https://jitpack.io")
@@ -85,34 +86,38 @@ dependencies {
     implementation("com.tchristofferson:ConfigUpdater:2.1-SNAPSHOT")
 
     // EssentialsX
-    compileOnly("net.essentialsx:EssentialsX:2.20.1")
+    compileOnly("net.essentialsx:EssentialsX:2.21.0")
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
+    implementation(kotlin("stdlib", version = "2.1.0"))
 
     // Kotlin Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:2.22.0")
-    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:2.22.0")
+
+    val mcCoroutineVersion = "2.22.0"
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:$mcCoroutineVersion")
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:$mcCoroutineVersion")
 
     // Lamp (Commands)
-    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.12")
-    implementation("io.github.revxrsal:lamp.bukkit:4.0.0-rc.12")
-    implementation("io.github.revxrsal:lamp.brigadier:4.0.0-rc.12")
+    val lampVersion = "4.0.0-rc.12"
+    implementation("io.github.revxrsal:lamp.common:$lampVersion")
+    implementation("io.github.revxrsal:lamp.bukkit:$lampVersion")
+    implementation("io.github.revxrsal:lamp.brigadier:$lampVersion")
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
 
     implementation("io.papermc:paperlib:1.0.7")
 
     // ORMLite (ORM)
-    implementation("com.j256.ormlite:ormlite-core:6.1")
-    implementation("com.j256.ormlite:ormlite-jdbc:6.1")
+    val ormLiteVerison = "6.1"
+    implementation("com.j256.ormlite:ormlite-core:$ormLiteVerison")
+    implementation("com.j256.ormlite:ormlite-jdbc:$ormLiteVerison")
 
     // Vault (Economy)
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
 
     // SpiGUI (GUI)
-    implementation("com.samjakob:SpiGUI:v1.4.1")
+    implementation("com.samjakob:SpiGUI:1.4.1")
 
     compileOnly("com.github.Emibergo02:RedisChat:5.3.2")
 }
