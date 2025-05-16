@@ -15,6 +15,10 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import net.milkbowl.vault.economy.Economy
 import net.refractored.joblistings.commands.*
+import net.refractored.joblistings.commands.annotations.CommandPrefixConfigReplacer
+import net.refractored.joblistings.commands.annotations.ConfigCommand
+import net.refractored.joblistings.commands.annotations.ConfigDescription
+import net.refractored.joblistings.commands.annotations.ConfigDescriptionReplacer
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
@@ -71,12 +75,6 @@ class JobListings : SuspendingJavaPlugin() {
      * The gui configuration
      */
     lateinit var gui: FileConfiguration
-        private set
-
-    /**
-     * The preset configuration
-     */
-    lateinit var presets: FileConfiguration
         private set
 
     private lateinit var cleanDatabase: Job
@@ -145,8 +143,6 @@ class JobListings : SuspendingJavaPlugin() {
         messages = YamlConfiguration.loadConfiguration(dataFolder.resolve("messages.yml"))
         // Load gui config
         gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
-        // Load preset config
-        presets = YamlConfiguration.loadConfiguration(dataFolder.resolve("presets.yml"))
 
         // Initialize the database
         Database.init()
@@ -181,15 +177,9 @@ class JobListings : SuspendingJavaPlugin() {
             BukkitLamp
                 .builder(this)
                 // .exceptionHandler(CommandErrorHandler())
+                .annotationReplacer(ConfigCommand::class.java, CommandPrefixConfigReplacer())
+                .annotationReplacer(ConfigDescription::class.java, ConfigDescriptionReplacer())
                 .build()
-
-//        handler.autoCompleter.registerSuggestion(
-//            "presets",
-//        ) { args: List<String?>?, sender: CommandActor?, command: ExecutableCommand? ->
-//            return@registerSuggestion Presets
-//                .getPresets()
-//                .keys
-//        }
 
         if (!instance.config.getBoolean("orders.CreateHand", true) && !instance.config.getBoolean("orders.CreateMaterial", true)) {
             logger.warning("You have disabled both order creation methods!")

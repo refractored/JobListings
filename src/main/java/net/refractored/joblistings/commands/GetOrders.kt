@@ -1,36 +1,41 @@
 package net.refractored.joblistings.commands
 
+import net.refractored.joblistings.commands.annotations.ConfigCommand
+import net.refractored.joblistings.commands.annotations.ConfigDescription
 import net.refractored.joblistings.gui.AllOrders
+import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.entity.Player
-import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.CommandPriority
-import revxrsal.commands.annotation.Description
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class GetOrders {
     @CommandPermission("joblistings.view.orders")
-    @Description("Opens the orders GUI for the player")
+    @ConfigDescription("messages.orders.description")
     @CommandPriority.Low
-    @Command("joblistings")
+    @ConfigCommand("")
     fun defaultCommand(actor: BukkitCommandActor) {
         AllOrders.openGUI(actor.requirePlayer())
+        actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
     }
 
     @CommandPermission("joblistings.view.orders")
-    @Description("Opens the orders GUI for the player")
-    @Command("joblistings orders")
+    @ConfigDescription("messages.orders.description")
+    @ConfigCommand("orders")
     fun openOrders(actor: BukkitCommandActor) {
         AllOrders.openGUI(actor.requirePlayer())
+        actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
     }
 
     @CommandPermission("joblistings.view.orders.other")
-    @Description("Opens the orders GUI for another player")
-    @Command("joblistings orders other")
+    @ConfigDescription("messages.orders-other.description")
+    @ConfigCommand("orders other")
     fun openOrdersOther(
         actor: BukkitCommandActor,
         player: Player,
     ) {
         AllOrders.openGUI(player)
+        actor.reply(Messages.getStringPrefixed("messages.orders-other.execution.success").miniToComponent())
     }
 }

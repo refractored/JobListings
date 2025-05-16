@@ -2,6 +2,7 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -14,7 +15,6 @@ import net.refractored.joblistings.util.Messages
 import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Material
 import org.bukkit.inventory.meta.Damageable
-import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
@@ -24,7 +24,7 @@ import java.util.*
 class CreateOrderHand {
     @CommandPermission("joblistings.create.hand")
     @Description("Create an order from the item in your hand")
-    @Command("joblistings create hand")
+    @ConfigCommand("create hand")
     fun createOrderHand(
         actor: BukkitCommandActor,
         cost: Double,

@@ -56,6 +56,13 @@ object Messages {
      */
     fun getString(path: String): String = getStringOrNull(path) ?: path
 
+    fun getPrefix(): String = getString("messages.prefix")
+
+    /**
+     * @return a string from the messages.yml, with the prefix.
+     */
+    fun getStringPrefixed(path: String): String = getPrefix() + getString(path)
+
     /**
      * @return a list of strings from the messages.ym.
      */

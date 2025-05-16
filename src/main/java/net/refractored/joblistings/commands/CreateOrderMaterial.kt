@@ -2,6 +2,7 @@ package net.refractored.joblistings.commands
 
 import com.j256.ormlite.stmt.QueryBuilder
 import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.commands.autocomplete.MaterialSuggesstion
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
@@ -14,7 +15,6 @@ import net.refractored.joblistings.util.Messages
 import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
-import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Named
 import revxrsal.commands.annotation.Optional
@@ -26,10 +26,10 @@ import java.util.*
 class CreateOrderMaterial {
     @CommandPermission("joblistings.create.material")
     @Description("Create an order from the specified material.")
-    @Command("joblistings create material")
+    @ConfigCommand("create material")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
-        @SuggestWith(MaterialSuggesstion::class) @Named("type")stackName: String,
+        @SuggestWith(MaterialSuggesstion::class) @Named("type") stackName: String,
         cost: Double,
         @Optional amount: Int = 1,
         @Optional hours: Long = JobListings.instance.config.getLong("orders.max-order-time"),

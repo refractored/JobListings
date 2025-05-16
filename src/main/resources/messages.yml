@@ -7,6 +7,46 @@
 # The Ampersand character (&) and Section character (§) is not supported.
 # For more information, see https://docs.advntr.dev/minimessage/format.html
 
+messages:
+  # Used for nearly all messages.
+  prefix: "<bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><white> <white>»</white><reset> "
+  # The /joblistings command prefix.
+  # This will replace the /joblistings command with the word specified here.
+  # Requires a restart to take effect.
+  command-prefix: "joblistings"
+
+  orders:
+    description: "Opens the orders GUI for the player"
+    # This is blank because the command is just the command-prefix without any subcommands.
+    # If command-prefix is blank, and this is blank, this will break.
+    command: ""
+    execution:
+      success: "<green>Opened the orders GUI."
+
+  orders-other:
+    description: "Opens the orders GUI for another player"
+    command: "orders other"
+    execution:
+      success: "<green>Opened the orders GUI for %player%."
+
+  reload:
+    description: "Opens the orders GUI for another player"
+    command: "reload"
+    execution:
+      success: "<green>Reloaded!"
+
+  help:
+    description: "Displays info for commands you can use."
+    command: "help"
+    execution:
+      success:
+        # As small plugin dev, and would appreciate it if you left the authors in.
+        # It helps me gain a reputation and motivate me to keep working on this plugin, and other plugins.
+        # Won't judge if you remove it though. (Maybe a teensy bit)
+        header: "<bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><gray> by %authors%"
+        command: "<gray>/%command%<white>: %description%"
+        footer: "<#505050>Page <gray>%page%</gray>/<gray>%total%</gray>"
+
 General:
   IsNotPlayer: "<red>You must be a player to use this command."
   NoPermission: "<red>You do not have permission to use this command."

@@ -1,0 +1,14 @@
+package net.refractored.joblistings.commands.annotations;
+
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+// in java cause im too lazy to figure out why varargs don't work in kotlin
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ConfigCommand {
+    String[] value();
+}
