@@ -171,11 +171,10 @@ class JobListings : SuspendingJavaPlugin() {
             logger.info("Hooked into RedisChat")
         }
 
-        // Create command handler
-        // TODO: Update lamp
         lamp =
             BukkitLamp
                 .builder(this)
+                // TODO: Setup command error handler.
                 // .exceptionHandler(CommandErrorHandler())
                 .annotationReplacer(ConfigCommand::class.java, CommandPrefixConfigReplacer())
                 .annotationReplacer(ConfigDescription::class.java, ConfigDescriptionReplacer())
@@ -189,7 +188,7 @@ class JobListings : SuspendingJavaPlugin() {
         lamp.register(CreateOrder())
         lamp.register(OwnedOrders())
         lamp.register(GetOrders())
-        if (config.getBoolean("orders.enable-prefix-command")) {
+        if (messages.getBoolean("messages.orders.enable-prefix-command")) {
             lamp.register(GetOrdersBlank())
         }
         lamp.register(ClaimedOrders())

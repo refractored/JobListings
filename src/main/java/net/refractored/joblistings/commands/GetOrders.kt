@@ -12,16 +12,14 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 
 class GetOrders {
     @CommandPermission("joblistings.view.orders")
-    @ConfigDescription("messages.orders.description")
-    @ConfigCommand("messages.orders.command")
+    @ConfigCommand("messages.orders")
     fun openOrders(actor: BukkitCommandActor) {
         AllOrders.openGUI(actor.requirePlayer())
         actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
     }
 
     @CommandPermission("joblistings.view.orders.other")
-    @ConfigDescription("messages.orders-other.description")
-    @ConfigCommand("messages.orders-other.command")
+    @ConfigCommand("messages.orders-other")
     fun openOrdersOther(
         actor: BukkitCommandActor,
         player: Player,
@@ -33,9 +31,9 @@ class GetOrders {
 
 class GetOrdersBlank {
     @CommandPermission("joblistings.view.orders")
+    @ConfigCommand("")
     @ConfigDescription("messages.orders.description")
     @CommandPriority.Low
-    @ConfigCommand("")
     fun defaultCommand(actor: BukkitCommandActor) {
         AllOrders.openGUI(actor.requirePlayer())
         actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())

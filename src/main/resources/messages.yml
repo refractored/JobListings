@@ -85,7 +85,7 @@ messages:
     # Messages for both create commands.
     common:
       not-enough-money: "<red>You do not have enough money."
-      hours-not-in-range: "<red>Hours must be between %min% and %max%"
+      not-in-range: "<red>Hours must be between %min% and %max%"
       invalid-amount: "<red>Amount must be less than or equal to %max%."
       blacklisted: "<red>You cannot create an order with %material%."
       success: |-

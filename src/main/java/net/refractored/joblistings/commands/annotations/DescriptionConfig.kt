@@ -8,9 +8,6 @@ import java.lang.reflect.AnnotatedElement
 
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
-/**
- * Grabs the config value for the min and max range of a config value.
- */
 annotation class ConfigDescription(
     val path: String,
 )

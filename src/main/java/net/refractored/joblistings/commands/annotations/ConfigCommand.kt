@@ -2,6 +2,7 @@ package net.refractored.joblistings.commands.annotations
 
 import net.refractored.joblistings.util.Messages
 import revxrsal.commands.annotation.Command
+import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.dynamic.AnnotationReplacer
 import revxrsal.commands.annotation.dynamic.Annotations
 import java.lang.reflect.AnnotatedElement
@@ -19,7 +20,7 @@ class CommandPrefixConfigReplacer : AnnotationReplacer<ConfigCommand> {
     ): Collection<Annotation> {
         val commandPrefix = Messages.getStringOrNull("messages.command-prefix").orEmpty()
 
-        val command = Messages.getStringOrNull(annotation.path).orEmpty()
+        val command = Messages.getStringOrNull(annotation.path + ".command").orEmpty()
 
         val result =
             when {
@@ -35,6 +36,16 @@ class CommandPrefixConfigReplacer : AnnotationReplacer<ConfigCommand> {
                 arrayOf(result),
             )
 
-        return listOf(commandAnnotation)
+        if (annotation.path.isBlank()) {
+            return listOf(commandAnnotation)
+        }
+        val descriptionAnnotation =
+            Annotations.create(
+                Description::class.java,
+                "value",
+                Messages.getString(annotation.path + ".description"),
+            )
+
+        return listOf(commandAnnotation, descriptionAnnotation)
     }
 }

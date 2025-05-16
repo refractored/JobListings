@@ -2,7 +2,6 @@ package net.refractored.joblistings.commands
 
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.commands.annotations.ConfigCommand
-import net.refractored.joblistings.commands.annotations.ConfigDescription
 import net.refractored.joblistings.util.Messages
 import net.refractored.joblistings.util.Messages.miniToComponent
 import revxrsal.commands.annotation.Optional
@@ -11,12 +10,11 @@ import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import revxrsal.commands.help.Help
 
-private const val ENTRIES_PER_PAGE = 4
+private const val ENTRIES_PER_PAGE = 5
 
 class HelpCommand {
     @CommandPermission("joblistings.help")
-    @ConfigDescription("messages.help.description")
-    @ConfigCommand("messages.help.command")
+    @ConfigCommand("messages.help")
     fun help(
         actor: BukkitCommandActor,
         @Range(min = 1.0) @Optional page: Int = 1,

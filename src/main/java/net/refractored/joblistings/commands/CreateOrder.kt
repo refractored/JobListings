@@ -20,7 +20,6 @@ import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
-import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.Named
 import revxrsal.commands.annotation.Optional
 import revxrsal.commands.annotation.Range
@@ -31,8 +30,7 @@ import java.util.*
 
 class CreateOrder {
     @CommandPermission("joblistings.create.hand")
-    @Description("messages.create.hand.description")
-    @ConfigCommand("messages.create.hand.command")
+    @ConfigCommand("messages.create.hand")
     fun createOrderHand(
         actor: BukkitCommandActor,
         @Range(min = 1.0) cost: Double,
@@ -49,7 +47,7 @@ class CreateOrder {
                 Messages
                     .getStringPrefixed("messages.create.common.not-in-range")
                     .replace("%min%", "$minHours")
-                    .replace("%max%", "$minHours")
+                    .replace("%max%", "$maxHours")
                     .miniToComponent(),
             )
         }
@@ -67,7 +65,7 @@ class CreateOrder {
         if (item.type == Material.AIR) {
             throw CommandErrorException(
                 Messages
-                    .getString(
+                    .getStringPrefixed(
                         "messages.create.hand.execution.not-holding-item",
                     ).miniToComponent(),
             )
@@ -97,8 +95,7 @@ class CreateOrder {
     }
 
     @CommandPermission("joblistings.create.material")
-    @Description("messages.create.material.description")
-    @ConfigCommand("messages.create.material.command")
+    @ConfigCommand("messages.create.material")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
         @SuggestWith(MaterialSuggesstion::class) @Named("type") stackName: String,
@@ -116,7 +113,7 @@ class CreateOrder {
                 Messages
                     .getStringPrefixed("messages.create.common.not-in-range")
                     .replace("%min%", "$minHours")
-                    .replace("%max%", "$minHours")
+                    .replace("%max%", "$maxHours")
                     .miniToComponent(),
             )
         }
@@ -241,7 +238,7 @@ class CreateOrder {
             maxItems == -1 && amount > item.maxStackSize -> {
                 throw CommandErrorException(
                     Messages
-                        .getString("messages.create-material.execution.invalid-amount")
+                        .getStringPrefixed("messages.create-material.execution.invalid-amount")
                         .replace("%max%", item.maxStackSize.toString())
                         .miniToComponent(),
                 )
@@ -249,7 +246,7 @@ class CreateOrder {
             maxItems != 0 && amount >= maxItems -> {
                 throw CommandErrorException(
                     Messages
-                        .getString("messages.create-material.execution.invalid-amount")
+                        .getStringPrefixed("messages.create-material.execution.invalid-amount")
                         .replace("%max%", maxItems.toString())
                         .miniToComponent(),
                 )

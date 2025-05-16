@@ -6,7 +6,6 @@ import com.j256.ormlite.stmt.QueryBuilder
 import kotlinx.coroutines.withContext
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.commands.annotations.ConfigCommand
-import net.refractored.joblistings.commands.annotations.ConfigDescription
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
@@ -21,8 +20,7 @@ import java.util.*
 
 class CompleteOrders {
     @CommandPermission("joblistings.completeorders")
-    @ConfigDescription("messages.complete.description")
-    @ConfigCommand("messages.complete.command")
+    @ConfigCommand("messages.complete")
     fun completeOrders(actor: BukkitCommandActor) {
         JobListings.instance.launch {
             withContext(JobListings.instance.asyncDispatcher) {
@@ -37,6 +35,7 @@ class CompleteOrders {
                 val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
 
                 if (orders.isEmpty()) {
+                    // TODO: Reply instead of throwing an exception, coroutines do not like exceptions.
                     throw CommandErrorException(
                         Messages.getStringPrefixed("messages.complete.execution.no-orders").miniToComponent(),
                     )
