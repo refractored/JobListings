@@ -1,14 +1,40 @@
-package net.refractored.joblistings.commands.annotations;
+package net.refractored.joblistings.commands.annotations
 
+import net.refractored.joblistings.util.Messages
+import revxrsal.commands.annotation.Command
+import revxrsal.commands.annotation.dynamic.AnnotationReplacer
+import revxrsal.commands.annotation.dynamic.Annotations
+import java.lang.reflect.AnnotatedElement
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FUNCTION)
+annotation class ConfigCommand(
+    val path: String,
+)
 
-// in java cause im too lazy to figure out why varargs don't work in kotlin
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface ConfigCommand {
-    String[] value();
+class CommandPrefixConfigReplacer : AnnotationReplacer<ConfigCommand> {
+    override fun replaceAnnotation(
+        element: AnnotatedElement,
+        annotation: ConfigCommand,
+    ): Collection<Annotation> {
+        val commandPrefix = Messages.getStringOrNull("messages.command-prefix").orEmpty()
+
+        val command = Messages.getStringOrNull(annotation.path).orEmpty()
+
+        val result =
+            when {
+                command.isBlank() -> commandPrefix
+                commandPrefix.isBlank() -> command
+                else -> "$commandPrefix $command"
+            }
+
+        val commandAnnotation =
+            Annotations.create(
+                Command::class.java,
+                "value",
+                arrayOf(result),
+            )
+
+        return listOf(commandAnnotation)
+    }
 }

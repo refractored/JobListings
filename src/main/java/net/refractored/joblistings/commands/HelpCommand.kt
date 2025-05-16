@@ -16,7 +16,7 @@ private const val ENTRIES_PER_PAGE = 4
 class HelpCommand {
     @CommandPermission("joblistings.help")
     @ConfigDescription("messages.help.description")
-    @ConfigCommand("help")
+    @ConfigCommand("messages.help.command")
     fun help(
         actor: BukkitCommandActor,
         @Range(min = 1.0) @Optional page: Int = 1,

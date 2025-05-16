@@ -13,16 +13,7 @@ import revxrsal.commands.bukkit.annotation.CommandPermission
 class GetOrders {
     @CommandPermission("joblistings.view.orders")
     @ConfigDescription("messages.orders.description")
-    @CommandPriority.Low
-    @ConfigCommand("")
-    fun defaultCommand(actor: BukkitCommandActor) {
-        AllOrders.openGUI(actor.requirePlayer())
-        actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
-    }
-
-    @CommandPermission("joblistings.view.orders")
-    @ConfigDescription("messages.orders.description")
-    @ConfigCommand("orders")
+    @ConfigCommand("messages.orders.command")
     fun openOrders(actor: BukkitCommandActor) {
         AllOrders.openGUI(actor.requirePlayer())
         actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
@@ -30,12 +21,23 @@ class GetOrders {
 
     @CommandPermission("joblistings.view.orders.other")
     @ConfigDescription("messages.orders-other.description")
-    @ConfigCommand("orders other")
+    @ConfigCommand("messages.orders-other.command")
     fun openOrdersOther(
         actor: BukkitCommandActor,
         player: Player,
     ) {
         AllOrders.openGUI(player)
         actor.reply(Messages.getStringPrefixed("messages.orders-other.execution.success").miniToComponent())
+    }
+}
+
+class GetOrdersBlank {
+    @CommandPermission("joblistings.view.orders")
+    @ConfigDescription("messages.orders.description")
+    @CommandPriority.Low
+    @ConfigCommand("")
+    fun defaultCommand(actor: BukkitCommandActor) {
+        AllOrders.openGUI(actor.requirePlayer())
+        actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
     }
 }

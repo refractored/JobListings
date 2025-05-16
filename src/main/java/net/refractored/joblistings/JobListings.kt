@@ -181,19 +181,17 @@ class JobListings : SuspendingJavaPlugin() {
                 .annotationReplacer(ConfigDescription::class.java, ConfigDescriptionReplacer())
                 .build()
 
-        if (!instance.config.getBoolean("orders.CreateHand", true) && !instance.config.getBoolean("orders.CreateMaterial", true)) {
+        if (!config.getBoolean("orders.CreateHand", true) && !instance.config.getBoolean("orders.CreateMaterial", true)) {
             logger.warning("You have disabled both order creation methods!")
             logger.warning("Please double check your config!")
         }
         // Register commands
-        if (instance.config.getBoolean("orders.CreateHand", true)) {
-            lamp.register(CreateOrderHand())
-        }
-        if (instance.config.getBoolean("orders.CreateMaterial", true)) {
-            lamp.register(CreateOrderMaterial())
-        }
+        lamp.register(CreateOrder())
         lamp.register(OwnedOrders())
         lamp.register(GetOrders())
+        if (config.getBoolean("orders.enable-prefix-command")) {
+            lamp.register(GetOrdersBlank())
+        }
         lamp.register(ClaimedOrders())
         lamp.register(CompleteOrders())
         lamp.register(HelpCommand())

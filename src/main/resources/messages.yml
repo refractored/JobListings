@@ -7,6 +7,8 @@
 # The Ampersand character (&) and Section character (§) is not supported.
 # For more information, see https://docs.advntr.dev/minimessage/format.html
 
+# Any changes to description, command, or command-prefix will require a restart to take effect.
+
 messages:
   # Used for nearly all messages.
   prefix: "<bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><white> <white>»</white><reset> "
@@ -15,11 +17,19 @@ messages:
   # Requires a restart to take effect.
   command-prefix: "joblistings"
 
+  order-status:
+    pending: "<white>Pending"
+    claimed: "<white>Claimed"
+    completed: "<white>Completed"
+    incomplete: "<white>Incomplete"
+    cancelled: "<white>Cancelled"
+
   orders:
-    description: "Opens the orders GUI for the player"
-    # This is blank because the command is just the command-prefix without any subcommands.
-    # If command-prefix is blank, and this is blank, this will break.
-    command: ""
+    description: "Opens the orders GUI."
+    command: "orders"
+    # If the player just needs to enter command-prefix to view run this command.
+    # If the command-prefix is blank this will break, so disable this if it is blank.
+    enable-prefix-command: true
     execution:
       success: "<green>Opened the orders GUI."
 
@@ -28,6 +38,30 @@ messages:
     command: "orders other"
     execution:
       success: "<green>Opened the orders GUI for %player%."
+
+  owned:
+    description: "Opens the owned orders GUI."
+    command: "owned"
+    execution:
+      success: "<green>Opened the owned orders GUI."
+
+  owned-other:
+    description: "Opens the orders GUI for another player"
+    command: "owned other"
+    execution:
+      success: "<green>Opened the owned orders GUI for %player%."
+
+  claimed:
+    description: "Opens the claimed orders GUI."
+    command: "claimed"
+    execution:
+      success: "<green>Opened the owned orders GUI."
+
+  claimed-other:
+    description: "Opens the claimed orders GUI for another player"
+    command: "claimed other"
+    execution:
+      success: "<green>Opened the owned orders GUI for %player%."
 
   reload:
     description: "Opens the orders GUI for another player"
@@ -46,6 +80,42 @@ messages:
         header: "<bold><gradient:#7ddb6d:#4CB13B>JobListings</gradient></bold><gray> by %authors%"
         command: "<gray>/%command%<white>: %description%"
         footer: "<#505050>Page <gray>%page%</gray>/<gray>%total%</gray>"
+
+  create:
+    # Messages for both create commands.
+    common:
+      not-enough-money: "<red>You do not have enough money."
+      hours-not-in-range: "<red>Hours must be between %min% and %max%"
+      invalid-amount: "<red>Amount must be less than or equal to %max%."
+      blacklisted: "<red>You cannot create an order with %material%."
+      success: |-
+        <green>Order created for %0
+        <green>Reward: <white>%1<reset>
+        <green>Expires in <white>%2<reset><white> hours
+    # The command to create an order via material
+    material:
+      description: "Creates an order from a material."
+      command: "create material"
+      execution:
+        invalid-material: "<red>Invalid material."
+        not-item: "This material is not an item that can be held."
+    hand:
+      description: "Creates an order from the item in your hand."
+      command: "create hand"
+      execution:
+        not-holding-item: "<red>You must be holding an item to create an order."
+
+  complete:
+    description: "Completes orders you have claimed."
+    command: "complete"
+    execution:
+      success:
+        all-completed: "<green>All orders have been completed."
+        progress: |-
+         <green>Completed <gold>%0</gold> out of <gold>%2</gold> orders.
+         <green>Updated <gold>%1</gold> out of <gold>%2</gold> orders.
+      no-orders: "<red>You have no orders to complete."
+      no-valid-items: "<red>You have no items that can be used to complete orders."
 
 General:
   IsNotPlayer: "<red>You must be a player to use this command."
