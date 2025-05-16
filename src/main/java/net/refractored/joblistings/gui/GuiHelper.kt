@@ -1,12 +1,18 @@
 package net.refractored.joblistings.gui
 
+import com.github.shynixn.mccoroutine.bukkit.launch
 import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
+import net.refractored.joblistings.JobListings
+import net.refractored.joblistings.gui.GuiHelper.generateItem
+import net.refractored.joblistings.gui.GuiHelper.getOffset
 import net.refractored.joblistings.util.Messages.fixItalics
 import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 object GuiHelper {
@@ -151,4 +157,138 @@ object GuiHelper {
             }
         }
     }
+}
+
+abstract class OrdersGUI {
+    abstract val player: Player
+
+    abstract val config: ConfigurationSection
+
+    val rows = config.getInt("Rows", 6)
+
+    private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
+
+    var pageCount: Int = 1
+
+    var orderPage: Int = 0
+
+    val gui: SGMenu =
+        JobListings.instance.spiGUI.create(
+            getName().toLegacy(),
+            rows,
+        )
+
+    abstract fun getName(): Component
+
+    abstract suspend fun loadOrders(page: Int)
+
+    fun loadNavigation() {
+        val navKeys =
+            listOf(
+                config.getConfigurationSection("NextPage")!!,
+                config.getConfigurationSection("PreviousPage")!!,
+            )
+        navKeys.forEach { configKey ->
+            val button =
+                SGButton(
+                    generateItem(configKey),
+                )
+            when (configKey.name) {
+                "NextPage" -> {
+                    button.setListener { event ->
+                        val nextPage = orderPage + 1
+                        if (nextPage > pageCount - 1) {
+                            return@setListener
+                        }
+                        orderPage = nextPage
+                        JobListings.instance.launch {
+                            loadOrders(nextPage)
+                        }
+                    }
+                }
+                "PreviousPage" -> {
+                    button.setListener { event ->
+                        if (orderPage <= 0) {
+                            return@setListener
+                        }
+                        orderPage--
+                        JobListings.instance.launch {
+                            loadOrders(gui.currentPage - 1)
+                        }
+                    }
+                }
+            }
+            configKey.getIntegerList("Slots").forEach { slot ->
+                gui.setButton(
+                    slot,
+                    button,
+                )
+                gui.stickSlot(slot)
+            }
+        }
+    }
+
+    /**
+     * Loads all the "cosmetic" items in the Items section of the config.
+     */
+    fun loadCosmeticItems() {
+        val section = config.getConfigurationSection("Items")!!
+        val keys = section.getKeys(false)
+        for (key in keys) {
+            val subsection = section.getConfigurationSection(key)!!
+            section.getIntegerList("$key.Slots").forEach {
+                gui.setButton(
+                    it,
+                    SGButton(
+                        GuiHelper.generateItem(subsection),
+                    ),
+                )
+                gui.stickSlot(it)
+            }
+        }
+    }
+
+    /**
+     * Generate Item from data
+     * @return The generated Itemstack
+     */
+    private fun generateItem(
+        material: Material,
+        amount: Int,
+        modelData: Int,
+        name: String,
+        lore: List<Component>,
+    ): ItemStack {
+        val item =
+            ItemStack(
+                material,
+            )
+        if (item.type == Material.AIR) return item
+        item.amount = amount
+        val itemMeta = item.itemMeta
+        itemMeta.setCustomModelData(
+            modelData,
+        )
+        itemMeta.displayName(
+            name.miniToComponent().fixItalics(),
+        )
+        item.itemMeta = itemMeta
+        item.lore(
+            lore,
+        )
+        return item
+    }
+
+    fun generateItem(subsection: ConfigurationSection): ItemStack =
+        generateItem(
+            Material.valueOf(
+                subsection.getString("Material") ?: "BEDROCK",
+            ),
+            subsection.getInt("Amount"),
+            subsection.getInt("ModelData"),
+            subsection.getString("Name") ?: "null",
+            subsection.getStringList("Lore").map { line ->
+                (line.miniToComponent()).fixItalics()
+            },
+        )
 }

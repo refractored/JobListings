@@ -178,21 +178,21 @@ class ClaimedOrders(
                 if (inventorySpaces == 0) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        Messages.getString("General.InventoryFull"),
+                        Messages.getStringPrefixed("General.InventoryFull"),
                     )
                     return
                 }
                 if (order.itemCompleted == order.itemsReturned) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        Messages.getString("ClaimedOrders.OrderAlreadyRefunded"),
+                        Messages.getStringPrefixed("ClaimedOrders.OrderAlreadyRefunded"),
                     )
                     return
                 }
                 if (giveRefundableItems(order, (event.whoClicked as Player))) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        Messages.getString("ClaimedOrders.OrderFullyRefunded"),
+                        Messages.getStringPrefixed("ClaimedOrders.OrderFullyRefunded"),
                     )
                     gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                     orderDao.delete(order)

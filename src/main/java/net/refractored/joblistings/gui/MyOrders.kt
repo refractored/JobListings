@@ -218,7 +218,7 @@ class MyOrders(
         when (order.status) {
             OrderStatus.PENDING -> {
                 event.whoClicked.sendMessage(
-                    Messages.getString("MyOrders.OrderCancelled"),
+                    Messages.getStringPrefixed("MyOrders.OrderCancelled"),
                 )
                 gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                 order.removeOrder()
@@ -227,7 +227,7 @@ class MyOrders(
             }
             OrderStatus.CLAIMED -> {
                 event.whoClicked.sendMessage(
-                    Messages.getString("MyOrders.OrderCancelled"),
+                    Messages.getStringPrefixed("MyOrders.OrderCancelled"),
                 )
                 gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
                 order.cancelOrder()
@@ -242,13 +242,13 @@ class MyOrders(
                 if (inventorySpaces == 0) {
                     event.whoClicked.closeInventory()
                     event.whoClicked.sendMessage(
-                        Messages.getString("General.InventoryFull"),
+                        Messages.getStringPrefixed("General.InventoryFull"),
                     )
                     return
                 }
                 if (giveOrderItems(order, (event.whoClicked as Player))) {
                     event.whoClicked.sendMessage(
-                        Messages.getString("MyOrders.OrderFullyClaimed"),
+                        Messages.getStringPrefixed("MyOrders.OrderFullyClaimed"),
                     )
                     orderDao.delete(order)
                     gui.removeButton(event.slot + getOffset(gui.currentPage, rows))
@@ -257,7 +257,7 @@ class MyOrders(
                     return
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getString("MyOrders.OrderClaimed"),
+                    Messages.getStringPrefixed("MyOrders.OrderClaimed"),
                 )
             }
 

@@ -41,15 +41,6 @@ class AllOrders(
 
     private var orderPage: Int = 0
 
-//    private fun getName(): Component =
-//        MessageUtil.replaceMessage(
-//            config.getString("Title")!!,
-//            listOf(
-//                MessageReplacement((orderPage + 1).toString()),
-//                MessageReplacement(pageCount.toString()),
-//            ),
-//        )
-
     private fun getName(): Component =
         (config.getString("Title") ?: "Title")
             .replace("%current_page%", (orderPage + 1).toString())
@@ -226,7 +217,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getString("General.OrderAlreadyClaimed"),
+                    Messages.getStringPrefixed("General.OrderAlreadyClaimed"),
                 )
                 return@withContext
             }
@@ -235,7 +226,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getString("General.CannotAcceptOwnOrder"),
+                    Messages.getStringPrefixed("General.CannotAcceptOwnOrder"),
                 )
                 return@withContext
             }
@@ -244,7 +235,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getString("General.OrderExpired"),
+                    Messages.getStringPrefixed("General.OrderExpired"),
                 )
                 return@withContext
             }
@@ -263,7 +254,7 @@ class AllOrders(
                             event.whoClicked.closeInventory()
                         }
                         event.whoClicked.sendMessage(
-                            Messages.getString("General.Ignored"),
+                            Messages.getStringPrefixed("General.Ignored"),
                         )
                         return@withContext
                     }

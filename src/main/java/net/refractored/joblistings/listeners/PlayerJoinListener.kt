@@ -15,7 +15,7 @@ class PlayerJoinListener : Listener {
     fun onJoin(event: PlayerJoinEvent) {
         JobListings.instance.launch {
             withContext(JobListings.instance.asyncDispatcher) {
-                delay(1000L * JobListings.instance.config.getLong("Mail.JoinDelay"))
+                delay(1000L * JobListings.instance.config.getLong("mail.join-delay"))
                 Mail.sendMail(event.player)
             }
         }

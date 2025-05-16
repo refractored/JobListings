@@ -18,6 +18,7 @@ class MaterialSuggesstion : SuggestionProvider<BukkitCommandActor> {
         val materialSuggestions =
             Material.entries
                 .asSequence()
+                .filter { it.isItem }
                 .map { it.name.lowercase() }
                 .filterNot { name -> name in blacklist.map { it.lowercase() } }
                 .toMutableSet()

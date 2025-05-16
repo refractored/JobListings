@@ -6,13 +6,13 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.SECTION_CHAR
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.mailDao
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.entity.Player
 import java.time.LocalDateTime
 import java.util.*
@@ -37,7 +37,7 @@ data class Mail(
         UUID.randomUUID(),
         UUID.randomUUID(),
         LocalDateTime.now(),
-        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("Mail.ExpireTime")),
+        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("mail.expiration")),
         "".miniToComponent(),
     )
 
@@ -46,22 +46,22 @@ data class Mail(
             user: UUID,
             message: Component,
         ) {
-            if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
+            if (!JobListings.instance.config.getBoolean("mail.enabled")) return
             // If essentials is enabled, and config option is enabled, use essentials mail
-            JobListings.instance.essentials?.let {
+            JobListings.instance.essentials?.let { essentials ->
                 if (!JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) {
-                    val essPlayer = it.users.getUser(user)
+                    val essPlayer = essentials.users.getUser(user)
                     val expireTime =
-                        if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
+                        if (JobListings.instance.config.getLong("mail.expiration") < 1L) {
                             0L
                         } else {
                             (System.currentTimeMillis() + (24 * 3600 * JobListings.instance.config.getLong("orders.min-order-time")))
                         }
-                    it.mail.sendMail(
+                    essentials.mail.sendMail(
                         essPlayer,
                         Console.getInstance(),
                         // Why doesn't this take components? Kill me.
-                        LegacyComponentSerializer.legacy(SECTION_CHAR).serialize(message),
+                        message.toLegacy(SECTION_CHAR),
                         expireTime,
                     )
                     return
@@ -70,10 +70,10 @@ data class Mail(
             // Otherwise use my mailing system
             val mail = Mail()
             val expireTime: Long =
-                if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) {
+                if (JobListings.instance.config.getLong("mail.expiration") < 1L) {
                     30L
                 } else {
-                    JobListings.instance.config.getLong("Mail.ExpireTime")
+                    JobListings.instance.config.getLong("mail.expiration")
                 }
             mail.user = user
             mail.message = message
@@ -83,8 +83,8 @@ data class Mail(
         }
 
         fun purgeMail() {
-            if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
-            if (JobListings.instance.config.getLong("Mail.ExpireTime") < 1L) return
+            if (!JobListings.instance.config.getBoolean("mail.enabled")) return
+            if (JobListings.instance.config.getLong("mail.expiration") < 1L) return
             JobListings.instance.essentials.let {
                 if (JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) return
             }
@@ -98,7 +98,7 @@ data class Mail(
         }
 
         suspend fun sendMail(player: Player) {
-            if (!JobListings.instance.config.getBoolean("Mail.Enabled")) return
+            if (!JobListings.instance.config.getBoolean("mail.enabled")) return
             val queryBuilder: QueryBuilder<Mail, UUID> = mailDao.queryBuilder()
             queryBuilder.where().eq("user", player.uniqueId)
             val allMail = mailDao.query(queryBuilder.prepare())

@@ -32,21 +32,15 @@ pending-orders:
   expiration:
     minimum: 48 # Minimum time in hours pending orders can be kept in the database.
     maximum: 192 # Maximum time in hours pending orders can be kept in the database.
+  reward:
+    minimum: 1
+    maximum: 1000000 # Maximum amount of money a player can be rewarded for creating a pending order.
   # Maximum amount of items per order
   # Setting this to 0 will disable the limit
   # Setting this to -1 will use the item's max stack size (May differ with material type)
   max-items: 256
   # Materials orders cant be made with.
   blacklist:
-    # These materials below are blacklisted because they aren't actual stacks of items.
-    # Without this, creating an order with these materials will cause issues.
-    - FIRE
-    - LAVA
-    - WATER
-    - END_PORTAL
-    - END_GATEWAY
-    - NETHER_PORTAL
-    - AIR
     # These materials below are blacklisted by default because they are unobtainable in vanilla mc.
     - BEDROCK
     - BARRIER
@@ -88,17 +82,17 @@ orders:
   max-items: 256
 
 # Mail is used when an order is updated and the player is offline
-Mail:
+mail:
   # Enable/Disable mail system
   # This will also disable the mail being sent to essentials, if that option is enabled.
-  Enabled: true
+  enabled: true
   # Mail Expire time in days
   # 0 = Never expire
-  ExpireTime: 30
+  expiration: 30
   # All mail will be sent to this player when they join after their order is updated
   # This is in seconds.
   # This does not apply to essentials mail.
-  JoinDelay: 10
+  join-delay: 10
 
 # Options here require the essentials plugin to be installed!
 # If EssentialsX is not installed, these options will be ignored.
