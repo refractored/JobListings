@@ -25,7 +25,12 @@ class GetOrders {
         player: Player,
     ) {
         AllOrders.openGUI(player)
-        actor.reply(Messages.getStringPrefixed("messages.orders-other.execution.success").miniToComponent())
+        actor.reply(
+            Messages
+                .getStringPrefixed("messages.orders-other.execution.success")
+                .replace("%player%", player.name)
+                .miniToComponent(),
+        )
     }
 }
 

@@ -184,12 +184,13 @@ class CreateOrder {
             val maxOrders = PendingOrder.getMaxOrders(actor.requirePlayer())
 
             if (orders >= maxOrders) {
-                throw CommandErrorException(
+                actor.reply(
                     MessageUtil.getMessage(
                         "CreateOrder.MaxOrdersReached",
                         listOf(MessageReplacement("$maxOrders")),
                     ),
                 )
+                return@withContext
             }
 
             withContext(JobListings.instance.minecraftDispatcher) {

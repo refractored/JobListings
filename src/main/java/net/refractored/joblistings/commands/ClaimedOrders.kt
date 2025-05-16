@@ -23,6 +23,11 @@ class ClaimedOrders {
         player: Player,
     ) {
         player.openInventory(ClaimedOrders.getGUI(actor.requirePlayer()).inventory)
-        actor.reply(Messages.getStringPrefixed("messages.claimed-other.execution.success").miniToComponent())
+        actor.reply(
+            Messages
+                .getStringPrefixed("messages.claimed-other.execution.success")
+                .replace("%player%", player.name)
+                .miniToComponent(),
+        )
     }
 }

@@ -35,10 +35,10 @@ class CompleteOrders {
                 val orders = orderDao.query(queryBuilder.prepare()).sortedByDescending { it.timeCreated }
 
                 if (orders.isEmpty()) {
-                    // TODO: Reply instead of throwing an exception, coroutines do not like exceptions.
-                    throw CommandErrorException(
+                    actor.reply(
                         Messages.getStringPrefixed("messages.complete.execution.no-orders").miniToComponent(),
                     )
+                    return@withContext
                 }
 
                 val orderCount = orders.count()
