@@ -19,6 +19,8 @@ import net.refractored.joblistings.commands.annotations.CommandPrefixConfigRepla
 import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.commands.annotations.ConfigDescription
 import net.refractored.joblistings.commands.annotations.ConfigDescriptionReplacer
+import net.refractored.joblistings.commands.annotations.ConfigRange
+import net.refractored.joblistings.commands.annotations.ConfigRangeReplacer
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.listeners.PlayerJoinListener
 import net.refractored.joblistings.mail.Mail
@@ -178,6 +180,7 @@ class JobListings : SuspendingJavaPlugin() {
                 // .exceptionHandler(CommandErrorHandler())
                 .annotationReplacer(ConfigCommand::class.java, CommandPrefixConfigReplacer())
                 .annotationReplacer(ConfigDescription::class.java, ConfigDescriptionReplacer())
+                .annotationReplacer(ConfigRange::class.java, ConfigRangeReplacer())
                 .build()
 
         if (!config.getBoolean("orders.CreateHand", true) && !instance.config.getBoolean("orders.CreateMaterial", true)) {
