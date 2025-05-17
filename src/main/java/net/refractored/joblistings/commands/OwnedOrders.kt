@@ -22,7 +22,7 @@ class OwnedOrders {
         actor: BukkitCommandActor,
         player: Player,
     ) {
-        player.openInventory(MyOrders.getGUI(actor.requirePlayer()).inventory)
+        player.openInventory(MyOrders.getGUI(player).inventory)
         actor.reply(
             Messages
                 .getStringPrefixed("messages.owned-other.execution.success")

@@ -22,7 +22,7 @@ class ClaimedOrders {
         actor: BukkitCommandActor,
         player: Player,
     ) {
-        player.openInventory(ClaimedOrders.getGUI(actor.requirePlayer()).inventory)
+        player.openInventory(ClaimedOrders.getGUI(player).inventory)
         actor.reply(
             Messages
                 .getStringPrefixed("messages.claimed-other.execution.success")
