@@ -3,6 +3,7 @@ package net.refractored.joblistings
 import com.earth2me.essentials.Essentials
 import com.github.shynixn.mccoroutine.bukkit.SuspendingJavaPlugin
 import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.bukkit.registerSuspendingEvents
 import com.samjakob.spigui.SpiGUI
 import com.tchristofferson.configupdater.ConfigUpdater
 import dev.unnm3d.redischat.api.RedisChatAPI
@@ -82,7 +83,7 @@ class JobListings : SuspendingJavaPlugin() {
                 logger.severe("Everything that works on Spigot works on Paper.")
                 logger.severe("Learn more here: https://papermc.io/")
                 logger.severe("")
-                logger.severe("This warning can be bypassed but is NOT recommended.")
+                logger.severe("This warning can be disabled but is NOT recommended.")
                 logger.severe("Check the wiki: https://plugins.refractored.net")
                 logger.severe("-----------------------------------")
             }
@@ -179,7 +180,7 @@ class JobListings : SuspendingJavaPlugin() {
         lamp.register(ReloadCommand())
 
         // Register listeners
-        server.pluginManager.registerEvents(PlayerJoinListener(), this)
+        server.pluginManager.registerSuspendingEvents(PlayerJoinListener(), this)
 
         cleanDatabase = launch { runDatabaseCleaner() }
 
