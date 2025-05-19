@@ -6,6 +6,7 @@ plugins {
     `maven-publish`
     kotlin("jvm") version "2.1.0"
     id("com.gradleup.shadow") version "8.3.5"
+    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
 }
 
 group = "net.refractored"
@@ -32,18 +33,17 @@ fun getGitHash(): String {
     return gitCommitHash
 }
 
-fun isGitDirty(): Boolean =
-    try {
-        val workingDir = File("${project.projectDir}")
-        val process =
-            ProcessBuilder("git", "diff", "--quiet", "--ignore-submodules=dirty")
-                .directory(workingDir)
-                .start()
-        process.waitFor()
-        process.exitValue() != 0
-    } catch (_: Exception) {
-        false
-    }
+fun isGitDirty(): Boolean = try {
+    val workingDir = File("${project.projectDir}")
+    val process =
+        ProcessBuilder("git", "diff", "--quiet", "--ignore-submodules=dirty")
+            .directory(workingDir)
+            .start()
+    process.waitFor()
+    process.exitValue() != 0
+} catch (_: Exception) {
+    false
+}
 
 fun getCurrentGitTag(): String? {
     var gitTag: String? = null

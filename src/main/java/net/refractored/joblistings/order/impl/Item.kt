@@ -23,12 +23,11 @@ interface Item {
      * Get the display name of the item
      * @return The display name of the item
      */
-    fun getItemInfo(): Component =
-        MessageUtil.getMessage(
-            "orders.OrderInfo",
-            listOf(
-                MessageReplacement(item.displayName()),
-                MessageReplacement(itemAmount.toString()),
-            ),
-        )
+    fun getItemInfo(): Component = MessageUtil.getMessage(
+        "Orders.OrderInfo",
+        listOf(
+            MessageReplacement(item.displayName()),
+            MessageReplacement(itemAmount.toString()),
+        ),
+    )
 }

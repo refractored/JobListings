@@ -6,12 +6,7 @@ import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.order.impl.Assignee
-import net.refractored.joblistings.order.impl.Creation
-import net.refractored.joblistings.order.impl.Expires
-import net.refractored.joblistings.order.impl.Item
-import net.refractored.joblistings.order.impl.Owner
-import net.refractored.joblistings.order.impl.Rewardable
+import net.refractored.joblistings.order.impl.*
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
@@ -21,7 +16,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  * Represents an order that has been placed on the job board
@@ -55,7 +50,7 @@ data class ClaimedOrder(
      * This is out of how many in [itemAmount].
      */
     @DatabaseField
-    var amountTurnedIn: Int,
+    var amountTurnedIn: Int
 ) : Owner,
     Rewardable,
     Item,
@@ -95,7 +90,7 @@ data class ClaimedOrder(
 
     private fun toFailedOrder(
         failureType: FailedOrder.FailureType,
-        timeIncompleted: LocalDateTime = LocalDateTime.now(),
+        timeIncompleted: LocalDateTime = LocalDateTime.now()
     ) = FailedOrder(
         id,
         timeIncompleted,
@@ -147,7 +142,7 @@ data class ClaimedOrder(
      */
     fun cancelOrder(
         notify: Boolean = true,
-        fullRefund: Boolean = false,
+        fullRefund: Boolean = false
     ) {
         if (fullRefund) {
             JobListings.instance.eco.depositPlayer(getOwner(), reward)
@@ -179,7 +174,7 @@ data class ClaimedOrder(
      */
     fun completeOrder(
         pay: Boolean = true,
-        notify: Boolean = true,
+        notify: Boolean = true
     ) {
         Database.completedOrderDao.create(toCompleteOrder())
         Database.claimedOrderDao.delete(this)
@@ -251,10 +246,10 @@ data class ClaimedOrder(
          */
         fun countClaimedOrders(player: Player): Long {
             val queryBuilder: QueryBuilder<ClaimedOrder, UUID> = Database.claimedOrderDao.queryBuilder()
-            queryBuilder
+            return queryBuilder
                 .where()
                 .eq("assignee", player.uniqueId)
-            return Database.claimedOrderDao.countOf(queryBuilder.prepare())
+                .countOf()
         }
     }
 }

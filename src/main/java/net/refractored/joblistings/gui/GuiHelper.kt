@@ -5,8 +5,6 @@ import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.gui.GuiHelper.generateItem
-import net.refractored.joblistings.gui.GuiHelper.getOffset
 import net.refractored.joblistings.util.Messages.fixItalics
 import net.refractored.joblistings.util.Messages.miniToComponent
 import net.refractored.joblistings.util.Messages.toLegacy
@@ -25,7 +23,7 @@ object GuiHelper {
         amount: Int,
         modelData: Int,
         name: String,
-        lore: List<Component>,
+        lore: List<Component>
     ): ItemStack {
         val item =
             ItemStack(
@@ -47,18 +45,17 @@ object GuiHelper {
         return item
     }
 
-    fun generateItem(subsection: ConfigurationSection): ItemStack =
-        generateItem(
-            Material.valueOf(
-                subsection.getString("Material") ?: "BEDROCK",
-            ),
-            subsection.getInt("Amount"),
-            subsection.getInt("ModelData"),
-            subsection.getString("Name") ?: "null",
-            subsection.getStringList("Lore").map { line ->
-                (line.miniToComponent()).fixItalics()
-            },
-        )
+    fun generateItem(subsection: ConfigurationSection): ItemStack = generateItem(
+        Material.valueOf(
+            subsection.getString("Material") ?: "BEDROCK",
+        ),
+        subsection.getInt("Amount"),
+        subsection.getInt("ModelData"),
+        subsection.getString("Name") ?: "null",
+        subsection.getStringList("Lore").map { line ->
+            line.miniToComponent().fixItalics()
+        },
+    )
 
     /**
      * Get the Fallback Button
@@ -92,13 +89,13 @@ object GuiHelper {
 
     fun getOffset(
         page: Int,
-        rows: Int,
+        rows: Int
     ): Int = page * (rows * 9)
 
     fun loadNavButtons(
         config: ConfigurationSection,
         gui: SGMenu,
-        pageCount: Int,
+        pageCount: Int
     ) {
         val navKeys =
             listOf(
@@ -137,7 +134,7 @@ object GuiHelper {
     fun loadCosmeticItems(
         config: ConfigurationSection,
         gui: SGMenu,
-        pageCount: Int,
+        pageCount: Int
     ) {
         val section = config.getConfigurationSection("Items")!!
         val keys = section.getKeys(false)
@@ -159,24 +156,25 @@ object GuiHelper {
     }
 }
 
-abstract class OrdersGUI {
-    abstract val player: Player
-
+abstract class OrdersGUI(
+    val player: Player
+) {
     abstract val config: ConfigurationSection
 
-    val rows = config.getInt("Rows", 6)
+    val rows: Int by lazy { config.getInt("Rows", 6) }
 
-    private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
+    val orderSlots: List<Int> by lazy { config.getIntegerList("OrderSlots") }
 
     var pageCount: Int = 1
 
     var orderPage: Int = 0
 
-    val gui: SGMenu =
+    val gui: SGMenu by lazy {
         JobListings.instance.spiGUI.create(
             getName().toLegacy(),
             rows,
         )
+    }
 
     abstract fun getName(): Component
 
@@ -229,6 +227,36 @@ abstract class OrdersGUI {
     }
 
     /**
+     * Get the Fallback Button
+     * @return The Fallback Button
+     */
+    fun getFallbackButton(): SGButton {
+        val fallbackConfig = config.getConfigurationSection("FallbackItem")!!
+        val item =
+            ItemStack(
+                Material.valueOf(
+                    fallbackConfig.getString("Material") ?: "BEDROCK",
+                ),
+            )
+        if (item.type == Material.AIR) return SGButton(item)
+        item.amount = fallbackConfig.getInt("Amount")
+        val itemMeta = item.itemMeta
+        itemMeta.setCustomModelData(
+            fallbackConfig.getInt("ModelData"),
+        )
+        itemMeta.displayName(
+            (fallbackConfig.getString("Name") ?: "null").miniToComponent().fixItalics(),
+        )
+        item.itemMeta = itemMeta
+        item.lore(
+            fallbackConfig.getStringList("Amount").map { line ->
+                line.miniToComponent().fixItalics()
+            },
+        )
+        return SGButton(item)
+    }
+
+    /**
      * Loads all the "cosmetic" items in the Items section of the config.
      */
     fun loadCosmeticItems() {
@@ -257,7 +285,7 @@ abstract class OrdersGUI {
         amount: Int,
         modelData: Int,
         name: String,
-        lore: List<Component>,
+        lore: List<Component>
     ): ItemStack {
         val item =
             ItemStack(
@@ -279,16 +307,15 @@ abstract class OrdersGUI {
         return item
     }
 
-    fun generateItem(subsection: ConfigurationSection): ItemStack =
-        generateItem(
-            Material.valueOf(
-                subsection.getString("Material") ?: "BEDROCK",
-            ),
-            subsection.getInt("Amount"),
-            subsection.getInt("ModelData"),
-            subsection.getString("Name") ?: "null",
-            subsection.getStringList("Lore").map { line ->
-                (line.miniToComponent()).fixItalics()
-            },
-        )
+    fun generateItem(subsection: ConfigurationSection): ItemStack = generateItem(
+        Material.valueOf(
+            subsection.getString("Material") ?: "BEDROCK",
+        ),
+        subsection.getInt("Amount"),
+        subsection.getInt("ModelData"),
+        subsection.getString("Name") ?: "null",
+        subsection.getStringList("Lore").map { line ->
+            (line.miniToComponent()).fixItalics()
+        },
+    )
 }

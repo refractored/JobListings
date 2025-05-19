@@ -12,7 +12,7 @@ import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @DatabaseTable(tableName = "joblistings_completed_orders")
 data class CompletedOrder(
@@ -37,7 +37,7 @@ data class CompletedOrder(
      * This is out of how many in [itemAmount].
      */
     @DatabaseField
-    var itemClaimedAmount: Int,
+    var itemClaimedAmount: Int
 ) : Owner,
     Item,
     Expires {

@@ -24,7 +24,7 @@ import java.time.LocalDateTime
 import kotlin.math.ceil
 
 class ClaimedOrders(
-    player: Player,
+    player: Player
 ) {
     private val config = JobListings.instance.gui.getConfigurationSection("ClaimedOrders")!!
 
@@ -73,7 +73,7 @@ class ClaimedOrders(
      */
     private fun loadOrders(
         page: Int,
-        player: Player,
+        player: Player
     ) {
         gui.clearAllButStickiedSlots()
         val orders = Order.getPlayerAcceptedOrders(orderSlots.count(), page * orderSlots.count(), player.uniqueId)
@@ -161,7 +161,7 @@ class ClaimedOrders(
      */
     private fun clickOrder(
         event: InventoryClickEvent,
-        order: Order,
+        order: Order
     ) {
         when (order.status) {
             OrderStatus.CLAIMED -> {
@@ -222,7 +222,7 @@ class ClaimedOrders(
      */
     private fun giveRefundableItems(
         order: Order,
-        player: Player,
+        player: Player
     ): Boolean {
         var itemsLeft = order.itemCompleted - order.itemsReturned
         while (itemsLeft > 0) {

@@ -22,7 +22,7 @@ class GetOrders {
     @ConfigCommand("messages.orders-other")
     fun openOrdersOther(
         actor: BukkitCommandActor,
-        player: Player,
+        player: Player
     ) {
         AllOrders.openGUI(player)
         actor.reply(

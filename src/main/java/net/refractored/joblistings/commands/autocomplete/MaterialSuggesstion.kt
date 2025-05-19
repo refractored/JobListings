@@ -9,8 +9,8 @@ import revxrsal.commands.node.ExecutionContext
 class MaterialSuggesstion : SuggestionProvider<BukkitCommandActor> {
     override fun getSuggestions(context: ExecutionContext<BukkitCommandActor>): List<String> {
         val config = instance.config
-        val blacklistedMaterials = config.getStringList("orders.BlacklistedMaterials")
-        val additionalBlacklistedMaterials = config.getStringList("orders.BlacklistedCreateMaterials")
+        val blacklistedMaterials = config.getStringList("pending-orders.creation.blacklist")
+        val additionalBlacklistedMaterials = config.getStringList("pending-orders.creation.material.blacklist")
         val blacklist =
             (blacklistedMaterials + additionalBlacklistedMaterials)
                 .map { it.lowercase() }

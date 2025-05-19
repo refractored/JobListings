@@ -14,7 +14,7 @@ class MessageUtil {
     companion object {
         fun getMessage(
             key: String,
-            replacements: List<MessageReplacement>,
+            replacements: List<MessageReplacement>
         ): Component {
             var replacedMessage = Messages.getString(key)
 
@@ -71,10 +71,9 @@ object Messages {
     /**
      * Converts a [Component] to a legacy string using the specified character.
      */
-    fun Component.toLegacy(char: Char = AMPERSAND_CHAR): String =
-        LegacyComponentSerializer.legacy(char).serialize(
-            this,
-        )
+    fun Component.toLegacy(char: Char = AMPERSAND_CHAR): String = LegacyComponentSerializer.legacy(char).serialize(
+        this,
+    )
 
     /**
      * Converts this [Component] to a string using minimessage.
@@ -98,7 +97,7 @@ object Messages {
     fun String.replace(
         oldValue: String,
         newValue: Component,
-        ignoreCase: Boolean = false,
+        ignoreCase: Boolean = false
     ): String = this.replace(oldValue, newValue.toMinimessage(), ignoreCase)
 
     /**
@@ -113,7 +112,7 @@ object Messages {
 
 class MessageReplacement(
     val string: String?,
-    val component: Component?,
+    val component: Component?
 ) {
     constructor(string: String) : this(string, null)
     constructor(component: Component) : this(null, component)

@@ -97,7 +97,7 @@ class CompleteOrders {
 
     private fun messageProgress(
         actor: BukkitCommandActor,
-        order: Order,
+        order: Order
     ) {
         val assigneeMessage =
             MessageUtil.getMessage(

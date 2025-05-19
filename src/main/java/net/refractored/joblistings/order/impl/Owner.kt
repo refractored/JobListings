@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component
 import net.refractored.joblistings.mail.Mail
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
-import java.util.UUID
+import java.util.*
 
 interface Owner {
     /**

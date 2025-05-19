@@ -7,11 +7,8 @@ import com.samjakob.spigui.item.ItemBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.order.impl.Creation
-import net.refractored.joblistings.order.impl.Expires
-import net.refractored.joblistings.order.impl.Item
-import net.refractored.joblistings.order.impl.Owner
-import net.refractored.joblistings.order.impl.Rewardable
+import net.refractored.joblistings.gui.AllOrders
+import net.refractored.joblistings.order.impl.*
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.MessageReplacement
@@ -22,7 +19,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 //                              ┌-> FailedOrder
@@ -47,7 +44,7 @@ data class PendingOrder(
     @DatabaseField
     override var owner: UUID,
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var creation: LocalDateTime,
+    override var creation: LocalDateTime
 ) : Owner,
     Item,
     Expires,
@@ -71,19 +68,18 @@ data class PendingOrder(
 
     private fun toClaimedOrder(
         player: Player,
-        localDateTime: LocalDateTime = LocalDateTime.now(),
-    ): ClaimedOrder =
-        ClaimedOrder(
-            id,
-            LocalDateTime.now().plusHours(JobListings.instance.config.getLong("orders.order-deadline")),
-            item,
-            itemAmount,
-            owner,
-            player.uniqueId,
-            reward,
-            localDateTime,
-            0,
-        )
+        localDateTime: LocalDateTime = LocalDateTime.now()
+    ): ClaimedOrder = ClaimedOrder(
+        id,
+        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("orders.order-deadline")),
+        item,
+        itemAmount,
+        owner,
+        player.uniqueId,
+        reward,
+        localDateTime,
+        0,
+    )
 
     /**
      * Remove the order from the database and refund the user
@@ -123,14 +119,14 @@ data class PendingOrder(
      */
     fun markClaimed(
         assignee: Player,
-        notify: Boolean = true,
+        notify: Boolean = true
     ): ClaimedOrder {
         val claimedOrder = toClaimedOrder(assignee)
         Database.pendingOrderDao.delete(this)
         Database.claimedOrderDao.create(claimedOrder)
         if (!notify) return claimedOrder
         val ownerMessage =
-            MessageUtil.Companion.getMessage(
+            MessageUtil.getMessage(
                 "AllOrders.OrderAcceptedNotification",
                 listOf(
                     MessageReplacement(getItemInfo()),
@@ -174,7 +170,7 @@ data class PendingOrder(
          */
         fun getOrders(
             limit: Int,
-            offset: Int,
+            offset: Int
         ): List<PendingOrder> {
             val queryBuilder: QueryBuilder<PendingOrder, UUID> = Database.pendingOrderDao.queryBuilder()
             queryBuilder.limit(limit.toLong())
@@ -197,7 +193,7 @@ data class PendingOrder(
             item: ItemStack,
             amount: Int,
             hours: Long,
-            announce: Boolean = true,
+            announce: Boolean = true
         ): PendingOrder {
             val maxItems =
                 JobListings.Companion.instance.config
@@ -268,6 +264,7 @@ data class PendingOrder(
                         .broadcast(message)
                 }
             }
+            AllOrders.refreshOpenGUIs()
             return pendingOrder
         }
     }

@@ -39,7 +39,7 @@ class CreateOrder {
             maxPath = "pending-orders.expiration.maximum",
             minPath = "pending-orders.expiration.minimum",
         )
-        hours: Long = JobListings.instance.config.getLong("orders.max-order-time"),
+        hours: Long = JobListings.instance.config.getLong("orders.max-order-time")
     ) {
         val player = actor.requirePlayer()
 
@@ -95,7 +95,7 @@ class CreateOrder {
         @Optional @ConfigRange(
             maxPath = "pending-orders.expiration.maximum",
             minPath = "pending-orders.expiration.minimum",
-        ) hours: Long = JobListings.instance.config.getLong("pending-orders.expiration.maximum"),
+        ) hours: Long = JobListings.instance.config.getLong("pending-orders.expiration.maximum")
     ) {
         val player = actor.requirePlayer()
 
@@ -151,7 +151,7 @@ class CreateOrder {
         itemStack: ItemStack,
         cost: Double,
         amount: Int,
-        hours: Long,
+        hours: Long
     ) {
         withContext(JobListings.instance.asyncDispatcher) {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
@@ -216,7 +216,7 @@ class CreateOrder {
 
     private fun checkAmount(
         amount: Int,
-        item: ItemStack,
+        item: ItemStack
     ) {
         val maxItems = JobListings.instance.config.getInt("orders.max-items")
 

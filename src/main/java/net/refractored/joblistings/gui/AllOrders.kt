@@ -9,7 +9,6 @@ import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
-import net.refractored.joblistings.gui.GuiHelper.generateItem
 import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
@@ -19,49 +18,44 @@ import net.refractored.joblistings.util.Messages.fixItalics
 import net.refractored.joblistings.util.Messages.miniToComponent
 import net.refractored.joblistings.util.Messages.replace
 import net.refractored.joblistings.util.Messages.toLegacy
-import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
 import kotlin.math.ceil
-import kotlin.times
 
 class AllOrders(
-    val player: Player,
-) {
-    private val config = JobListings.instance.gui.getConfigurationSection("AllOrders")!!
+    player: Player
+) : OrdersGUI(player) {
+    override val config = JobListings.instance.gui.getConfigurationSection("AllOrders")!!
 
-    private val rows = config.getInt("Rows", 6)
-
-    private val orderSlots: List<Int> = config.getIntegerList("OrderSlots")
-
-    private var pageCount: Int = 1
-
-    private var orderPage: Int = 0
-
-    private fun getName(): Component =
-        (config.getString("Title") ?: "Title")
-            .replace("%current_page%", (orderPage + 1).toString())
-            .replace("%max_pages%", pageCount.toString())
-            .miniToComponent()
-
-    val gui: SGMenu =
-        JobListings.instance.spiGUI.create(
-            getName().toLegacy(),
-            rows,
-        )
+    override fun getName(): Component = (config.getString("Title") ?: "Title")
+        .replace("%current_page%", (orderPage + 1).toString())
+        .replace("%max_pages%", pageCount.toString())
+        .miniToComponent()
 
     init {
-        experimentLoadNavButtons(config, gui)
-        GuiHelper.loadCosmeticItems(config, gui, 1)
+        loadNavigation()
+        loadCosmeticItems()
 
         JobListings.instance.launch {
             loadOrders(0)
             withContext(JobListings.instance.minecraftDispatcher) {
                 gui.refreshInventory(player)
             }
+        }
+
+        gui.setOnClose {
+            val player = this.player
+            JobListings.instance.server.scheduler.runTaskLater(
+                JobListings.instance,
+                Runnable {
+                    if (player.openInventory.topInventory.holder != gui.inventory.holder) {
+                        openGUIs.remove(this)
+                    }
+                },
+                1L,
+            )
         }
 
         JobListings.instance.launch {
@@ -75,60 +69,11 @@ class AllOrders(
         }
     }
 
-    fun experimentLoadNavButtons(
-        config: ConfigurationSection,
-        gui: SGMenu,
-    ) {
-        val navKeys =
-            listOf(
-                config.getConfigurationSection("NextPage")!!,
-                config.getConfigurationSection("PreviousPage")!!,
-            )
-        navKeys.forEach { configKey ->
-            val button =
-                SGButton(
-                    generateItem(configKey),
-                )
-            when (configKey.name) {
-                "NextPage" -> {
-                    button.setListener { event ->
-                        val nextPage = orderPage + 1
-                        if (nextPage > pageCount - 1) {
-                            return@setListener
-                        }
-                        orderPage = nextPage
-                        JobListings.instance.launch {
-                            loadOrders(nextPage)
-                        }
-                    }
-                }
-                "PreviousPage" -> {
-                    button.setListener { event ->
-                        if (orderPage <= 0) {
-                            return@setListener
-                        }
-                        orderPage--
-                        JobListings.instance.launch {
-                            loadOrders(gui.currentPage - 1)
-                        }
-                    }
-                }
-            }
-            configKey.getIntegerList("Slots").forEach { slot ->
-                gui.setButton(
-                    slot,
-                    button,
-                )
-                gui.stickSlot(slot)
-            }
-        }
-    }
-
     /**
      * Clears all non-stickied slots, and loads the orders for the requested page.
      * @param page The page to load orders for.
      */
-    private suspend fun loadOrders(page: Int) {
+    override suspend fun loadOrders(page: Int) {
         withContext(JobListings.instance.asyncDispatcher) {
             val orders = PendingOrder.getOrders(orderSlots.count(), page * orderSlots.count())
 
@@ -209,7 +154,7 @@ class AllOrders(
      */
     private suspend fun clickOrder(
         event: InventoryClickEvent,
-        order: PendingOrder,
+        order: PendingOrder
     ) {
         withContext(JobListings.instance.asyncDispatcher) {
             Database.pendingOrderDao.queryForId(order.id) ?: run {
@@ -217,7 +162,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getStringPrefixed("General.OrderAlreadyClaimed"),
+                    Messages.getStringPrefixed("General.OrderAlreadyClaimed").miniToComponent(),
                 )
                 return@withContext
             }
@@ -226,7 +171,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getStringPrefixed("General.CannotAcceptOwnOrder"),
+                    Messages.getStringPrefixed("General.CannotAcceptOwnOrder").miniToComponent(),
                 )
                 return@withContext
             }
@@ -235,7 +180,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getStringPrefixed("General.OrderExpired"),
+                    Messages.getStringPrefixed("General.OrderExpired").miniToComponent(),
                 )
                 return@withContext
             }
@@ -281,22 +226,34 @@ class AllOrders(
 
             withContext(JobListings.instance.minecraftDispatcher) {
                 event.whoClicked.closeInventory()
+                refreshOpenGUIs()
             }
         }
     }
 
     companion object {
+        val openGUIs = mutableListOf<AllOrders>()
+
         /**
          * Creates an instance of the AllOrders class, and returns a working gui.
          * @return The gui.
          */
         fun getGUI(player: Player): SGMenu {
             val allOrders = AllOrders(player)
+            openGUIs.add(allOrders)
             return allOrders.gui
         }
 
         fun openGUI(player: Player) {
             player.openInventory(this.getGUI(player).inventory)
+        }
+
+        fun refreshOpenGUIs() {
+            JobListings.instance.launch {
+                for (gui in openGUIs) {
+                    gui.loadOrders(gui.orderPage)
+                }
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ class ClaimedOrders {
     @ConfigCommand("messages.claimed-other")
     fun openOrdersOther(
         actor: BukkitCommandActor,
-        player: Player,
+        player: Player
     ) {
         player.openInventory(ClaimedOrders.getGUI(player).inventory)
         actor.reply(

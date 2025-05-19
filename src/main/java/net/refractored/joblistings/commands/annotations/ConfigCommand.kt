@@ -10,13 +10,13 @@ import java.lang.reflect.AnnotatedElement
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
 annotation class ConfigCommand(
-    val path: String,
+    val path: String
 )
 
 class CommandPrefixConfigReplacer : AnnotationReplacer<ConfigCommand> {
     override fun replaceAnnotation(
         element: AnnotatedElement,
-        annotation: ConfigCommand,
+        annotation: ConfigCommand
     ): Collection<Annotation> {
         val commandPrefix = Messages.getStringOrNull("messages.command-prefix").orEmpty()
 

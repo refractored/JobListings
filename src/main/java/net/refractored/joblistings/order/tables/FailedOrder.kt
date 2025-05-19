@@ -13,7 +13,7 @@ import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 /**
  *  Represents an order that was not completed successfully.
@@ -44,7 +44,7 @@ data class FailedOrder(
     @DatabaseField
     var amountTurnedIn: Int,
     @DatabaseField
-    val status: FailureType,
+    val status: FailureType
 ) : Item,
     Assignee,
     Expires,
@@ -74,6 +74,6 @@ data class FailedOrder(
         /**
          * The order was canceled by the owner.
          */
-        CANCELED,
+        CANCELED
     }
 }

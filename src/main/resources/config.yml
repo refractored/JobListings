@@ -29,6 +29,16 @@ pending-orders:
         - ENCHANTED_BOOK # Blacklisted because it won't have any data if created with the material command
       # If true, pending orders can be created via the material command
       enabled: true
+  blacklist:
+    # These materials below are blacklisted by default because they are unobtainable in vanilla mc.
+    - BEDROCK
+    - BARRIER
+    - LIGHT
+    - END_PORTAL_FRAME
+    - STRUCTURE_BLOCK
+    - COMMAND_BLOCK
+    - STRUCTURE_VOID
+    - JIGSAW
   expiration:
     minimum: 48 # Minimum time in hours pending orders can be kept in the database.
     maximum: 192 # Maximum time in hours pending orders can be kept in the database.
@@ -41,16 +51,6 @@ pending-orders:
   # This may need a restart to take effect.
   max-items: 256
   # Materials orders cant be made with.
-  blacklist:
-    # These materials below are blacklisted by default because they are unobtainable in vanilla mc.
-    - BEDROCK
-    - BARRIER
-    - LIGHT
-    - END_PORTAL_FRAME
-    - STRUCTURE_BLOCK
-    - COMMAND_BLOCK
-    - STRUCTURE_VOID
-    - JIGSAW
 
 claimed-orders:
   # Time is in hours.

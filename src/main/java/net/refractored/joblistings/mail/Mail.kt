@@ -28,7 +28,7 @@ data class Mail(
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
     var timeExpires: LocalDateTime,
     @DatabaseField(persisterClass = ComponentSerializers::class)
-    var message: Component,
+    var message: Component
 ) {
     /**
      * This constructor should only be used for ORMLite
@@ -44,12 +44,12 @@ data class Mail(
     companion object {
         fun createMail(
             user: UUID,
-            message: Component,
+            message: Component
         ) {
             if (!JobListings.instance.config.getBoolean("mail.enabled")) return
             // If essentials is enabled, and config option is enabled, use essentials mail
             JobListings.instance.essentials?.let { essentials ->
-                if (!JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) {
+                if (JobListings.instance.config.getBoolean("Essentials.UseEssentialsMail")) {
                     val essPlayer = essentials.users.getUser(user)
                     val expireTime =
                         if (JobListings.instance.config.getLong("mail.expiration") < 1L) {
