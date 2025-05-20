@@ -1,8 +1,10 @@
 package net.refractored.joblistings.order.tables
 
 import com.j256.ormlite.field.DatabaseField
+import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
+import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.order.impl.Assignee
 import net.refractored.joblistings.order.impl.Creation
 import net.refractored.joblistings.order.impl.Expires
@@ -11,6 +13,7 @@ import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
 import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime
 import java.util.*
@@ -75,5 +78,32 @@ data class FailedOrder(
          * The order was canceled by the owner.
          */
         CANCELED
+    }
+
+    companion object {
+        /**
+         * Get a specific page of the newest orders from the database
+         * @param limit Number of orders per page
+         * @param offset Starting point for the current page
+         * @return List of newest orders for the current page
+         */
+        fun getOrders(
+            limit: Int,
+            offset: Int,
+            player: Player,
+            failureType: FailureType? = null
+        ): List<ClaimedOrder> {
+            val queryBuilder: QueryBuilder<ClaimedOrder, UUID> = Database.claimedOrderDao.queryBuilder()
+            queryBuilder.orderBy("creation", false)
+            queryBuilder.where().eq("assignee", player.uniqueId)
+                .also {
+                    if (failureType != null) {
+                        it.and().eq("status", failureType)
+                    }
+                }
+            queryBuilder.limit(limit.toLong())
+            queryBuilder.offset(offset.toLong())
+            return Database.claimedOrderDao.query(queryBuilder.prepare())
+        }
     }
 }

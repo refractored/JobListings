@@ -122,7 +122,7 @@ class AllOrders(
                 .replace("%reward%", order.reward.toString())
                 .replace("%owner%", order.getOwner().name ?: "Unknown")
                 .replace("%created%", createdDurationText)
-                .replace("%expire%", expireDurationText)
+                .replace("%expires%", expireDurationText)
                 .replace("%amount%", order.itemAmount.toString())
                 .lines()
                 .map { it.miniToComponent().fixItalics() }

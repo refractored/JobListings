@@ -172,10 +172,10 @@ data class PendingOrder(
             limit: Int,
             offset: Int
         ): List<PendingOrder> {
-            val queryBuilder: QueryBuilder<PendingOrder, UUID> = Database.pendingOrderDao.queryBuilder()
+            val queryBuilder: QueryBuilder<PendingOrder, UUID> = Database.pendingOrderDao.queryBuilder().orderBy("creation", false)
             queryBuilder.limit(limit.toLong())
             queryBuilder.offset(offset.toLong())
-            return Database.pendingOrderDao.query(queryBuilder.prepare()).sortedByDescending { it.creation }
+            return Database.pendingOrderDao.query(queryBuilder.prepare())
         }
 
         /**

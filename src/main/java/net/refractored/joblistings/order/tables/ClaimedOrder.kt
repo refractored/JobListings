@@ -240,6 +240,25 @@ data class ClaimedOrder(
         }
 
         /**
+         * Get a specific page of the newest orders from the database
+         * @param limit Number of orders per page
+         * @param offset Starting point for the current page
+         * @return List of newest orders for the current page
+         */
+        fun getOrders(
+            limit: Int,
+            offset: Int,
+            player: Player
+        ): List<ClaimedOrder> {
+            val queryBuilder: QueryBuilder<ClaimedOrder, UUID> = Database.claimedOrderDao.queryBuilder()
+            queryBuilder.orderBy("creation", false)
+            queryBuilder.where().eq("assignee", player.uniqueId)
+            queryBuilder.limit(limit.toLong())
+            queryBuilder.offset(offset.toLong())
+            return Database.claimedOrderDao.query(queryBuilder.prepare())
+        }
+
+        /**
          * Count the amount of claimed orders for a player.
          * @param player The player to count the claimed orders for.
          * @return The amount of claimed orders for the player.
