@@ -24,7 +24,7 @@ import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.math.ceil
 
-class MyOrders(
+class OwnedOrders(
     player: Player,
 ) {
     private val config = JobListings.instance.gui.getConfigurationSection("MyOrders")!!
@@ -303,7 +303,7 @@ class MyOrders(
          * @return The gui.
          */
         fun getGUI(player: Player): SGMenu {
-            val myOrders = MyOrders(player)
+            val myOrders = OwnedOrders(player)
             return myOrders.gui
         }
     }

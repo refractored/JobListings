@@ -1,7 +1,7 @@
 package net.refractored.joblistings.commands
 
 import net.refractored.joblistings.commands.annotations.ConfigCommand
-import net.refractored.joblistings.gui.MyOrders
+import net.refractored.joblistings.gui.OwnedOrders
 import net.refractored.joblistings.util.Messages
 import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.entity.Player
@@ -12,7 +12,7 @@ class OwnedOrders {
     @CommandPermission("joblistings.view.owned")
     @ConfigCommand("messages.owned")
     fun viewOrder(actor: BukkitCommandActor) {
-        actor.requirePlayer().openInventory(MyOrders.getGUI(actor.requirePlayer()).inventory)
+        actor.requirePlayer().openInventory(OwnedOrders.getGUI(actor.requirePlayer()).inventory)
         actor.reply(Messages.getStringPrefixed("messages.owned.execution.success").miniToComponent())
     }
 
@@ -22,7 +22,7 @@ class OwnedOrders {
         actor: BukkitCommandActor,
         player: Player,
     ) {
-        player.openInventory(MyOrders.getGUI(player).inventory)
+        player.openInventory(OwnedOrders.getGUI(player).inventory)
         actor.reply(
             Messages
                 .getStringPrefixed("messages.owned-other.execution.success")
