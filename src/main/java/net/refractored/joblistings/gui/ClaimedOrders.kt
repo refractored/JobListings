@@ -24,6 +24,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.time.Duration
 import java.time.LocalDateTime
+import kotlin.text.replace
 
 class ClaimedOrders(
     player: Player
@@ -31,9 +32,9 @@ class ClaimedOrders(
     override val config = JobListings.instance.gui.getConfigurationSection("ClaimedOrders")!!
 
     override fun getName(): Component = (config.getString("Title") ?: "Title")
+        .miniToComponent()
         .replace("%current_page%", (orderPage + 1).toString())
         .replace("%max_pages%", pageCount.toString())
-        .miniToComponent()
 
     init {
         loadNavigation()

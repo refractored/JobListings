@@ -1,6 +1,7 @@
 package net.refractored.joblistings.util
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextReplacementConfig
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
@@ -9,6 +10,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.configuration.file.FileConfiguration
+import java.util.regex.Pattern
 
 class MessageUtil {
     companion object {
@@ -58,6 +60,10 @@ object Messages {
 
     fun getPrefix(): String = getString("messages.prefix")
 
+    fun getMessage(): Component = getString("messages.prefix").miniToComponent()
+
+    fun getMessagePrefixed(): Component = getPrefix().miniToComponent().append(getString("messages.prefix").miniToComponent())
+
     /**
      * @return a string from the messages.yml, with the prefix.
      */
@@ -71,9 +77,7 @@ object Messages {
     /**
      * Converts a [Component] to a legacy string using the specified character.
      */
-    fun Component.toLegacy(char: Char = AMPERSAND_CHAR): String = LegacyComponentSerializer.legacy(char).serialize(
-        this,
-    )
+    fun Component.toLegacy(char: Char = AMPERSAND_CHAR): String = LegacyComponentSerializer.legacy(char).serialize(this)
 
     /**
      * Converts this [Component] to a string using minimessage.
@@ -84,6 +88,11 @@ object Messages {
      * Converts this string to a component using minimessage.
      */
     fun String.miniToComponent(): Component = MiniMessage.miniMessage().deserialize(this)
+
+    /**
+     * Converts this string to a component using minimessage.
+     */
+    fun String.legacyToComponent(char: Char = AMPERSAND_CHAR): Component = LegacyComponentSerializer.legacy(char).deserialize(this)
 
     fun Component.toPlaintext(): String = PlainTextComponentSerializer.plainText().serialize(this)
 
@@ -101,6 +110,62 @@ object Messages {
     ): String = this.replace(oldValue, newValue.toMinimessage(), ignoreCase)
 
     /**
+     * Returns a new component obtained by replacing all occurrences of the [oldValue] substring in this component
+     * with the specified [newValue] component.
+     */
+    fun Component.replace(
+        oldValue: String,
+        newValue: Component
+    ): Component = this.replaceText(
+        TextReplacementConfig.builder()
+            .matchLiteral(oldValue)
+            .replacement(newValue)
+            .build(),
+    )
+
+    /**
+     * Returns a new component obtained by replacing all occurrences of the [oldValue] substring in this component
+     * with the specified [newValue] string.
+     */
+    fun Component.replace(
+        oldValue: String,
+        newValue: String
+    ): Component = this.replaceText(
+        TextReplacementConfig.builder()
+            .matchLiteral(oldValue)
+            .replacement(newValue)
+            .build(),
+    )
+
+    /**
+     * Returns a new component obtained by replacing all occurrences that match the [pattern] in this component
+     * with the specified [newValue] string.
+     */
+    fun Component.replace(
+        pattern: Pattern,
+        newValue: String
+    ): Component = this.replaceText(
+        TextReplacementConfig.builder()
+            .match(pattern)
+            .replacement(newValue)
+            .build(),
+    )
+
+    /**
+     * Returns a new component obtained by replacing all occurrences that match the [pattern] in this component
+     * with the specified [newValue] component.
+     */
+    fun Component.replace(
+        pattern: Pattern,
+        newValue: Component
+    ): Component = this.replaceText(
+        TextReplacementConfig.builder()
+            .match(pattern)
+            .replacement(newValue)
+            .build(),
+    )
+
+    /**
      * Disables the italic decoration on this component if it is not present.
      *
      * This is useful because by default, lore is italicized in Minecraft by default
@@ -110,6 +175,7 @@ object Messages {
     fun Component.fixItalics(): Component = this.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
 }
 
+// TODO: Remove this class when the plugin is updated to use the new Messages class
 class MessageReplacement(
     val string: String?,
     val component: Component?
