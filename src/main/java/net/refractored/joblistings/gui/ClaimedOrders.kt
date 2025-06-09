@@ -9,9 +9,6 @@ import kotlinx.coroutines.yield
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
-import net.refractored.joblistings.gui.AllOrders.Companion.openGUIs
-import net.refractored.joblistings.gui.GuiHelper.getFallbackButton
-import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.FailedOrder
@@ -24,7 +21,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.time.Duration
 import java.time.LocalDateTime
-import kotlin.text.replace
 
 class ClaimedOrders(
     player: Player
