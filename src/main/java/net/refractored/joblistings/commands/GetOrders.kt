@@ -4,7 +4,7 @@ import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.commands.annotations.ConfigDescription
 import net.refractored.joblistings.gui.AllOrders
 import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.replace
 import org.bukkit.entity.Player
 import revxrsal.commands.annotation.CommandPriority
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
@@ -15,7 +15,7 @@ class GetOrders {
     @ConfigCommand("messages.orders")
     fun openOrders(actor: BukkitCommandActor) {
         AllOrders.openGUI(actor.requirePlayer())
-        actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
+        actor.reply(Messages.getMessagePrefixed("messages.orders.execution.success"))
     }
 
     @CommandPermission("joblistings.view.orders.other")
@@ -27,9 +27,8 @@ class GetOrders {
         AllOrders.openGUI(player)
         actor.reply(
             Messages
-                .getStringPrefixed("messages.orders-other.execution.success")
-                .replace("%player%", player.name)
-                .miniToComponent(),
+                .getMessagePrefixed("messages.orders-other.execution.success")
+                .replace("%player%", player.name),
         )
     }
 }
@@ -41,6 +40,6 @@ class GetOrdersBlank {
     @CommandPriority.Low
     fun defaultCommand(actor: BukkitCommandActor) {
         AllOrders.openGUI(actor.requirePlayer())
-        actor.reply(Messages.getStringPrefixed("messages.orders.execution.success").miniToComponent())
+        actor.reply(Messages.getMessagePrefixed("messages.orders.execution.success"))
     }
 }

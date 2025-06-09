@@ -7,13 +7,11 @@ import kotlinx.coroutines.withContext
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.database.Database.orderDao
-import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import java.util.*
@@ -36,7 +34,7 @@ class CompleteOrders {
 
                 if (orders.isEmpty()) {
                     actor.reply(
-                        Messages.getStringPrefixed("messages.complete.execution.no-orders").miniToComponent(),
+                        Messages.getMessagePrefixed("messages.complete.execution.no-orders"),
                     )
                     return@withContext
                 }
@@ -64,12 +62,10 @@ class CompleteOrders {
                 }
 
                 if (ordersUpdated == 0 && ordersCompleted == 0) {
-                    throw CommandErrorException(
-                        Messages
-                            .getStringPrefixed(
-                                "messages.complete.execution.no-valid-items",
-                            ).miniToComponent(),
+                    actor.reply(
+                        Messages.getMessagePrefixed("messages.complete.execution.no-valid-items"),
                     )
+                    return@withContext
                 }
 
                 if (ordersCompleted == orderCount) {

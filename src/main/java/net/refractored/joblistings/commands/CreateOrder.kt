@@ -17,7 +17,7 @@ import net.refractored.joblistings.order.tables.PendingOrder
 import net.refractored.joblistings.util.MessageReplacement
 import net.refractored.joblistings.util.MessageUtil
 import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.replace
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
@@ -44,9 +44,10 @@ class CreateOrder {
         val player = actor.requirePlayer()
 
         if (JobListings.instance.eco.getBalance(player) < reward) {
-            throw CommandErrorException(
-                Messages.getStringPrefixed("messages.create.common.not-enough-money").miniToComponent(),
+            actor.reply(
+                Messages.getMessagePrefixed("messages.create.common.not-enough-money"),
             )
+            return
         }
 
         val item =
@@ -54,12 +55,13 @@ class CreateOrder {
                 .clone()
 
         if (item.type == Material.AIR) {
-            throw CommandErrorException(
+            actor.reply(
                 Messages
-                    .getStringPrefixed(
+                    .getMessagePrefixed(
                         "messages.create.hand.execution.not-holding-item",
-                    ).miniToComponent(),
+                    ),
             )
+            return
         }
 
         blacklistedMaterial(item.type.name)
@@ -100,31 +102,38 @@ class CreateOrder {
         val player = actor.requirePlayer()
 
         if (JobListings.instance.eco.getBalance(player) < reward) {
-            throw CommandErrorException(
-                Messages.getStringPrefixed("messages.create.common.not-enough-money").miniToComponent(),
+            actor.reply(
+                Messages.getMessagePrefixed("messages.create.common.not-enough-money"),
             )
+            return
         }
 
-        val item: ItemStack =
+        val item: ItemStack? =
             /* Presets.getPreset(stackName)
                 ?:*/
             Material.getMaterial(stackName.uppercase())?.let { ItemStack(it) }
-                ?: throw CommandErrorException(
-                    Messages.getStringPrefixed("messages.create-material.execution.invalid-material").miniToComponent(),
-                )
+
+        if (item == null) {
+            actor.reply(
+                Messages.getMessagePrefixed("messages.create-material.execution.invalid-material"),
+            )
+            return
+        }
 
         item.amount = 1
 
         if (!item.type.isItem) {
-            throw CommandErrorException(
-                Messages.getStringPrefixed("messages.create-material.execution.not-item").miniToComponent(),
+            actor.reply(
+                Messages.getMessagePrefixed("messages.create-material.execution.not-item"),
             )
+            return
         }
 
         if (blacklistedMaterial(item.type.name)) {
-            throw CommandErrorException(
-                Messages.getStringPrefixed("messages.create-material.execution.blacklisted").miniToComponent(),
+            actor.reply(
+                Messages.getMessagePrefixed("messages.create-material.execution.blacklisted"),
             )
+            return
         }
 
         checkAmount(amount, item)
@@ -224,17 +233,15 @@ class CreateOrder {
             maxItems == -1 && amount > item.maxStackSize -> {
                 throw CommandErrorException(
                     Messages
-                        .getStringPrefixed("messages.create-material.execution.invalid-amount")
-                        .replace("%max%", item.maxStackSize.toString())
-                        .miniToComponent(),
+                        .getMessagePrefixed("messages.create-material.execution.invalid-amount")
+                        .replace("%max%", item.maxStackSize.toString()),
                 )
             }
             maxItems != 0 && amount >= maxItems -> {
                 throw CommandErrorException(
                     Messages
-                        .getStringPrefixed("messages.create-material.execution.invalid-amount")
-                        .replace("%max%", maxItems.toString())
-                        .miniToComponent(),
+                        .getMessagePrefixed("messages.create-material.execution.invalid-amount")
+                        .replace("%max%", maxItems.toString()),
                 )
             }
         }

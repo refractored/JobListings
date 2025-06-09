@@ -60,9 +60,9 @@ object Messages {
 
     fun getPrefix(): String = getString("messages.prefix")
 
-    fun getMessage(): Component = getString("messages.prefix").miniToComponent()
+    fun getMessage(path: String): Component = getString(path).miniToComponent()
 
-    fun getMessagePrefixed(): Component = getPrefix().miniToComponent().append(getString("messages.prefix").miniToComponent())
+    fun getMessagePrefixed(path: String): Component = getPrefix().miniToComponent().append(getMessage(path))
 
     /**
      * @return a string from the messages.yml, with the prefix.

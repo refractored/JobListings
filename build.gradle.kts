@@ -159,6 +159,8 @@ tasks {
         relocate("com.j256.ormlite", "$libModule.ormlite")
         relocate("org.bstats", "$libModule.bstats")
         relocate("io.papermc.lib", "$libModule.paperlib")
+        relocate("org.intellij.lang.annotations", "$libModule.intellij.annotations")
+        relocate("org.jetbrains.annotations", "$libModule.jetbrains.annotations")
 
         delete(file("$rootDir/bin"))
         destinationDirectory.set(file("$rootDir/bin"))

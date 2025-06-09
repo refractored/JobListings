@@ -6,7 +6,7 @@ import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.util.Messages.fixItalics
-import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.
 import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
@@ -36,7 +36,7 @@ object GuiHelper {
             modelData,
         )
         itemMeta.displayName(
-            name.miniToComponent().fixItalics(),
+            name.().fixItalics(),
         )
         item.itemMeta = itemMeta
         item.lore(
@@ -53,7 +53,7 @@ object GuiHelper {
         subsection.getInt("ModelData"),
         subsection.getString("Name") ?: "null",
         subsection.getStringList("Lore").map { line ->
-            line.miniToComponent().fixItalics()
+            line.().fixItalics()
         },
     )
 
@@ -76,12 +76,12 @@ object GuiHelper {
             fallbackConfig.getInt("ModelData"),
         )
         itemMeta.displayName(
-            (fallbackConfig.getString("Name") ?: "null").miniToComponent().fixItalics(),
+            (fallbackConfig.getString("Name") ?: "null").().fixItalics(),
         )
         item.itemMeta = itemMeta
         item.lore(
             fallbackConfig.getStringList("Amount").map { line ->
-                line.miniToComponent().fixItalics()
+                line.().fixItalics()
             },
         )
         return SGButton(item)
@@ -245,12 +245,12 @@ abstract class OrdersGUI(
             fallbackConfig.getInt("ModelData"),
         )
         itemMeta.displayName(
-            (fallbackConfig.getString("Name") ?: "null").miniToComponent().fixItalics(),
+            (fallbackConfig.getString("Name") ?: "null").().fixItalics(),
         )
         item.itemMeta = itemMeta
         item.lore(
             fallbackConfig.getStringList("Amount").map { line ->
-                line.miniToComponent().fixItalics()
+                line.().fixItalics()
             },
         )
         return SGButton(item)
@@ -298,7 +298,7 @@ abstract class OrdersGUI(
             modelData,
         )
         itemMeta.displayName(
-            name.miniToComponent().fixItalics(),
+            name.().fixItalics(),
         )
         item.itemMeta = itemMeta
         item.lore(
@@ -315,7 +315,7 @@ abstract class OrdersGUI(
         subsection.getInt("ModelData"),
         subsection.getString("Name") ?: "null",
         subsection.getStringList("Lore").map { line ->
-            (line.miniToComponent()).fixItalics()
+            (line.()).fixItalics()
         },
     )
 }

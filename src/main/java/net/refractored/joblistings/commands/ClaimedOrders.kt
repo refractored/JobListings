@@ -3,7 +3,7 @@ package net.refractored.joblistings.commands
 import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.gui.ClaimedOrders
 import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.util.Messages.replace
 import org.bukkit.entity.Player
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
@@ -13,7 +13,7 @@ class ClaimedOrders {
     @ConfigCommand("messages.claimed")
     fun openClaimed(actor: BukkitCommandActor) {
         actor.requirePlayer().openInventory(ClaimedOrders.getGUI(actor.requirePlayer()).inventory)
-        actor.reply(Messages.getStringPrefixed("messages.claimed.execution.success").miniToComponent())
+        actor.reply(Messages.getMessagePrefixed("messages.claimed.execution.success"))
     }
 
     @CommandPermission("joblistings.view.claimed.other")
@@ -25,9 +25,8 @@ class ClaimedOrders {
         player.openInventory(ClaimedOrders.getGUI(player).inventory)
         actor.reply(
             Messages
-                .getStringPrefixed("messages.claimed-other.execution.success")
-                .replace("%player%", player.name)
-                .miniToComponent(),
+                .getMessagePrefixed("messages.claimed-other.execution.success")
+                .replace("%player%", player.name),
         )
     }
 }

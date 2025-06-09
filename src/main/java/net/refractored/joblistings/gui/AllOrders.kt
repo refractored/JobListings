@@ -162,7 +162,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getStringPrefixed("General.OrderAlreadyClaimed").miniToComponent(),
+                    Messages.getMessagePrefixed("General.OrderAlreadyClaimed"),
                 )
                 return@withContext
             }
@@ -171,7 +171,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getStringPrefixed("General.CannotAcceptOwnOrder").miniToComponent(),
+                    Messages.getMessagePrefixed("General.CannotAcceptOwnOrder"),
                 )
                 return@withContext
             }
@@ -180,7 +180,7 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    Messages.getStringPrefixed("General.OrderExpired").miniToComponent(),
+                    Messages.getMessagePrefixed("General.OrderExpired"),
                 )
                 return@withContext
             }
