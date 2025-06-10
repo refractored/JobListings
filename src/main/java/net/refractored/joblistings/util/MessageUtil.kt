@@ -58,16 +58,30 @@ object Messages {
      */
     fun getString(path: String): String = getStringOrNull(path) ?: path
 
-    fun getPrefix(): String = getString("messages.prefix")
+    /**
+     * @return The prefix string from the messages.yml.
+     */
+    fun getStringPrefix(): String = getString("messages.prefix")
 
+    /**
+     * @return The prefix component from the messages.yml.
+     */
+    fun getPrefix(): Component = getStringPrefix().miniToComponent()
+
+    /**
+     * @return a message from the messages.yml, as a [Component].
+     */
     fun getMessage(path: String): Component = getString(path).miniToComponent()
 
-    fun getMessagePrefixed(path: String): Component = getPrefix().miniToComponent().append(getMessage(path))
+    /**
+     * @return a message from the messages.yml, with a prefix, as a [Component].
+     */
+    fun getMessagePrefixed(path: String): Component = getPrefix().append(getMessage(path))
 
     /**
      * @return a string from the messages.yml, with the prefix.
      */
-    fun getStringPrefixed(path: String): String = getPrefix() + getString(path)
+    fun getStringPrefixed(path: String): String = getStringPrefix() + getString(path)
 
     /**
      * @return a list of strings from the messages.ym.
