@@ -5,13 +5,13 @@ import com.j256.ormlite.stmt.QueryBuilder
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.messages.Messages
 import net.refractored.joblistings.order.impl.Assignee
 import net.refractored.joblistings.order.impl.Creation
 import net.refractored.joblistings.order.impl.Expires
 import net.refractored.joblistings.order.impl.Item
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack

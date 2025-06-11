@@ -1,6 +1,6 @@
 package net.refractored.joblistings.commands.annotations
 
-import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.messages.Messages
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.dynamic.AnnotationReplacer
 import revxrsal.commands.annotation.dynamic.Annotations
@@ -9,13 +9,13 @@ import java.lang.reflect.AnnotatedElement
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
 annotation class ConfigDescription(
-    val path: String,
+    val path: String
 )
 
 class ConfigDescriptionReplacer : AnnotationReplacer<ConfigDescription> {
     override fun replaceAnnotation(
         element: AnnotatedElement,
-        annotation: ConfigDescription,
+        annotation: ConfigDescription
     ): Collection<Annotation> {
         val commandAnnotation =
             Annotations.create(

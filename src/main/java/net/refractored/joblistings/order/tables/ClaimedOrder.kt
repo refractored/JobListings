@@ -6,12 +6,11 @@ import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.order.impl.*
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -118,20 +117,12 @@ data class ClaimedOrder(
         }
         if (!notify) return
         val ownerMessage =
-            MessageUtil.getMessage(
-                "ClaimedOrders.OrderIncomplete",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                ),
-            )
+            Messages.getMessage("ClaimedOrders.OrderIncomplete")
+                .replace("%1", getItemInfo())
         messageOwner(ownerMessage)
         val assigneeMessage =
-            MessageUtil.getMessage(
-                "ClaimedOrders.OrderIncompleteAssignee",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                ),
-            )
+            Messages.getMessage("ClaimedOrders.OrderIncompleteAssignee")
+                .replace("%1", getItemInfo())
         messageAssignee(assigneeMessage)
     }
 
@@ -158,12 +149,8 @@ data class ClaimedOrder(
         }
         if (!notify) return
         val assigneeMessage =
-            MessageUtil.getMessage(
-                "MyOrders.AssigneeMessage",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                ),
-            )
+            Messages.getMessage("MyOrders.AssigneeMessage")
+                .replace("%1", getItemInfo())
         messageAssignee(assigneeMessage)
     }
 
@@ -186,22 +173,14 @@ data class ClaimedOrder(
         }
         if (!notify) return
         val assigneeMessage =
-            MessageUtil.getMessage(
-                "OrderComplete.CompletedMessageAssignee",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                    MessageReplacement(reward.toString()),
-                ),
-            )
+            Messages.getMessage("OrderComplete.CompletedMessageAssignee")
+                .replace("%1", getItemInfo())
+                .replace("%2", reward.toString())
         messageAssignee(assigneeMessage)
         val ownerMessage =
-            MessageUtil.getMessage(
-                "OrderComplete.CompletedMessageOwner",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                    MessageReplacement(getAssignee()?.name ?: "Unknown"),
-                ),
-            )
+            Messages.getMessage("OrderComplete.CompletedMessageOwner")
+                .replace("%1", getItemInfo())
+                .replace("%2", getAssignee()?.name ?: "Unknown")
         messageOwner(ownerMessage)
     }
 

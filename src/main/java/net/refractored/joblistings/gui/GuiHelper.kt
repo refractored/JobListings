@@ -5,9 +5,9 @@ import com.samjakob.spigui.buttons.SGButton
 import com.samjakob.spigui.menu.SGMenu
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.util.Messages.fixItalics
-import net.refractored.joblistings.util.Messages.miniToComponent
-import net.refractored.joblistings.util.Messages.toLegacy
+import net.refractored.joblistings.messages.Messages.fixItalics
+import net.refractored.joblistings.messages.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages.toLegacy
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player

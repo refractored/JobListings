@@ -8,12 +8,11 @@ import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.mail.Mail
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.OfflinePlayer
@@ -112,7 +111,7 @@ data class Order(
      * ONLY if the order was completed in time.
      */
     @DatabaseField
-    var itemsObtained: Int,
+    var itemsObtained: Int
 ) {
     /**
      * This constructor should only be used for ORMLite
@@ -140,15 +139,10 @@ data class Order(
      * Get the display name of the item
      * @return The display name of the item
      */
-    fun getItemInfo(): Component =
-        MessageUtil.getMessage(
-            "orders.OrderInfo",
-            listOf(
-                MessageReplacement(item.displayName()),
-                MessageReplacement(itemAmount.toString()),
-                MessageReplacement(cost.toString()), // Optional
-            ),
-        )
+    fun getItemInfo(): Component = Messages.getMessage("orders.OrderInfo")
+        .replace("%1", item.displayName())
+        .replace("%2", itemAmount.toString())
+        .replace("%3", cost.toString())
 
     /**
      * Get the OfflinePlayer of the owner of the order
@@ -194,7 +188,7 @@ data class Order(
      */
     fun acceptOrder(
         assigneePlayer: Player,
-        notify: Boolean = true,
+        notify: Boolean = true
     ) {
         if (assignee != null) {
             throw IllegalArgumentException("Order already has an assignee")
@@ -212,13 +206,9 @@ data class Order(
         orderDao.update(this)
         if (!notify) return
         val ownerMessage =
-            MessageUtil.getMessage(
-                "AllOrders.OrderAcceptedNotification",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                    MessageReplacement(assigneePlayer.displayName()),
-                ),
-            )
+            Messages.getMessage("AllOrders.OrderAcceptedNotification")
+                .replace("%1", getItemInfo())
+                .replace("%2", assigneePlayer.displayName())
         messageOwner(ownerMessage)
         messageAssignee(
             Messages
@@ -247,7 +237,7 @@ data class Order(
      */
     fun completeOrder(
         pay: Boolean = true,
-        notify: Boolean = true,
+        notify: Boolean = true
     ) {
         val assigneePlayer = getAssignee() ?: throw IllegalStateException("Order does not have an assignee")
         itemCompleted = itemAmount
@@ -263,22 +253,14 @@ data class Order(
         }
         if (!notify) return
         val assigneeMessage =
-            MessageUtil.getMessage(
-                "OrderComplete.CompletedMessageAssignee",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                    MessageReplacement(cost.toString()),
-                ),
-            )
+            Messages.getMessage("OrderComplete.CompletedMessageAssignee")
+                .replace("%1", getItemInfo())
+                .replace("%2", cost.toString())
         messageAssignee(assigneeMessage)
         val ownerMessage =
-            MessageUtil.getMessage(
-                "OrderComplete.CompletedMessageOwner",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                    MessageReplacement(getAssignee()?.name ?: "Unknown"),
-                ),
-            )
+            Messages.getMessage("OrderComplete.CompletedMessageOwner")
+                .replace("%1", getItemInfo())
+                .replace("%2", getAssignee()?.name ?: "Unknown")
         messageOwner(ownerMessage)
     }
 
@@ -295,13 +277,9 @@ data class Order(
         orderDao.delete(this)
         if (notify) {
             val message =
-                MessageUtil.getMessage(
-                    "AllOrders.OrderExpired",
-                    listOf(
-                        MessageReplacement(getItemInfo()),
-                        MessageReplacement(getAssignee()?.name ?: "Unknown"),
-                    ),
-                )
+                Messages.getMessage("AllOrders.OrderExpired")
+                    .replace("%1", getItemInfo())
+                    .replace("%2", getAssignee()?.name ?: "Unknown")
             messageOwner(message)
         }
     }
@@ -313,7 +291,7 @@ data class Order(
      */
     fun cancelOrder(
         notify: Boolean = true,
-        fullRefund: Boolean = false,
+        fullRefund: Boolean = false
     ) {
         if (status == OrderStatus.INCOMPLETE) {
             throw IllegalStateException("Order is already marked incomplete")
@@ -336,12 +314,10 @@ data class Order(
         if (!notify) return
         if (assignee == null) return // This should never be null, but just in case
         val assigneeMessage =
-            MessageUtil.getMessage(
+            Messages.getMessage(
                 "MyOrders.AssigneeMessage",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                ),
             )
+                .replace("%1", getItemInfo())
         messageAssignee(assigneeMessage)
     }
 
@@ -365,21 +341,14 @@ data class Order(
         }
         if (!notify) return
         val ownerMessage =
-            MessageUtil.getMessage(
-                "ClaimedOrders.OrderIncomplete",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                ),
-            )
+            Messages.getMessage("ClaimedOrders.OrderIncomplete")
+                .replace("%1", getItemInfo())
+
         messageOwner(ownerMessage)
         if (assignee == null) return // This should never be null, but just in case
         val assigneeMessage =
-            MessageUtil.getMessage(
-                "ClaimedOrders.OrderIncompleteAssignee",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                ),
-            )
+            Messages.getMessage("ClaimedOrders.OrderIncompleteAssignee")
+                .replace("%1", getItemInfo())
         messageAssignee(assigneeMessage)
     }
 
@@ -411,7 +380,7 @@ data class Order(
          */
         fun getPendingOrders(
             limit: Int,
-            offset: Int,
+            offset: Int
         ): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.where().eq("status", OrderStatus.PENDING)
@@ -430,7 +399,7 @@ data class Order(
         fun getPlayerCreatedOrders(
             limit: Int,
             offset: Int,
-            playerUUID: UUID,
+            playerUUID: UUID
         ): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder.where().eq("user", playerUUID)
@@ -449,7 +418,7 @@ data class Order(
         fun getPlayerAcceptedOrders(
             limit: Int,
             offset: Int,
-            playerUUID: UUID,
+            playerUUID: UUID
         ): List<Order> {
             val queryBuilder: QueryBuilder<Order, UUID> = orderDao.queryBuilder()
             queryBuilder

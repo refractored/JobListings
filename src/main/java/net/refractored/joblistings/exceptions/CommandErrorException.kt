@@ -1,13 +1,13 @@
 package net.refractored.joblistings.exceptions
 
 import net.kyori.adventure.text.ComponentLike
-import net.refractored.joblistings.util.Messages.toPlaintext
+import net.refractored.joblistings.messages.Messages.toPlaintext
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.command.CommandActor
 import revxrsal.commands.exception.SendableException
 
 class CommandErrorException(
-    val component: ComponentLike,
+    val component: ComponentLike
 ) : SendableException() {
     override fun sendTo(actor: CommandActor) {
         if (actor is BukkitCommandActor) {

@@ -3,12 +3,12 @@ package net.refractored.joblistings.order.tables
 import com.j256.ormlite.field.DatabaseField
 import com.j256.ormlite.table.DatabaseTable
 import com.samjakob.spigui.item.ItemBuilder
+import net.refractored.joblistings.messages.Messages
 import net.refractored.joblistings.order.impl.Expires
 import net.refractored.joblistings.order.impl.Item
 import net.refractored.joblistings.order.impl.Owner
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.Messages
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import java.time.LocalDateTime

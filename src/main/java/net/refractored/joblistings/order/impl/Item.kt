@@ -1,8 +1,8 @@
 package net.refractored.joblistings.order.impl
 
 import net.kyori.adventure.text.Component
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.replace
 import org.bukkit.inventory.ItemStack
 
 interface Item {
@@ -23,11 +23,7 @@ interface Item {
      * Get the display name of the item
      * @return The display name of the item
      */
-    fun getItemInfo(): Component = MessageUtil.getMessage(
-        "Orders.OrderInfo",
-        listOf(
-            MessageReplacement(item.displayName()),
-            MessageReplacement(itemAmount.toString()),
-        ),
-    )
+    fun getItemInfo(): Component = Messages.getMessage("Orders.OrderInfo")
+        .replace("%1", item.displayName())
+        .replace("%2", itemAmount.toString())
 }

@@ -9,14 +9,12 @@ import net.refractored.joblistings.gui.GuiHelper.getFallbackButton
 import net.refractored.joblistings.gui.GuiHelper.getOffset
 import net.refractored.joblistings.gui.GuiHelper.loadCosmeticItems
 import net.refractored.joblistings.gui.GuiHelper.loadNavButtons
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages.replace
+import net.refractored.joblistings.messages.Messages.toLegacy
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
-import net.refractored.joblistings.util.Messages.replace
-import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -25,7 +23,7 @@ import java.time.LocalDateTime
 import kotlin.math.ceil
 
 class OwnedOrders(
-    player: Player,
+    player: Player
 ) {
     private val config = JobListings.instance.gui.getConfigurationSection("MyOrders")!!
 
@@ -70,7 +68,7 @@ class OwnedOrders(
      */
     private fun loadOrders(
         page: Int,
-        player: Player,
+        player: Player
     ) {
         gui.clearAllButStickiedSlots()
         val orders = Order.getPlayerCreatedOrders(orderSlots.count(), page * orderSlots.count(), player.uniqueId)
@@ -86,24 +84,16 @@ class OwnedOrders(
         val itemMetaCopy = item.itemMeta
         val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
         val expireDurationText =
-            MessageUtil.getMessage(
-                "General.DateFormat",
-                listOf(
-                    MessageReplacement(expireDuration.toDays().toString()),
-                    MessageReplacement(expireDuration.toHoursPart().toString()),
-                    MessageReplacement(expireDuration.toMinutesPart().toString()),
-                ),
-            )
+            Messages.getMessage("General.DateFormat")
+                .replace("%1", expireDuration.toDays().toString())
+                .replace("%2", expireDuration.toHoursPart().toString())
+                .replace("%3", expireDuration.toMinutesPart().toString())
         val createdDuration = Duration.between(order.timeCreated, LocalDateTime.now())
         val createdDurationText =
-            MessageUtil.getMessage(
-                "General.DatePastTense",
-                listOf(
-                    MessageReplacement(createdDuration.toDays().toString()),
-                    MessageReplacement(createdDuration.toHoursPart().toString()),
-                    MessageReplacement(createdDuration.toMinutesPart().toString()),
-                ),
-            )
+            Messages.getMessage("General.DatePastTense")
+                .replace("%1", createdDuration.toDays().toString())
+                .replace("%2", createdDuration.toHoursPart().toString())
+                .replace("%3", createdDuration.toMinutesPart().toString())
 
         val infoLore: MutableList<Component> = mutableListOf()
 
@@ -111,14 +101,10 @@ class OwnedOrders(
             OrderStatus.PENDING -> {
                 val expireDuration = Duration.between(LocalDateTime.now(), order.timeExpires)
                 val expireDurationText =
-                    MessageUtil.getMessage(
-                        "General.DateFormat",
-                        listOf(
-                            MessageReplacement(expireDuration.toDays().toString()),
-                            MessageReplacement(expireDuration.toHoursPart().toString()),
-                            MessageReplacement(expireDuration.toMinutesPart().toString()),
-                        ),
-                    )
+                    Messages.getMessage("General.DateFormat")
+                        .replace("%1", expireDuration.toDays().toString())
+                        .replace("%2", expireDuration.toHoursPart().toString())
+                        .replace("%3", expireDuration.toMinutesPart().toString())
                 infoLore.addAll(
                     Messages
                         .getString("MyOrders.OrderItemLore.Pending")
@@ -135,14 +121,10 @@ class OwnedOrders(
             OrderStatus.CLAIMED -> {
                 val deadlineDuration = Duration.between(LocalDateTime.now(), order.timeDeadline)
                 val deadlineDurationText =
-                    MessageUtil.getMessage(
-                        "General.DateFormat",
-                        listOf(
-                            MessageReplacement(deadlineDuration.toDays().toString()),
-                            MessageReplacement(deadlineDuration.toHoursPart().toString()),
-                            MessageReplacement(deadlineDuration.toMinutesPart().toString()),
-                        ),
-                    )
+                    Messages.getMessage("General.DateFormat")
+                        .replace("%1", deadlineDuration.toDays().toString())
+                        .replace("%2", deadlineDuration.toHoursPart().toString())
+                        .replace("%3", deadlineDuration.toMinutesPart().toString())
                 infoLore.addAll(
                     Messages
                         .getString("MyOrders.OrderItemLore.Claimed")
@@ -160,14 +142,13 @@ class OwnedOrders(
             OrderStatus.COMPLETED -> {
                 val completedDuration = Duration.between(order.timeCompleted, LocalDateTime.now())
                 val completedDurationText =
-                    MessageUtil.getMessage(
+                    Messages.getMessage(
                         "General.DatePastTense",
-                        listOf(
-                            MessageReplacement(completedDuration.toDays().toString()),
-                            MessageReplacement(completedDuration.toHoursPart().toString()),
-                            MessageReplacement(completedDuration.toMinutesPart().toString()),
-                        ),
                     )
+                        .replace("%1", completedDuration.toDays().toString())
+                        .replace("%2", completedDuration.toHoursPart().toString())
+                        .replace("%3", completedDuration.toMinutesPart().toString())
+
                 infoLore.addAll(
                     Messages
                         .getString("MyOrders.OrderItemLore.Completed")
@@ -213,7 +194,7 @@ class OwnedOrders(
      */
     private fun clickOrder(
         event: InventoryClickEvent,
-        order: Order,
+        order: Order
     ) {
         when (order.status) {
             OrderStatus.PENDING -> {
@@ -267,7 +248,7 @@ class OwnedOrders(
 
     private fun giveOrderItems(
         order: Order,
-        player: Player,
+        player: Player
     ): Boolean {
         var itemsLeft = order.itemCompleted - order.itemsObtained
         while (itemsLeft > 0) {

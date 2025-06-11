@@ -8,13 +8,12 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.gui.AllOrders
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.order.impl.*
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -102,12 +101,8 @@ data class PendingOrder(
         Database.pendingOrderDao.delete(this)
         if (notify) {
             val message =
-                MessageUtil.getMessage(
-                    "AllOrders.OrderExpired",
-                    listOf(
-                        MessageReplacement(getItemInfo()),
-                    ),
-                )
+                Messages.getMessage("AllOrders.OrderExpired")
+                    .replace("%1", getItemInfo())
             messageOwner(message)
         }
     }
@@ -126,13 +121,9 @@ data class PendingOrder(
         Database.claimedOrderDao.create(claimedOrder)
         if (!notify) return claimedOrder
         val ownerMessage =
-            MessageUtil.getMessage(
-                "AllOrders.OrderAcceptedNotification",
-                listOf(
-                    MessageReplacement(getItemInfo()),
-                    MessageReplacement(assignee.displayName()),
-                ),
-            )
+            Messages.getMessage("AllOrders.OrderAcceptedNotification")
+                .replace("%1", getItemInfo())
+                .replace("%2", assignee.displayName())
         messageOwner(ownerMessage)
         assignee.sendMessage(
             Messages
@@ -238,14 +229,10 @@ data class PendingOrder(
                     .getBoolean("orders.AnnounceOnOrderCreate", false)
             ) {
                 val message =
-                    MessageUtil.Companion.getMessage(
-                        "orders.Announcement",
-                        listOf(
-                            MessageReplacement(pendingOrder.getOwner().name ?: "Unknown"),
-                            MessageReplacement(pendingOrder.getItemInfo()),
-                            MessageReplacement(pendingOrder.reward.toString()),
-                        ),
-                    )
+                    Messages.getMessage("orders.Announcement")
+                        .replace("%1", pendingOrder.getOwner().name ?: "Unknown")
+                        .replace("%2", pendingOrder.getItemInfo())
+                        .replace("%3", pendingOrder.reward.toString())
                 if (JobListings.Companion.instance.redisChat != null &&
                     JobListings.Companion.instance.config
                         .getBoolean("Redischat.RedisChatAnnounce", false)

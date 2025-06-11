@@ -1,4 +1,4 @@
-package net.refractored.joblistings.util
+package net.refractored.joblistings.messages
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextReplacementConfig
@@ -8,36 +8,9 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.AMPERSAND_CHAR
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.refractored.joblistings.JobListings
-import net.refractored.joblistings.util.Messages.miniToComponent
 import org.bukkit.configuration.file.FileConfiguration
 import java.util.regex.Pattern
-
-class MessageUtil {
-    companion object {
-        fun getMessage(
-            key: String,
-            replacements: List<MessageReplacement>
-        ): Component {
-            var replacedMessage = Messages.getString(key)
-
-            for ((index, replacement) in replacements.withIndex()) {
-                if (replacement.string != null) {
-                    replacedMessage = replacedMessage.replace("%$index", replacement.string)
-                } else if (replacement.component != null) {
-                    replacedMessage =
-                        replacedMessage.replace(
-                            "%$index",
-                            MiniMessage
-                                .miniMessage()
-                                .serialize(replacement.component),
-                        )
-                }
-            }
-
-            return (replacedMessage).miniToComponent()
-        }
-    }
-}
+import kotlin.text.replace as kotlinReplace
 
 object Messages {
     /**
@@ -121,7 +94,7 @@ object Messages {
         oldValue: String,
         newValue: Component,
         ignoreCase: Boolean = false
-    ): String = this.replace(oldValue, newValue.toMinimessage(), ignoreCase)
+    ): String = this.kotlinReplace(oldValue, newValue.toMinimessage(), ignoreCase)
 
     /**
      * Returns a new component obtained by replacing all occurrences of the [oldValue] substring in this component
@@ -187,13 +160,4 @@ object Messages {
      * @return The component with the italic decoration disabled.
      */
     fun Component.fixItalics(): Component = this.decorationIfAbsent(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-}
-
-// TODO: Remove this class when the plugin is updated to use the new Messages class
-class MessageReplacement(
-    val string: String?,
-    val component: Component?
-) {
-    constructor(string: String) : this(string, null)
-    constructor(component: Component) : this(null, component)
 }

@@ -11,13 +11,11 @@ import net.refractored.joblistings.commands.annotations.ConfigRange
 import net.refractored.joblistings.commands.autocomplete.MaterialSuggesstion
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
 import net.refractored.joblistings.order.tables.PendingOrder
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.replace
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
@@ -178,10 +176,8 @@ class CreateOrder {
 
             if (orders >= maxOrders) {
                 actor.reply(
-                    MessageUtil.getMessage(
-                        "CreateOrder.MaxOrdersReached",
-                        listOf(MessageReplacement("$maxOrders")),
-                    ),
+                    Messages.getMessagePrefixed("CreateOrder.MaxOrdersReached")
+                        .replace("%1", maxOrders.toString()),
                 )
                 return@withContext
             }
@@ -203,14 +199,10 @@ class CreateOrder {
             val orderInfo = order.getItemInfo()
 
             actor.requirePlayer().sendMessage(
-                MessageUtil.getMessage(
-                    "CreateOrder.OrderCreated",
-                    listOf(
-                        MessageReplacement(orderInfo),
-                        MessageReplacement(cost.toString()),
-                        MessageReplacement(hours.toString()),
-                    ),
-                ),
+                Messages.getMessage("CreateOrder.OrderCreated")
+                    .replace("%1", orderInfo)
+                    .replace("%2", cost.toString())
+                    .replace("%3", hours.toString()),
             )
         }
     }

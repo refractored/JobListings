@@ -9,15 +9,13 @@ import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.fixItalics
+import net.refractored.joblistings.messages.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages.replace
+import net.refractored.joblistings.messages.Messages.toLegacy
 import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.PendingOrder
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.fixItalics
-import net.refractored.joblistings.util.Messages.miniToComponent
-import net.refractored.joblistings.util.Messages.replace
-import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.time.Duration
@@ -97,24 +95,16 @@ class AllOrders(
         val itemMetaCopy = item.itemMeta
         val expireDuration = Duration.between(LocalDateTime.now(), order.expireTime)
         val expireDurationText =
-            MessageUtil.getMessage(
-                "General.DateFormat",
-                listOf(
-                    MessageReplacement(expireDuration.toDays().toString()),
-                    MessageReplacement(expireDuration.toHoursPart().toString()),
-                    MessageReplacement(expireDuration.toMinutesPart().toString()),
-                ),
-            )
+            Messages.getMessage("General.DateFormat")
+                .replace("%1", expireDuration.toDays().toString())
+                .replace("%2", expireDuration.toHoursPart().toString())
+                .replace("%3", expireDuration.toMinutesPart().toString())
         val createdDuration = Duration.between(order.creation, LocalDateTime.now())
         val createdDurationText =
-            MessageUtil.getMessage(
-                "General.DatePastTense",
-                listOf(
-                    MessageReplacement(createdDuration.toDays().toString()),
-                    MessageReplacement(createdDuration.toHoursPart().toString()),
-                    MessageReplacement(createdDuration.toMinutesPart().toString()),
-                ),
-            )
+            Messages.getMessage("General.DatePastTense")
+                .replace("%1", createdDuration.toDays().toString())
+                .replace("%2", createdDuration.toHoursPart().toString())
+                .replace("%3", createdDuration.toMinutesPart().toString())
 
         val orderItemLore =
             Messages
@@ -211,14 +201,8 @@ class AllOrders(
                     event.whoClicked.closeInventory()
                 }
                 event.whoClicked.sendMessage(
-                    MessageUtil.getMessage(
-                        "AllOrders.OrderItemLore",
-                        listOf(
-                            MessageReplacement(
-                                "$maxOrdersAccepted",
-                            ),
-                        ),
-                    ),
+                    Messages.getMessage("AllOrders.OrderItemLore")
+                        .replace("%1", maxOrdersAccepted.toString()),
                 )
             }
 

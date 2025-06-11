@@ -9,14 +9,12 @@ import kotlinx.coroutines.yield
 import net.kyori.adventure.text.Component
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.tables.ClaimedOrder
 import net.refractored.joblistings.order.tables.FailedOrder
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
-import net.refractored.joblistings.util.Messages.replace
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import java.time.Duration
@@ -91,23 +89,16 @@ class ClaimedOrders(
         val deadlineDuration = Duration.between(LocalDateTime.now(), order.expireTime)
         val createdDuration = Duration.between(order.creation, LocalDateTime.now())
         val createdDurationText =
-            MessageUtil.getMessage(
-                "General.DatePastTense",
-                listOf(
-                    MessageReplacement(createdDuration.toDays().toString()),
-                    MessageReplacement(createdDuration.toHoursPart().toString()),
-                    MessageReplacement(createdDuration.toMinutesPart().toString()),
-                ),
-            )
+            Messages.getMessage("General.DatePastTense")
+                .replace("%1", createdDuration.toDays().toString())
+                .replace("%2", createdDuration.toHoursPart().toString())
+                .replace("%3", createdDuration.toMinutesPart().toString())
+
         val deadlineDurationText =
-            MessageUtil.getMessage(
-                "General.DateFormat",
-                listOf(
-                    MessageReplacement(deadlineDuration.toDays().toString()),
-                    MessageReplacement(deadlineDuration.toHoursPart().toString()),
-                    MessageReplacement(deadlineDuration.toMinutesPart().toString()),
-                ),
-            )
+            Messages.getMessage("General.DateFormat")
+                .replace("%1", deadlineDuration.toDays().toString())
+                .replace("%2", deadlineDuration.toHoursPart().toString())
+                .replace("%3", deadlineDuration.toMinutesPart().toString())
         val infoLore =
             Messages
                 .getString("ClaimedOrders.OrderItemLore")

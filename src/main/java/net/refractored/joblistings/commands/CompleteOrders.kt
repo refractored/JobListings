@@ -7,11 +7,10 @@ import kotlinx.coroutines.withContext
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.database.Database.orderDao
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.order.Order
 import net.refractored.joblistings.order.OrderStatus
-import net.refractored.joblistings.util.MessageReplacement
-import net.refractored.joblistings.util.MessageUtil
-import net.refractored.joblistings.util.Messages
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.bukkit.annotation.CommandPermission
 import java.util.*
@@ -78,14 +77,10 @@ class CompleteOrders {
                 }
 
                 actor.reply(
-                    MessageUtil.getMessage(
-                        "messages.complete.execution.success.progress",
-                        listOf(
-                            MessageReplacement(ordersCompleted.toString()),
-                            MessageReplacement(ordersUpdated.toString()),
-                            MessageReplacement(orderCount.toString()),
-                        ),
-                    ),
+                    Messages.getMessage("messages.complete.execution.success.progress")
+                        .replace("%1", ordersCompleted.toString())
+                        .replace("%2", ordersUpdated.toString())
+                        .replace("%3", orderCount.toString()),
                 )
             }
         }
@@ -95,27 +90,16 @@ class CompleteOrders {
         actor: BukkitCommandActor,
         order: Order
     ) {
-        val assigneeMessage =
-            MessageUtil.getMessage(
-                "OrderComplete.ProgressMessageAssignee",
-                listOf(
-                    MessageReplacement(order.getItemInfo()),
-                    MessageReplacement(order.itemCompleted.toString()),
-                    MessageReplacement(order.itemAmount.toString()),
-                ),
-            )
+        val assigneeMessage = Messages.getMessage("OrderComplete.ProgressMessageAssignee")
+            .replace("%1", order.getItemInfo())
+            .replace("%2", order.itemCompleted.toString())
+            .replace("%3", order.itemAmount.toString())
         actor.reply(assigneeMessage)
-        val ownerMessage =
-            MessageUtil.getMessage(
-                "OrderComplete.ProgressMessageOwner",
-                listOf(
-                    MessageReplacement(order.getItemInfo()),
-                    // TODO: Migrate to use new order system
-                    MessageReplacement(order.getAssignee()!!.name!!),
-                    MessageReplacement(order.itemCompleted.toString()),
-                    MessageReplacement(order.itemAmount.toString()),
-                ),
-            )
+        val ownerMessage = Messages.getMessage("OrderComplete.ProgressMessageOwner")
+            .replace("%1", order.getItemInfo())
+            .replace("%2", order.getAssignee()!!.name!!)
+            .replace("%3", order.itemCompleted.toString())
+            .replace("%4", order.itemAmount.toString())
         order.messageOwner(ownerMessage)
     }
 }

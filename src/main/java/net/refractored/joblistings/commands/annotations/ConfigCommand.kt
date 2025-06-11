@@ -1,6 +1,6 @@
 package net.refractored.joblistings.commands.annotations
 
-import net.refractored.joblistings.util.Messages
+import net.refractored.joblistings.messages.Messages
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Description
 import revxrsal.commands.annotation.dynamic.AnnotationReplacer

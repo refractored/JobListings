@@ -1,8 +1,8 @@
 package net.refractored.joblistings.order
 
 import net.kyori.adventure.text.Component
-import net.refractored.joblistings.util.Messages
-import net.refractored.joblistings.util.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages
+import net.refractored.joblistings.messages.Messages.miniToComponent
 
 /**
  * Represents the status of an order
@@ -31,7 +31,7 @@ enum class OrderStatus {
     /**
      * The order was cancelled by the owner.
      */
-    CANCELLED, ;
+    CANCELLED ;
 
     fun getComponent(): Component = Messages.getString("OrderStatus.$name").miniToComponent()
 }

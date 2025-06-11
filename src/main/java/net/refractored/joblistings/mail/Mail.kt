@@ -9,10 +9,10 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.SECTION_CHAR
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.mailDao
+import net.refractored.joblistings.messages.Messages.miniToComponent
+import net.refractored.joblistings.messages.Messages.toLegacy
 import net.refractored.joblistings.serializers.ComponentSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
-import net.refractored.joblistings.util.Messages.miniToComponent
-import net.refractored.joblistings.util.Messages.toLegacy
 import org.bukkit.entity.Player
 import java.time.LocalDateTime
 import java.util.*
