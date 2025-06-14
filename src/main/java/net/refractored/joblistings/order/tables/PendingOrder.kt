@@ -9,7 +9,6 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database
 import net.refractored.joblistings.gui.AllOrders
 import net.refractored.joblistings.messages.Messages
-import net.refractored.joblistings.messages.Messages.miniToComponent
 import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.order.impl.*
 import net.refractored.joblistings.serializers.ItemstackSerializers
@@ -31,39 +30,25 @@ import kotlin.jvm.optionals.getOrNull
 @DatabaseTable(tableName = "joblistings_pending_orders")
 data class PendingOrder(
     @DatabaseField(id = true)
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var expireTime: LocalDateTime,
+    override var expireTime: LocalDateTime = LocalDateTime.now()
+        .plusHours(JobListings.instance.config.getLong("orders.max-order-time")),
     @DatabaseField(persisterClass = ItemstackSerializers::class)
-    override var item: ItemStack,
+    override var item: ItemStack = (ItemBuilder(Material.STONE).amount(1).build()),
     @DatabaseField
-    override var itemAmount: Int,
+    override var itemAmount: Int = 0,
     @DatabaseField
-    override var reward: Double,
+    override var reward: Double = 0.0,
     @DatabaseField
-    override var owner: UUID,
+    override var owner: UUID = UUID.randomUUID(),
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var creation: LocalDateTime
+    override var creation: LocalDateTime = LocalDateTime.now()
 ) : Owner,
     Item,
     Expires,
     Rewardable,
     Creation {
-    /**
-     * This constructor should only be used for ORMLite
-     */
-    constructor() : this(
-        UUID.randomUUID(),
-        LocalDateTime.now().plusHours(
-            JobListings.Companion.instance.config
-                .getLong("orders.max-order-time"),
-        ),
-        (ItemBuilder(Material.STONE).amount(1).build()),
-        0,
-        0.0,
-        UUID.randomUUID(),
-        LocalDateTime.now(),
-    )
 
     private fun toClaimedOrder(
         player: Player,
@@ -126,10 +111,7 @@ data class PendingOrder(
                 .replace("%2", assignee.displayName())
         messageOwner(ownerMessage)
         assignee.sendMessage(
-            Messages
-                .getString(
-                    "AllOrders.OrderAccepted",
-                ).miniToComponent(),
+            Messages.getMessage("AllOrders.OrderAccepted"),
         )
         return claimedOrder
     }
@@ -219,7 +201,6 @@ data class PendingOrder(
                     amount,
                     cost,
                     user,
-                    LocalDateTime.now(),
                 )
 
             Database.pendingOrderDao.create(pendingOrder)

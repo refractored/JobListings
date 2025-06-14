@@ -8,7 +8,7 @@ import kotlinx.coroutines.withContext
 import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.commands.annotations.ConfigCommand
 import net.refractored.joblistings.commands.annotations.ConfigRange
-import net.refractored.joblistings.commands.autocomplete.MaterialSuggesstion
+import net.refractored.joblistings.commands.autocomplete.MaterialSuggestion
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.exceptions.CommandErrorException
 import net.refractored.joblistings.messages.Messages
@@ -89,7 +89,7 @@ class CreateOrder {
     @ConfigCommand("messages.create.material")
     fun createOrderMaterial(
         actor: BukkitCommandActor,
-        @SuggestWith(MaterialSuggesstion::class) @Named("type") stackName: String,
+        @SuggestWith(MaterialSuggestion::class) @Named("type") stackName: String,
         @ConfigRange(maxPath = "pending-orders.reward.maximum", minPath = "pending-orders.reward.minimum") reward: Double,
         @Optional @ConfigRange(maxPath = "pending-orders.max-items", minPath = "") amount: Int = 1,
         @Optional @ConfigRange(
@@ -209,9 +209,7 @@ class CreateOrder {
 
     private fun blacklistedMaterial(arg: String): Boolean {
         val blacklistedMaterials = JobListings.instance.config.getStringList("orders.BlacklistedMaterials")
-        blacklistedMaterials.addAll(
-            JobListings.instance.config.getStringList("orders.BlacklistedCreateMaterials"),
-        )
+        blacklistedMaterials.addAll(JobListings.instance.config.getStringList("orders.BlacklistedCreateMaterials"))
         return blacklistedMaterials.any { it.equals(arg, true) }
     }
 

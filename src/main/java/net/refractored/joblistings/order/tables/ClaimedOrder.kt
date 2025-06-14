@@ -23,56 +23,40 @@ import java.util.*
 @DatabaseTable(tableName = "joblistings_claimed_orders")
 data class ClaimedOrder(
     @DatabaseField(id = true)
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var expireTime: LocalDateTime,
+    override var expireTime: LocalDateTime = LocalDateTime.now()
+        .plusHours(JobListings.instance.config.getLong("orders.max-order-time")),
     @DatabaseField(persisterClass = ItemstackSerializers::class)
-    override var item: ItemStack,
+    override var item: ItemStack = (ItemBuilder(Material.STONE).amount(1).build()),
     @DatabaseField
-    override var itemAmount: Int,
+    override var itemAmount: Int = 0,
     @DatabaseField
-    override var owner: UUID,
+    override var owner: UUID = UUID.randomUUID(),
     @DatabaseField
-    override var assignee: UUID,
+    override var assignee: UUID = UUID.randomUUID(),
     @DatabaseField
-    override var reward: Double,
+    override var reward: Double = 0.0,
     /**
      * The time the database entry was created.
      *
      * In this case, it represents the time the order was claimed.
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var creation: LocalDateTime,
+    override var creation: LocalDateTime = LocalDateTime.now(),
     /**
      * The amount of items that the [assignee] has turned in.
      *
      * This is out of how many in [itemAmount].
      */
     @DatabaseField
-    var amountTurnedIn: Int
+    var amountTurnedIn: Int = 0
 ) : Owner,
     Rewardable,
     Item,
     Assignee,
     Expires,
     Creation {
-    /**
-     * This constructor should only be used for ORMLite
-     */
-    constructor() : this(
-        UUID.randomUUID(),
-        LocalDateTime.now().plusHours(
-            JobListings.Companion.instance.config
-                .getLong("orders.max-order-time"),
-        ),
-        (ItemBuilder(Material.STONE).amount(1).build()),
-        0,
-        UUID.randomUUID(),
-        UUID.randomUUID(),
-        0.0,
-        LocalDateTime.now(),
-        0,
-    )
 
     private fun toCompleteOrder(timeCompleted: LocalDateTime = LocalDateTime.now()): CompletedOrder {
         //

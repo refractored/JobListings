@@ -25,47 +25,33 @@ import java.util.*
 @DatabaseTable(tableName = "joblistings_failed_orders")
 data class FailedOrder(
     @DatabaseField(id = true)
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var expireTime: LocalDateTime,
+    override var expireTime: LocalDateTime = LocalDateTime.now().plusHours(1),
     @DatabaseField(persisterClass = ItemstackSerializers::class)
-    override var item: ItemStack,
+    override var item: ItemStack = ItemBuilder(Material.STONE).amount(1).build(),
     @DatabaseField
-    override var itemAmount: Int,
+    override var itemAmount: Int = 0,
     @DatabaseField
-    override var assignee: UUID,
+    override var assignee: UUID = UUID.randomUUID(),
     /**
      * The time the order was switched from claimed to incomplete.
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var creation: LocalDateTime,
+    override var creation: LocalDateTime = LocalDateTime.now(),
     /**
      * The amount of items that the [assignee] has turned in, and needs to reclaim.
      *
      * This is out of how many in [itemAmount].
      */
     @DatabaseField
-    var amountTurnedIn: Int,
+    var amountTurnedIn: Int = 0,
     @DatabaseField
-    val status: FailureType
+    val status: FailureType = FailureType.INCOMPLETE
 ) : Item,
     Assignee,
     Expires,
     Creation {
-    /**
-     * This constructor should only be used for ORMLite
-     */
-    constructor() : this(
-        UUID.randomUUID(),
-        LocalDateTime.now().plusHours(1),
-        ItemBuilder(Material.STONE).amount(1).build(),
-        0,
-        UUID.randomUUID(),
-        LocalDateTime.now(),
-        0,
-        FailureType.INCOMPLETE,
-    )
-
     fun getStatusComponent() = Messages.getString("OrderStatus.incomplete")
 
     enum class FailureType {

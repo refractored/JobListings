@@ -6,7 +6,7 @@ import revxrsal.commands.autocomplete.SuggestionProvider
 import revxrsal.commands.bukkit.actor.BukkitCommandActor
 import revxrsal.commands.node.ExecutionContext
 
-class MaterialSuggesstion : SuggestionProvider<BukkitCommandActor> {
+class MaterialSuggestion : SuggestionProvider<BukkitCommandActor> {
     override fun getSuggestions(context: ExecutionContext<BukkitCommandActor>): List<String> {
         val config = instance.config
         val blacklistedMaterials = config.getStringList("pending-orders.creation.blacklist")

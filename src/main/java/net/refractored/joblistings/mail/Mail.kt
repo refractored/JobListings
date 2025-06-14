@@ -20,28 +20,21 @@ import java.util.*
 @DatabaseTable(tableName = "joblistings_mail")
 data class Mail(
     @DatabaseField(id = true)
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     @DatabaseField
-    var user: UUID,
+    var user: UUID = UUID.randomUUID(),
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    var timeCreated: LocalDateTime,
+    var timeCreated: LocalDateTime = LocalDateTime.now(),
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    var timeExpires: LocalDateTime,
+    var timeExpires: LocalDateTime = LocalDateTime.now().plusHours(JobListings.instance.config.getLong("mail.expiration")),
     @DatabaseField(persisterClass = ComponentSerializers::class)
-    var message: Component
+    var message: Component = "".miniToComponent()
 ) {
-    /**
-     * This constructor should only be used for ORMLite
-     */
-    constructor() : this(
-        UUID.randomUUID(),
-        UUID.randomUUID(),
-        LocalDateTime.now(),
-        LocalDateTime.now().plusHours(JobListings.instance.config.getLong("mail.expiration")),
-        "".miniToComponent(),
-    )
 
     companion object {
+        /**
+         * Creates a mail message for a user in the database.
+         */
         fun createMail(
             user: UUID,
             message: Component
@@ -68,17 +61,17 @@ data class Mail(
                 }
             }
             // Otherwise use my mailing system
-            val mail = Mail()
             val expireTime: Long =
                 if (JobListings.instance.config.getLong("mail.expiration") < 1L) {
                     30L
                 } else {
                     JobListings.instance.config.getLong("mail.expiration")
                 }
-            mail.user = user
-            mail.message = message
-            mail.timeCreated = LocalDateTime.now()
-            mail.timeExpires = LocalDateTime.now().plusDays(expireTime)
+            val mail = Mail(
+                user = user,
+                message = message,
+                timeExpires = LocalDateTime.now().plusDays(expireTime),
+            )
             mailDao.create(mail)
         }
 

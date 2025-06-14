@@ -9,7 +9,6 @@ import net.refractored.joblistings.JobListings
 import net.refractored.joblistings.database.Database.orderDao
 import net.refractored.joblistings.mail.Mail
 import net.refractored.joblistings.messages.Messages
-import net.refractored.joblistings.messages.Messages.miniToComponent
 import net.refractored.joblistings.messages.Messages.replace
 import net.refractored.joblistings.serializers.ItemstackSerializers
 import net.refractored.joblistings.serializers.LocalDateTimeSerializers
@@ -212,9 +211,7 @@ data class Order(
         messageOwner(ownerMessage)
         messageAssignee(
             Messages
-                .getString(
-                    "AllOrders.OrderAccepted",
-                ).miniToComponent(),
+                .getMessage("AllOrders.OrderAccepted"),
         )
     }
 

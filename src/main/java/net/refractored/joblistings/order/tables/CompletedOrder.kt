@@ -17,42 +17,30 @@ import java.util.*
 @DatabaseTable(tableName = "joblistings_completed_orders")
 data class CompletedOrder(
     @DatabaseField(id = true)
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    override var expireTime: LocalDateTime,
+    override var expireTime: LocalDateTime = LocalDateTime.now().plusHours(1),
     @DatabaseField(persisterClass = ItemstackSerializers::class)
-    override var item: ItemStack,
+    override var item: ItemStack = ItemBuilder(Material.STONE).amount(1).build(),
     @DatabaseField
-    override var itemAmount: Int,
+    override var itemAmount: Int = 0,
     @DatabaseField
-    override var owner: UUID,
+    override var owner: UUID = UUID.randomUUID(),
     /**
      * The time the order was finished.
      */
     @DatabaseField(persisterClass = LocalDateTimeSerializers::class)
-    var creation: LocalDateTime,
+    var creation: LocalDateTime = LocalDateTime.now(),
     /**
      * The amount of items that the [owner] has claimed from this order.
      *
      * This is out of how many in [itemAmount].
      */
     @DatabaseField
-    var itemClaimedAmount: Int
+    var itemClaimedAmount: Int = 0
 ) : Owner,
     Item,
     Expires {
-    /**
-     * This constructor should only be used for ORMLite
-     */
-    constructor() : this(
-        UUID.randomUUID(),
-        LocalDateTime.now().plusHours(1),
-        ItemBuilder(Material.STONE).amount(1).build(),
-        0,
-        UUID.randomUUID(),
-        LocalDateTime.now(),
-        0,
-    )
 
     fun getStatusComponent() = Messages.getString("OrderStatus.completed")
 }
