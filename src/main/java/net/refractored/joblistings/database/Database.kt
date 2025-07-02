@@ -28,58 +28,52 @@ object Database {
      * The connection source for the database.
      */
     @JvmStatic
-    lateinit var connectionSource: JdbcConnectionSource
+    var connectionSource: JdbcConnectionSource
         private set
 
     /**
      * The order DAO, used for database operations on orders.
      */
     @JvmStatic
-    lateinit var orderDao: Dao<Order, UUID>
+    var orderDao: Dao<Order, UUID>
         private set
 
     /**
      * The pending order DAO, used for database operations on orders.
      */
     @JvmStatic
-    lateinit var pendingOrderDao: Dao<PendingOrder, UUID>
+    var pendingOrderDao: Dao<PendingOrder, UUID>
         private set
 
     /**
      * The claimed order DAO, used for database operations on orders.
      */
     @JvmStatic
-    lateinit var claimedOrderDao: Dao<ClaimedOrder, UUID>
+    var claimedOrderDao: Dao<ClaimedOrder, UUID>
         private set
 
     /**
      * The claimed order DAO, used for database operations on orders.
      */
     @JvmStatic
-    lateinit var failedOrderDao: Dao<FailedOrder, UUID>
+    var failedOrderDao: Dao<FailedOrder, UUID>
         private set
 
     /**
      * The claimed order DAO, used for database operations on orders.
      */
     @JvmStatic
-    lateinit var completedOrderDao: Dao<CompletedOrder, UUID>
+    var completedOrderDao: Dao<CompletedOrder, UUID>
         private set
 
     /**
      * The order DAO, used for database operations on orders.
      */
     @JvmStatic
-    lateinit var mailDao: Dao<Mail, UUID>
+    var mailDao: Dao<Mail, UUID>
         private set
 
-    /**
-     * Initializes the database with values from the config.
-     * This should be called once.
-     * Call before any other database operations, and after the config has been loaded.
-     */
-    @JvmStatic
-    fun init() {
+    init {
         JobListings.instance.logger.info("Initializing database...")
         LoggerFactory.setLogBackendFactory(NullLogBackendFactory())
 
@@ -91,8 +85,7 @@ object Database {
         }
 
         connectionSource =
-            if (JobListings.instance.config.getBoolean("database.sqlite")
-            ) {
+            if (JobListings.instance.config.getBoolean("database.sqlite")) {
                 JdbcPooledConnectionSource(
                     "jdbc:sqlite:" + JobListings.instance.dataFolder.toPath() + "/database.db",
                 )
@@ -143,6 +136,7 @@ object Database {
         System.setProperty("com.j256.ormlite.logger.type", "LOCAL")
         System.setProperty("com.j256.ormlite.logger.level", "ERROR")
         System.setProperty(LoggerFactory.LOG_TYPE_SYSTEM_PROPERTY, "LOCAL")
+
         JobListings.instance.logger.info("Database initialized")
     }
 }

@@ -131,7 +131,7 @@ class JobListings : SuspendingJavaPlugin() {
         gui = YamlConfiguration.loadConfiguration(dataFolder.resolve("gui.yml"))
 
         // Initialize the database
-        Database.init()
+        Database
 
         server.servicesManager.getRegistration(Economy::class.java)?.let {
             eco = it.provider
